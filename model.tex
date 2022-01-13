@@ -1,0 +1,158 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{tikzit}
+\usepackage{cite}
+%% -------------------------------------- Declare the layers
+\pgfdeclarelayer{nodelayer}
+\pgfdeclarelayer{edgelayer}
+\pgfsetlayers{edgelayer,nodelayer,main}
+% Node styles
+\tikzstyle{black circle}=[fill=white, draw=black, shape=circle, tikzit shape=circle]
+\tikzstyle{Arrow}=[->]
+
+% Edge styles
+\tikzstyle{new edge style 0}=[->]
+
+\begin{document}
+
+
+\title{Topic 2}
+\maketitle
+Compare epidemiological parameters, including patterns of viral spread between health regions and hotspots/non-hotspots within each province (phylodynamic studies with simple compartmental epidemic models linked to viral genealogies).
+
+\begin{itemize}
+    \item Fit model to populations in Ontario + Quebec, use estimates of epidemiological parameters to conclude something about effects of different NPIs on transmission
+    \item Can extend to include spatial spread, other heterogeneity if the data is sufficient
+\end{itemize}
+
+
+\section{Model}
+
+Compartmental differential equation models have been used extensively to model competing viral strains (see e.g. \cite{Alizon_van_Baalen_2008, van_Baalen_Sabelis_1995, Lipsitch_Colijn_Cohen_Hanage_Fraser_2009, Nicoli_Ayabina_Trotter_Turner_Colijn_2015}). We can further subdivide population into high-SES vs low-SES. This raises some further questions that are difficult to answer. E.g. What is the extent of transmission between high and low SES groups? 
+
+Another approach that seems to be used more widely with Sars-CoV-2 be a semi-mechanistic, renewal equation based approach as in \cite{Cauchemez_Nouvellet,Fraser_2007,Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020,Nouvellet_Cori, Wallinga_Lipsitch_2007}.
+
+Some assumptions: 
+\begin{itemize}
+    \item Distinguish infections as VOC and non-VOC (possibly more detail?)
+    \item VOC and non-VOC have different infection rates, recovery times
+    \item Co-infection negligible 
+    % \item Separate susceptible population by SES
+    \item Time scale short enough that recovery from either infection grants immunity
+    \item Vaccination immunity does not wane over model timescale ?
+    \item Immunity from vaccination commutes with immunity from infection 
+    \item Vaccination reduces all infection parameters by the same proportion ?
+    \item Vaccination rate is constant (not necessary since we have data on exact vaccination rates)
+\end{itemize}
+
+
+
+
+\begin{figure}[h!]
+    \centering
+    \input{diagram.tikz}
+\caption{State diagram of model with vaccination and explicit competition}
+\end{figure}
+
+\begin{table}[h!]
+    \begin{center}
+    \begin{tabular}{c|r|c}
+        symbol  & description & source \\
+        \hline
+        \hline
+        $\beta_N$ & Transmission rate (Non-VoC) & \\
+        $\sigma_N$ & Inverse of latent period (Non-VoC) & \\
+        $\gamma_N$ & Recovery rate (Non-VoC) & \\
+        $\beta_V$ &  Transmission rate (VoC) & \\
+        $\sigma_V$ & Inverse of latent period (VoC) & \\
+        $\gamma_V$ & Recovery rate (VoC)  & \\
+        $\eta$ & Vaccination rate (time dependent?) & \\
+        $C(t)$ & Time varying contact rate due to lockdown protocol & \\
+        \hline
+        $S$ & Susceptible & \\
+        $I^V$ & Infected with VoC & \\
+        $I^N$ & Infected with Non-VoC & \\
+        $I^{VN}$ & Recovered from Non-VoC, infected with VoC & \\
+        $I^{NV}$ & Recovered from VoC, infected with non-VoC & \\
+        $E^{VN}$ & Recovered from Non-VoC, exposed to VoC & \\
+        $E^{NV}$ & Recovered from VoC, exposed to non-VoC & \\
+        $R$ & Recovered & \\
+        $E^V$ & Exposed to VoC & \\
+        $E^N$ & Exposed to Non-VoC & \\
+        $S^V$ & Recovered from Non-VoC, susceptible to VoC  & \\
+        $S^N$ & Recovered from VoC, susceptible to non-VoC  & \\
+        \hline
+        $S_V$ & Vaccinated, Susceptible & \\
+        $I^V_V$ & Vaccinated, Infected with VoC & \\
+        $I^N_V$ & Vaccinated, Infected with Non-VoC & \\
+        $I^{VN}_V$ & Vaccinated, Recovered from Non-VoC, infected with VoC & \\
+        $I^{NV}_V$ & Vaccinated, Recovered from VoC, infected with non-VoC & \\
+        $E^{VN}_V$ & Vaccinated, Recovered from Non-VoC, exposed to VoC & \\
+        $E^{NV}_V$ & Vaccinated, Recovered from VoC, exposed to non-VoC & \\
+        $R_V$ & Vaccinated, Recovered & \\
+        $E^V_V$ & Vaccinated, Exposed to VoC & \\
+        $E^N_V$ & Vaccinated, Exposed to Non-VoC & \\
+        $S^V_V$ & Vaccinated, Recovered from Non-VoC, susceptible to VoC  & \\
+        $S^N_V$ & Vaccinated, Recovered from VoC, susceptible to non-VoC  & \\
+    \end{tabular}
+    \caption{Table of symbols}
+    \end{center}
+\end{table}
+
+
+\newpage
+\clearpage
+\section{Useful Data}
+\subsection{General}
+\begin{itemize}
+    \item RePositive
+    \item Investigation\_Lineage
+    \item Investigation\_Mutation
+    \item Accurate\_Episode\_Date
+    \item Case\_Reported\_Date
+    \item Client\_Postal\_Code
+    \item Client\_Province
+    \item Client\_Address\_City
+    \item Age\_At\_Time\_of\_Illness
+    \item Likely\_Acquisition
+    \item Outbreak\_Number
+    \item Setting\_Combined
+    \item Epidemiologic\_Linkage
+    \item Epidemiologic\_Link\_Status
+\end{itemize}
+
+
+\subsection{Social determinants of health}
+
+\begin{itemize}
+    \item Res\_AdultDevServices
+    \item Res\_AdultYouthAddiction
+    \item Res\_ChildrensRes\_Site
+    \item Res\_CorrectionalF
+    \item Res\_HomelessShelter
+    \item Res\_LTCH
+    \item LTCH\_Resident
+    \item LTCH\_HCW
+    \item Res\_RetirementHome
+    \item Res\_SupportiveHousing
+    \item Res\_OtherCongregateCare
+    \item Res\_VAWorAHT\_Site
+    \item Ses\_Income
+    \item SES\_HHSize\_Num
+    \item Occ\_LTCH
+    \item Ses\_Race\_Black
+    \item Ses\_Race\_East\_Southeast\_Asian
+    \item Ses\_Race\_South\_Asian
+    \item Ses\_Race\_White
+    \item Ses\_Race\_Middle\_Eastern
+    \item Ses\_Race\_Latino
+    \item Immunocompromised
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{ref.bib}
+
+\end{document}

@@ -1,0 +1,68 @@
+\begin{thebibliography}{1}
+
+\bibitem{Alizon_van_Baalen_2008}
+Samuel Alizon and Minus van Baalen.
+\newblock Multiple infections, immune dynamics, and the evolution of virulence.
+\newblock {\em The American Naturalist}, 172(4):E150–E168, Oct 2008.
+
+\bibitem{Cauchemez_Nouvellet}
+Simon Cauchemez, Pierre Nouvellet, Anne Cori, Thibaut Jombart, Tini Garske,
+  Hannah Clapham, Sean Moore, Harriet~Linden Mills, Henrik Salje, Caitlin
+  Collins, Isabel Rodriquez-Barraquer, Steven Riley, Shaun Truelove, Homoud
+  Algarni, Rafat Alhakeem, Khalid AlHarbi, Abdulhafiz Turkistani, Ricardo~J.
+  Aguas, Derek A.~T. Cummings, Maria~D. Van~Kerkhove, Christl~A. Donnelly,
+  Justin Lessler, Christophe Fraser, Ali Al-Barrak, and Neil~M. Ferguson.
+\newblock Unraveling the drivers of mers-cov transmission.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  113(32):9081–9086, Aug 2016.
+
+\bibitem{Fraser_2007}
+Christophe Fraser.
+\newblock Estimating individual and household reproduction numbers in an
+  emerging epidemic.
+\newblock {\em PLoS ONE}, 2(8):e758, Aug 2007.
+
+\bibitem{Lipsitch_Colijn_Cohen_Hanage_Fraser_2009}
+Marc Lipsitch, Caroline Colijn, Ted Cohen, William~P. Hanage, and Christophe
+  Fraser.
+\newblock No coexistence for free: Neutral null models for multistrain
+  pathogens.
+\newblock {\em Epidemics}, 1(1):2–13, Mar 2009.
+
+\bibitem{Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020}
+Swapnil Mishra, Tresnia Berah, Thomas~A. Mellan, H.~Juliette~T. Unwin,
+  Michaela~A. Vollmer, Kris~V. Parag, Axel Gandy, Seth Flaxman, and Samir
+  Bhatt.
+\newblock On the derivation of the renewal equation from an age-dependent
+  branching process: an epidemic modelling perspective.
+\newblock {\em arXiv:2006.16487 [q-bio, stat]}, Jun 2020.
+\newblock arXiv: 2006.16487.
+
+\bibitem{Nicoli_Ayabina_Trotter_Turner_Colijn_2015}
+Emily~J. Nicoli, Diepreye Ayabina, Caroline~L. Trotter, Katherine~M.E. Turner,
+  and Caroline Colijn.
+\newblock Competition, coinfection and strain replacement in models of
+  bordetella pertussis.
+\newblock {\em Theoretical Population Biology}, 103:84–92, Aug 2015.
+
+\bibitem{Nouvellet_Cori}
+Pierre Nouvellet, Anne Cori, Tini Garske, Isobel~M. Blake, Ilaria Dorigatti,
+  Wes Hinsley, Thibaut Jombart, Harriet~L. Mills, Gemma Nedjati-Gilani,
+  Maria~D. Van~Kerkhove, Christophe Fraser, Christl~A. Donnelly, Neil~M.
+  Ferguson, and Steven Riley.
+\newblock A simple approach to measure transmissibility and forecast incidence.
+\newblock {\em Epidemics}, 22:29–35, Mar 2018.
+
+\bibitem{van_Baalen_Sabelis_1995}
+Minus van Baalen and Maurice~W. Sabelis.
+\newblock The dynamics of multiple infection and the evolution of virulence.
+\newblock {\em The American Naturalist}, 146(6):881–910, Dec 1995.
+
+\bibitem{Wallinga_Lipsitch_2007}
+J~Wallinga and M~Lipsitch.
+\newblock How generation intervals shape the relationship between growth rates
+  and reproductive numbers.
+\newblock {\em Proceedings of the Royal Society B: Biological Sciences},
+  274(1609):599–604, Feb 2007.
+
+\end{thebibliography}
