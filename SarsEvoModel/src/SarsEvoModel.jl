@@ -9,8 +9,8 @@ include("data.jl")
 function main()
     init_data = SarsEvoModel.load_covid_data(Date(2021, 03, 01), Date(2021, 07, 01))
 
-    sol = run(init_data)
-    # plot_solution(sol)
+    sol = run(init_data, Date(2021, 03, 01))
+    plot_solution(sol)
 
     # plot_kernel()
     # plot_antigenic_map()

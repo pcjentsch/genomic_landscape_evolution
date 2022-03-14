@@ -50,9 +50,9 @@ function plot_solution(sol)
         push!(R_ts, sum(R))
         push!(tlist, t)
 
-        heatmap1 = heatmap(S; xlabel = "antigenic distance", ylabel = "antigenic distance", title = "S", seriescolor = cgrad(:Blues), clims = (0.0, 1.0))
-        heatmap2 = heatmap(I; xlabel = "antigenic distance", title = "I", seriescolor = cgrad(:Blues), clims = (0.0, 1.0))
-        heatmap3 = heatmap(R; xlabel = "antigenic distance", title = "R", seriescolor = cgrad(:Blues), clims = (0.0, 1.0))
+        heatmap1 = heatmap(S; xlabel = "antigenic distance", ylabel = "antigenic distance", title = "S", seriescolor = cgrad(:Blues))
+        heatmap2 = heatmap(I; xlabel = "antigenic distance", title = "I", seriescolor = cgrad(:Blues))
+        heatmap3 = heatmap(R; xlabel = "antigenic distance", title = "R", seriescolor = cgrad(:Blues))
 
         ts1 = plot(tlist, S_ts; xlabel = "time", ylabel = "total pop.", label = "S", seriescolor = :Blue, xlims = (0.0, max_t))
         ts2 = plot(tlist, I_ts; xlabel = "time", ylabel = "total pop.", label = "I", seriescolor = :Blue, xlims = (0.0, max_t))
