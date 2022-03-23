@@ -50,15 +50,28 @@ function load_covid_data(begin_date, end_date)
             date = cases_on_date.date
             lineages = cases_on_date.lineages
             pop = 0.0
+            fraction = 0
             for (; lineage, pop_fraction) in eachrow(lineages)
                 if occursin(lineage, tag)
                     pop += pop_fraction * incident_cases
+                    fraction += pop_fraction
                 end
             end
-            return (; date, pop)
+            return (; date, pop, fraction)
         end |> DataFrame
+
         return (tag, (trunc(Int, x * 5), trunc(Int, y * 5), 5 * width), cases_by_date_for_tag)
     end
+
+    uncovered_lineages = map(antigenic_landscape) do (tag, coord, cases_by_date_for_tag)
+        display((tag, cases_by_date_for_tag.fraction))
+        total_per_tag = sum(cases_by_date_for_tag.fraction) ./ nrow(cases_by_date_for_tag)
+        return (tag, total_per_tag / length(antigenic_map))
+    end
+
+    display(uncovered_lineages)
+    display(sum(last.(uncovered_lineages)))
+
     antigenic_landscape
 
 end

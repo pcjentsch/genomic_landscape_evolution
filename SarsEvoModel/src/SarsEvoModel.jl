@@ -12,8 +12,7 @@ function main()
     sol = run(init_data, Date(2021, 03, 01))
     plot_solution(sol)
 
-    # plot_kernel()
-    # plot_antigenic_map()
+    plot_antigenic_map()
 end
 
 
