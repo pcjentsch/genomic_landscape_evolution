@@ -4,6 +4,10 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{tikzit}
+
+\usepackage{authblk}
+\usepackage{blindtext}
+
 \usepackage{url}
 \usepackage{cite}
 %% -------------------------------------- Declare the layers
@@ -17,20 +21,35 @@
 % Edge styles
 \tikzstyle{new edge style 0}=[->]
 
+\title{Characterizing evolution pressures in Sars-CoV-2 on a broader scale}
+\author[1,4]{Peter C. Jentsch}  
+\author[3,5]{Finlay Maguire}
+\author[1,2]{Samira Mubareka}
+\affil[1]{Sunnybrook Research Institute, Toronto, Canada}
+\affil[2]{University of Toronto, Toronto, Canada}
+\affil[3]{Dalhousie University, Halifax, Canada}
+\affil[4]{Simon Fraser University, Burnaby, Canada}
+\affil[5]{Shared Hospital Laboratory, Toronto, Canada}
+\date{\today}                     %% if you don't need date to appear
+\setcounter{Maxaffil}{0}
+\renewcommand\Affilfont{\itshape\small}
+
 \begin{document}
 
 
-\title{Topic 2 research plan}
 \maketitle
 
 \section{Introduction}
 
-The objective of this work is to try to determine the effect of specific NPIs on SARS-CoV-2 viral diversity in Ontario and Quebec. Initially, the focus will be on the Gamma and Alpha variants of concern (VOC) as they differed significantly in prevalence between Ontario and Quebec during the 3rd wave of the pandemic in Canada (February 2021 to June 2021). The key differences between Alpha and Gamma are in immune escape and transmissibility \cite{agency_for_clinical_innovation_2022}. Alpha has less immune escape (for neutralising sera from vaccinated or convalescent individuals), but binds ACE2 more readily and therefore relatively higher transmission. We will not need to consider the S:E484k mutation, which affects immune escape, since it was in a negligible proportion of Canadian Alpha infections during this time period. On the other hand, the Gamma lineage likely has greater immune escape but is probably relatively less transmissible. In contrast to Ontario, during this time the government of Quebec was actively prioritizing the distribution of mRNA vaccines to groups more vulnerable to hospitalization and communities with VOC outbreaks. Therefore, both the mRNA (Pfizer, Moderna) and AstraZeneca vaccine will be included in our model.
+(Peter: need to rework much of this text...)
+
+
+The objective of this work is to study the SARS-CoV-2 viral diversity in Ontario and Quebec. Initially, the focus will be comparing differences between the provinces. The prevalence of the Gamma and Alpha variants of concern (VOC) as differed significantly between Ontario and Quebec during the 3rd wave of the pandemic in Canada (February 2021 to June 2021). The key differences between Alpha and Gamma are in immune escape and transmissibility \cite{agency_for_clinical_innovation_2022}. Alpha has less immune escape (for neutralising sera from vaccinated or convalescent individuals), but binds ACE2 more readily and therefore relatively higher transmission. We will not need to consider the S:E484k mutation, which affects immune escape, since it was in a negligible proportion of Canadian Alpha infections during this time period. On the other hand, the Gamma lineage likely has greater immune escape but is probably relatively less transmissible. In contrast to Ontario, during this time the government of Quebec was actively prioritizing the distribution of mRNA vaccines to groups more vulnerable to hospitalization and communities with VOC outbreaks. Therefore, both the mRNA (Pfizer, Moderna) and AstraZeneca vaccine will be included in our model.
 
 Compartmental differential equation models have been used extensively to model competing viral strains in the past (e.g. \cite{Alizon_van_Baalen_2008, van_Baalen_Sabelis_1995, Lipsitch_Colijn_Cohen_Hanage_Fraser_2009, Nicoli_Ayabina_Trotter_Turner_Colijn_2015}), and have been invaluable to informing policy throughout the pandemic \cite{Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020,jentsch2021prioritising, bubar2021model}.  One approach to address this research question is to develop a parsimonious model that accurately reproduces observed data. Such a model would generate generalizable insights into the effect of NPIs more broadly. To this end, here we suggest a compartmental model to act as a jumping-off point (Section \ref{model}, Figure \ref{model_structure}), and request data fields to parameterize it (Section \ref{data_fields}). Most disease parameters can be obtained from literature. We will estimate underreporting and underascertainment multipliers by comparing observed case data with serological studies \cite{jentsch2021prioritising}.
 
 
-\section{Model 2: Characterizing evolution pressures in Sars-CoV-2 on a broader scale}
+\section{Model}
 
 The evolution of Sars-CoV-2 throughout the pandemic is marked by antigenic drift \cite{yewdellAntigenicDriftUnderstanding2021}, giving rise to new variants that exhibit significant immune escape. The model of Gog and Grenfell \cite{gogDynamicsSelectionManystrain2002} constrains strain space to a one or two dimensional lattice, thereby making the analysis of strain evolution tractable. In two dimensional strain space, cross-immunity of a pathogen is given specified by a coefficient $\sigma_{ijkl}$, and mutation is implemented as discrete diffusion with some fixed speed. These ideas were generalized to n-dimensional strain space, and applied to modeling drift in influenza A by Kryazhimskiy et al \cite{kryazhimskiyStateSpaceReductionMultiStrain2007}. This application of these models to influenza was partially motivated by the work of Lapedes and Farber \cite{lapedesGeometryShapeSpace2001}, and Smith et al. \cite{smithMappingAntigenicGenetic2004}, which suggests that the antigenic evolution of Influenza A primarily occurs within two dimensions.
 The idea for this line of Sars-CoV-2 research is to handle strain space similar to the aforementioned work, but include further compartments and dynamics specific to Sars-CoV-2 to test hypotheses of evolution. 
@@ -89,69 +108,11 @@ This model could be used to test the effect of NPIs on Sars-CoV-2 evolution. Mec
 
 \subsection{Parameterization}
 
-Parameterizing this model is challenging and would require a lot of assumptions about the antigenic space of Sars-CoV-2 that there is unlikely to be much data to support. The aforementioned research with these models do not use data to estimate parameters, focusing on broad characterization of dynamics with numerical or analytical approaches. However, genomic data does include a huge amount of admittedly very noisy information. There is some recent work on parameter estimation by comparing simulated phylogeny with observed phylogeny using a suite of summary statistics for tree structures \cite{danesh2021quantifying,leventhal2012inferring,saulnier2017inferring}, but these models do not explicitly include genomic structure, which might provide additional inferential power.
+Previous work on these models do not use data to estimate parameters, focusing on broad characterization of dynamics with numerical or analytical approaches. However, genomic data does include a huge amount of admittedly very noisy information. There is some recent work on parameter estimation by comparing simulated phylogeny with observed phylogeny using a suite of summary statistics for tree structures \cite{danesh2021quantifying,leventhal2012inferring,saulnier2017inferring}, but these models do not explicitly include genomic structure, which might provide additional inferential power. 
 
 Placing individual samples into the collapsed strain space could be done by using neutralizing antibody studies. The neutralizing response has been characterized for most variants of concern with respect to monoclonal antibodies, convalescent plasma, and plasma from vaccinated persons \cite{stanford2020}. To an even higher level of detail. Starr et al. characterized polyclonal antibody binding over all mutations of the Receptor Binding Domain (RBD) \cite{starr2020deep}. If the neutralizing response is known, we assign strains positions such that the distance between any two strains is equal to that neutralizing response. If the response is not known, we just assume that the position is close to the most recent ancestor for which the response is known (likely a VoC). This approach is especially appropriate for recurrent mutations, since it is unlikely that a mutation that has occurred many times in the viral history but has not evolved further confers a significant advantage. The immune-space position of vaccinate-induced immunity can also be computed this way, although we will still need to make significant assumptions on their geometry. It might be best to assume a simple symmetric shape with a centre given by neutralization results. 
 
-Mirroring the work on mapping the strain space for influenza \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004, cai2010computational} computing this embedding is a metric multidimensional scaling problem. This method has been applied to the antigenic space of the Sars-CoV-2 as well \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022}. 
-
-\newpage
-\clearpage
-\section{Requested data fields}
-\label{data_fields}
-
-The following section contains the fields we plan to request from PHO (and eventually INSQP) to inform model parameterization. It is split into two sections: the first containing data which will be important to any epidemiological model and the second containing fields that describe social determinants of health, which we suspect to inform population heterogeneity important to the viral dynamics in Ontario and Quebec. We include long term care workers and residents in the second category because of the significant transmission events in these settings that have occurred throughout the pandemic.
-
-\subsection{General}
-\begin{itemize}
-    \item Client\_ID
-    \item Diagnosing\_Health\_Unit\_Area
-    \item Subtype\_Name
-    \item RePositive
-    \item Investigation\_Lineage
-    \item Investigation\_Mutation
-    \item Accurate\_Episode\_Date
-    \item Case\_Reported\_Date
-    \item Client\_Postal\_Code
-    \item Client\_Province
-    \item Client\_Address\_City
-    \item Age\_At\_Time\_of\_Illness
-    \item Likely\_Acquisition
-    \item Outbreak\_Number
-    \item Setting\_Combined
-    \item Epidemiologic\_Linkage
-    \item Epidemiologic\_Link\_Status
-\end{itemize}
-
-
-\subsection{Social determinants of health}
-
-\begin{itemize}
-    \item Res\_AdultDevServices
-    \item Res\_AdultYouthAddiction
-    \item Res\_ChildrensRes\_Site
-    \item Res\_CorrectionalF
-    \item Res\_HomelessShelter
-    \item Res\_LTCH
-    \item LTCH\_Resident
-    \item LTCH\_HCW
-    \item Ses\_Race\_East\_Asian
-    \item Ses\_Race\_Southeast\_Asian
-    \item Res\_RetirementHome
-    \item Res\_SupportiveHousing
-    \item Res\_OtherCongregateCare
-    \item Res\_VAWorAHT\_Site
-    \item Ses\_Income
-    \item SES\_HHSize\_Num
-    \item Occ\_LTCH
-    \item Ses\_Race\_Black
-    \item Ses\_Race\_East\_Southeast\_Asian
-    \item Ses\_Race\_South\_Asian
-    \item Ses\_Race\_White
-    \item Ses\_Race\_Middle\_Eastern
-    \item Ses\_Race\_Latino
-    \item Immunocompromised
-\end{itemize}
+Mirroring the work on mapping the strain space for influenza \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004, cai2010computational} computing this embedding is a metric multidimensional scaling problem. This method has been applied to the antigenic space of the Sars-CoV-2 as well \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
 
 \bibliographystyle{plain}
 \bibliography{ref.bib}
