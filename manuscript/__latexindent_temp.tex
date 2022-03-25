@@ -29,74 +29,6 @@ The objective of this work is to try to determine the effect of specific NPIs on
 
 Compartmental differential equation models have been used extensively to model competing viral strains in the past (e.g. \cite{Alizon_van_Baalen_2008, van_Baalen_Sabelis_1995, Lipsitch_Colijn_Cohen_Hanage_Fraser_2009, Nicoli_Ayabina_Trotter_Turner_Colijn_2015}), and have been invaluable to informing policy throughout the pandemic \cite{Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020,jentsch2021prioritising, bubar2021model}.  One approach to address this research question is to develop a parsimonious model that accurately reproduces observed data. Such a model would generate generalizable insights into the effect of NPIs more broadly. To this end, here we suggest a compartmental model to act as a jumping-off point (Section \ref{model}, Figure \ref{model_structure}), and request data fields to parameterize it (Section \ref{data_fields}). Most disease parameters can be obtained from literature. We will estimate underreporting and underascertainment multipliers by comparing observed case data with serological studies \cite{jentsch2021prioritising}.
 
-\section{Model}
-\label{model}
-\begin{itemize}
-    \item The structure of the model is Susceptible-Exposed-Infected-Asymptomatic-Recovered, outlined in Figure \ref{model_structure}.
-    \item The mRNA vaccine lowers transmission rates and increases the proportion of asymptomatic infections compared to the AstraZeneca vaccine
-    \item Focus on infections in two lineages
-    \item Each lineage has different infection rates, recovery times, and latent periods
-    \item Co-infection negligible 
-    \item Time scale short enough that recovery from either infection grants immunity
-    \item Strains interact in the model only in that they compete for hosts
-    \item Vaccination immunity does not wane over model timescale (i.e., single pandemic wave)
-    \item Vaccination reduces infection rate by a proportion
-    \item Some constant fraction of cases are asymptomatic
-    \item Vaccination rate is constant (not necessary since we have data on exact vaccination rates)
-    \item Transmission rate is affected by current level of state policy (determined by the stringency index) and the current level of infection (corresponding to social distancing)
-\end{itemize}
-
-\begin{figure}[h!]
-    \centering
-    \input{diagram.tikz}v   
-\caption{State diagram of model with two different types of vaccination and strong competition. Variables are described in Table \ref{variables}}
-\label{model_structure}
-\end{figure}
-
-\subsection*{Further extensions}
-
-\begin{itemize}
-    \item Compartments will be added to test the effect of population and policy heterogeneity on viral prevalence
-    \item Postal code data for genomes would enable us to track mutations in space, and compare to small variations PHU-level closure data in a network model such as \cite{Fair_Karatayev_Anand_Bauch_2021}
-    
-    \item There is a lot of genomic information not captured in high-level lineage assignments that could be used in a more 
-    detailed 
-    more of 
-    viral strain competition
-
-    \item Another technique that is popular for estimating epidemiological parameters, particularly in the comparison of VoC is a semi-mechanistic approach (e.g.\cite{Cauchemez_Nouvellet,Fraser_2007,Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020,Nouvellet_Cori, Wallinga_Lipsitch_2007, Brown_Joh_Buchan_Daneman_Mishra_Patel_Day_2021})
-\end{itemize}
-
-
-\begin{table}[h!]
-    \begin{center}
-    \begin{tabular}{c|l}
-            Symbol & Description \\
-            \hline
-            \hline
-            $S$ & Susceptible, unvaccinated \\
-            $A^{(i)}$ & Asymptomatically infected with $i$th variant\\
-            $I^{(i)}$ & Infected with $i$th variant \\
-            $E^{(i)}$ & Exposed to $i$th variant \\
-            $R^{(i)}$ & Recovered from $i$th variant \\
-            $S_{V_i}$ & Susceptible, unvaccinated \\
-            $A^{(i)}_{V_i}$ & Asymptomatically infected with $i$th variant, vaccinated by $i$th vaccine\\
-            $I^{(i)}_{V_i}$ & Infected with $i$th variant, vaccinated by $i$th vaccine\\
-            $E^{(i)}_{V_i}$ & Exposed to $i$th variant, vaccinated by $i$th vaccine\\
-            $R^{(i)}_{V_i}$ & Recovered from $i$th variant, vaccinated by $i$th vaccine\\
-            $C(t, \Sigma_i I^{(i)}) $ & Function reducing transmission rate due to NPIs \\
-            $\beta_i$ & Transmission rate of $i$th variant \\
-            $\eta_i(t)$ & Vaccination rate for $i$ vaccine\\
-            $s$ & Fraction of asymptomatic \\
-            $\sigma^{(i)}$ & Inverse of latent period for $i$th variant \\
-            $\gamma^{(i)}$ & Recovery rate for $i$th variant \\
-            $\nu_{V_i}$ & Infectiousness reduction for vaccination by $i$th vaccine \\
-    \end{tabular}
-    \caption{Table of symbols for Model 1}
-
-    \label{variables}
-    \end{center}
-\end{table}
 
 \section{Model 2: Characterizing evolution pressures in Sars-CoV-2 on a broader scale}
 
@@ -117,7 +49,7 @@ The idea for this line of Sars-CoV-2 research is to handle strain space similar 
 
 \begin{table}[h!]
     \begin{center}
-        \begin{tabular}{c|l}
+        \begin{tabular}{c|p{8cm}}
             Symbol & Description \\
             \hline
             \hline
@@ -125,8 +57,8 @@ The idea for this line of Sars-CoV-2 research is to handle strain space similar 
             $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
             $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
             $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
-            $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity to variant $(k,l)$\\
-            $\beta_ij$ & Transmission rate of variant {i,j} \\
+            $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
+            $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
             $\xi$ & Recovery rate of all strains \\
             $\gamma$ & Rate of immunity loss of all strains \\
     \end{tabular}
@@ -225,3 +157,73 @@ The following section contains the fields we plan to request from PHO (and event
 \bibliography{ref.bib}
 
 \end{document}  
+
+
+% \section{Model}
+% \label{model}
+% \begin{itemize}
+%     \item The structure of the model is Susceptible-Exposed-Infected-Asymptomatic-Recovered, outlined in Figure \ref{model_structure}.
+%     \item The mRNA vaccine lowers transmission rates and increases the proportion of asymptomatic infections compared to the AstraZeneca vaccine
+%     \item Focus on infections in two lineages
+%     \item Each lineage has different infection rates, recovery times, and latent periods
+%     \item Co-infection negligible 
+%     \item Time scale short enough that recovery from either infection grants immunity
+%     \item Strains interact in the model only in that they compete for hosts
+%     \item Vaccination immunity does not wane over model timescale (i.e., single pandemic wave)
+%     \item Vaccination reduces infection rate by a proportion
+%     \item Some constant fraction of cases are asymptomatic
+%     \item Vaccination rate is constant (not necessary since we have data on exact vaccination rates)
+%     \item Transmission rate is affected by current level of state policy (determined by the stringency index) and the current level of infection (corresponding to social distancing)
+% \end{itemize}
+
+% \begin{figure}[h!]
+%     \centering
+%     \input{diagram.tikz}v   
+% \caption{State diagram of model with two different types of vaccination and strong competition. Variables are described in Table \ref{variables}}
+% \label{model_structure}
+% \end{figure}
+
+% \subsection*{Further extensions}
+
+% \begin{itemize}
+%     \item Compartments will be added to test the effect of population and policy heterogeneity on viral prevalence
+%     \item Postal code data for genomes would enable us to track mutations in space, and compare to small variations PHU-level closure data in a network model such as \cite{Fair_Karatayev_Anand_Bauch_2021}
+    
+%     \item There is a lot of genomic information not captured in high-level lineage assignments that could be used in a more 
+%     detailed 
+%     more of 
+%     viral strain competition
+
+%     \item Another technique that is popular for estimating epidemiological parameters, particularly in the comparison of VoC is a semi-mechanistic approach (e.g.\cite{Cauchemez_Nouvellet,Fraser_2007,Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020,Nouvellet_Cori, Wallinga_Lipsitch_2007, Brown_Joh_Buchan_Daneman_Mishra_Patel_Day_2021})
+% \end{itemize}
+
+
+% \begin{table}[h!]
+%     \begin{center}
+%     \begin{tabular}{c|l}
+%             Symbol & Description \\
+%             \hline
+%             \hline
+%             $S$ & Susceptible, unvaccinated \\
+%             $A^{(i)}$ & Asymptomatically infected with $i$th variant\\
+%             $I^{(i)}$ & Infected with $i$th variant \\
+%             $E^{(i)}$ & Exposed to $i$th variant \\
+%             $R^{(i)}$ & Recovered from $i$th variant \\
+%             $S_{V_i}$ & Susceptible, unvaccinated \\
+%             $A^{(i)}_{V_i}$ & Asymptomatically infected with $i$th variant, vaccinated by $i$th vaccine\\
+%             $I^{(i)}_{V_i}$ & Infected with $i$th variant, vaccinated by $i$th vaccine\\
+%             $E^{(i)}_{V_i}$ & Exposed to $i$th variant, vaccinated by $i$th vaccine\\
+%             $R^{(i)}_{V_i}$ & Recovered from $i$th variant, vaccinated by $i$th vaccine\\
+%             $C(t, \Sigma_i I^{(i)}) $ & Function reducing transmission rate due to NPIs \\
+%             $\beta_i$ & Transmission rate of $i$th variant \\
+%             $\eta_i(t)$ & Vaccination rate for $i$ vaccine\\
+%             $s$ & Fraction of asymptomatic \\
+%             $\sigma^{(i)}$ & Inverse of latent period for $i$th variant \\
+%             $\gamma^{(i)}$ & Recovery rate for $i$th variant \\
+%             $\nu_{V_i}$ & Infectiousness reduction for vaccination by $i$th vaccine \\
+%     \end{tabular}
+%     \caption{Table of symbols for Model 1}
+
+%     \label{variables}
+%     \end{center}
+% \end{table}
