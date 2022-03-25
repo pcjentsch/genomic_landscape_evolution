@@ -8,10 +8,10 @@ plots_path(fname; filetype="png") = joinpath(@__DIR__, "../plots", fname * "." *
 
 function plot_antigenic_map()
     p = plot()
-    for (name, (x, y, diameter)) in antigenic_map
+    for (name, (x, y, diameter)) in antigenic_map_paper
         scatter!(p, [x], [y];
             label=name, markersize=25 * diameter,
-            size=(800, 600),
+            size=(400, 300),
             legend=:outerright,
             xlims=(1, 9),
             ylims=(1, 7),
@@ -19,11 +19,10 @@ function plot_antigenic_map()
             ytick=collect(1:7),
             xlabel="Antigenic distance",
             ylabel="Antigenic distance",
-            title="Sars-CoV-2 antigenic map from Wilks et al (2022)",
             plot_options...
         )
     end
-    savefig(p, plots_path("antigenic_map"))
+    savefig(p, plots_path("antigenic_map_paper"))
 end
 
 

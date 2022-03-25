@@ -117,15 +117,16 @@ The idea for this line of Sars-CoV-2 research is to handle strain space similar 
 
 \begin{table}[h!]
     \begin{center}
-    \begin{tabular}{c|l}
+        \begin{tabular}{c|l}
             Symbol & Description \\
             \hline
             \hline
-            $S_{ij}$ & Susceptible to strain $(i,j)$ \\
-            $I_{ij}$ & Infected by strain $(i,j)$\\
-            $R_{ij}$ & Recovered/Immune to strain $(i,j)$\\
-            $\sigma_{ijkl}$ & Probability that exposure to strain $(i,j)$ causes immunity to strain $(k,l)$ \\
-            $\beta_{ij}$ & Transmission rate of strain $(i,j)$ \\
+            $N$ & Size of variant grid \\
+            $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
+            $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
+            $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
+            $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity to variant $(k,l)$\\
+            $\beta_ij$ & Transmission rate of variant {i,j} \\
             $\xi$ & Recovery rate of all strains \\
             $\gamma$ & Rate of immunity loss of all strains \\
     \end{tabular}

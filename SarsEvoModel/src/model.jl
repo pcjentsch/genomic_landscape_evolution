@@ -51,9 +51,9 @@ function run(init_data, begin_date)
     S = @view u0[1:w, 1:h]
     I = @view u0[1:w, (h+1):(h*2)]
     R = @view u0[1:w, (h*2+1):(h*3)]
-
+    initial_pop = 14.57e6
     #IC
-    S .= 14.57e6
+    S .= initial_pop
 
 
 
@@ -68,16 +68,15 @@ function run(init_data, begin_date)
         end
     end
 
-    #TODO make this better
-    # init_mrna_vaccinated = sum(S) * 0.3 #sum(filter(:date => <=(begin_date), population_by_date).pop)
-    # init_az_vaccinated = sum(S) * 0.1 #sum(filter(:date => <=(begin_date), population_by_date).pop)
-    # mrna_vaccine = (x_i=2.7, y_i=3.8, width=10.0, pop=init_mrna_vaccinated)#B.1.1.7
-    # az_vaccine = (x_i=2.7, y_i=3.8, width=3.0, pop=init_az_vaccinated)
-    # for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
-    #     # display(sigma(x - x_i, y - y_i; sigma_x=width, sigma_y=width, rounding=false) .* pop) 
-    #     S[y, x] -= sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
-    #     R[y, x] += sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
-    # end
+    # TODO make this better
+    init_mrna_vaccinated = initial_pop * 1.0 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    init_az_vaccinated = initial_pop * 1.0 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    mrna_vaccine = (x_i=2.7, y_i=3.8, width=30.0, pop=init_mrna_vaccinated)#B.1.1.7
+    az_vaccine = (x_i=2.7, y_i=3.8, width=20.0, pop=init_az_vaccinated)
+    for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
+        S[y, x] -= sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
+        R[y, x] += sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
+    end
 
 
     # return S, I, R
