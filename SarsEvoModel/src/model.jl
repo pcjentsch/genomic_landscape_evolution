@@ -55,6 +55,9 @@ function run(init_data, begin_date)
     #IC
     S .= 14.57e6
 
+
+
+
     for (lineage, (x0, y0, width), population_by_date) in init_data
         init_population_at_coords = sum(filter(:date => <=(begin_date), population_by_date).pop)
         active_population_at_coords = sum(filter(:date => x -> begin_date <= x <= begin_date + Day(5), population_by_date).pop)
@@ -64,6 +67,18 @@ function run(init_data, begin_date)
             R[y, x] += sigma(x - x0, y - y0; sigma_x=width, sigma_y=width, rounding=false) .* init_population_at_coords
         end
     end
+
+    #TODO make this better
+    # init_mrna_vaccinated = sum(S) * 0.3 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    # init_az_vaccinated = sum(S) * 0.1 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    # mrna_vaccine = (x_i=2.7, y_i=3.8, width=10.0, pop=init_mrna_vaccinated)#B.1.1.7
+    # az_vaccine = (x_i=2.7, y_i=3.8, width=3.0, pop=init_az_vaccinated)
+    # for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
+    #     # display(sigma(x - x_i, y - y_i; sigma_x=width, sigma_y=width, rounding=false) .* pop) 
+    #     S[y, x] -= sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
+    #     R[y, x] += sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) .* pop
+    # end
+
 
     # return S, I, R
     β = Float64[0.015 * round(exp(-1 * ((i - 25)^2 / 1e3 + (j - 25)^2 / 1e3)), digits=2) for i in 1:w, j in 1:h]
@@ -82,12 +97,14 @@ function run(init_data, begin_date)
     jac_sparsity = Symbolics.jacobian_sparsity((du, u) -> rhs(du, u, p, 0.0), du0, u0)
     f = ODEFunction(rhs; jac_prototype=float.(jac_sparsity))
 
-    prob = ODEProblem(f, u0, (0.0, 40_000.0), p)
+    prob = ODEProblem(f, u0, (0.0, 60_000.0), p)
 
     sol = solve(prob, Rodas5();
         progress=true
     )
-    #sequence diversity to interpolate additional samples
+    #sequence diversity to interpolate additional samples??
+    #
+
     #
     #identify strain with closest neutralization and pick that as centre for gaussian
     #ron fouchier, derek smith
