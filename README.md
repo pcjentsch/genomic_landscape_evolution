@@ -1,6 +1,6 @@
 
 
-This repository tracks work-in-progress research into a model of antigenic drift in Sars-CoV-2 by Peter Jentsch, Finlay Maguire, and Samira Mubareka.
+This repository tracks work-in-progress research into a model of antigenic drift in Sars-CoV-2 by Dr. Peter Jentsch, Dr. Finlay Maguire, and Dr. Samira Mubareka.
 
 Please email `peter_jentsch@sfu.ca` if you have any questions.
 
