@@ -16,9 +16,22 @@ function no_occurences(df)
     sort!(output_df, :nrow)
     return output_df
 end
+
+struct Timeseries{T}
+    dates::Vector{Date}
+    values::Vector{T}
+end
+
+struct LocationData
+    stringency::Timeseries{Float64}
+    cases_by_lineage::Timeseries{Matrix{Float64}}
+    vaccination_mrna::Timeseries{Float64}
+    vaccination_az::Timeseries{Float64}
+end
+
 function load_covid_data(begin_date, end_date)
 
-    replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype = OrderedDict)
+    replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype=OrderedDict)
     lineage_data = CSV.File(datapath("lineage_report.csv")) |> DataFrame
     lineage_data.lineage = map(lineage_data.lineage) do lineage
         initial = first(split(lineage, "."))
@@ -32,14 +45,13 @@ function load_covid_data(begin_date, end_date)
 
     covid_cases = CSV.File(datapath("covidtesting_on.csv")) |> DataFrame
     genomes_metadata = CSV.File(datapath("metadata_unzipped.tsv")) |> DataFrame
-    genome_lineage = innerjoin(lineage_data, genomes_metadata; on = :taxon => :strain)
+    genome_lineage = innerjoin(lineage_data, genomes_metadata; on=:taxon => :strain)
     select!(genome_lineage, [:lineage, :date])
 
 
-    cases = filter(:date => x -> x <= end_date, covid_cases)
-    lineage_fractions_by_date = DataFrame((date = Date(first(df).date), lineages = no_occurences(df)) for df in groupby(genome_lineage, :date))
-    cases_w_fractions = innerjoin(lineage_fractions_by_date, cases; on = :date) |> df -> sort(df, :date)
-
+    cases = filter(:date => x -> begin_date <= x <= end_date, covid_cases)
+    lineage_fractions_by_date = DataFrame((date=Date(first(df).date), lineages=no_occurences(df)) for df in groupby(genome_lineage, :date))
+    cases_w_fractions = innerjoin(lineage_fractions_by_date, cases; on=:date) |> df -> sort(df, :date)
     # before_begin_date = covid_cases[findlast(<=(begin_date), covid_cases[!, Symbol("Reported Date")]), Symbol("Total Cases")]
     # lineage_at_begin.populations = before_begin_date .* lineage_at_begin.pop_fraction
 
@@ -52,26 +64,28 @@ function load_covid_data(begin_date, end_date)
             pop = 0.0
             fraction = 0
             for (; lineage, pop_fraction) in eachrow(lineages)
-                if occursin(lineage, tag)
+
+                if occursin(tag, lineage)
+                    display((lineage, tag))
                     pop += pop_fraction * incident_cases
                     fraction += pop_fraction
                 end
             end
+
             return (; date, pop, fraction)
-        end |> DataFrame
+        end
 
-        return (tag, (trunc(Int, x * 5), trunc(Int, y * 5), 5 * width), cases_by_date_for_tag)
-    end
+        return (tag=tag, coords=(map_coords_to_model_space(x, y)..., 5 * width), cases=cases_by_date_for_tag)
+    end |> DataFrame
 
-    uncovered_lineages = map(antigenic_landscape) do (tag, coord, cases_by_date_for_tag)
-        display((tag, cases_by_date_for_tag.fraction))
-        total_per_tag = sum(cases_by_date_for_tag.fraction) ./ nrow(cases_by_date_for_tag)
-        return (tag, total_per_tag / length(antigenic_map))
-    end
+    antigenic_landscape_flat = flatten(antigenic_landscape, :cases) |>
+                               df -> transform(df, :cases => AsTable) |>
+                                     df -> select(df, Not([:cases])) |>
+                                           df -> groupby(df, :date)
 
-    display(uncovered_lineages)
-    display(sum(last.(uncovered_lineages)))
 
-    antigenic_landscape
+    compare_cases = innerjoin(cases, combine(antigenic_landscape_flat, :pop => sum); on=:date)
 
+
+    return cases_w_fractions, antigenic_landscape_flat, compare_cases
 end

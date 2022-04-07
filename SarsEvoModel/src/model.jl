@@ -80,8 +80,9 @@ function run(init_data, begin_date, params::ModelParameters)
     mrna_vaccine = (x_i=2.7, y_i=3.8, width=30.0, pop=init_mrna_vaccinated)#B.1.1.7
     az_vaccine = (x_i=2.7, y_i=3.8, width=20.0, pop=init_az_vaccinated)
     for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
-        S[y, x] -= sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
-        R[y, x] += sigma(x - x_i * 5, y - y_i * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
+        x_i_transformed, y_i_transformed = map_coords_to_model_space(x_i, y_i)
+        S[y, x] -= sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
+        R[y, x] += sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
     end
 
 
