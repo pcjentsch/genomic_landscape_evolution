@@ -20,6 +20,10 @@ end
 struct Timeseries{T}
     dates::Vector{Date}
     values::Vector{T}
+    function Timeseries(dates, values::AbstractVector{T}) where {T}
+        (length(values) == length(dates)) || throw("arguments must be the same length!")
+        return new{T}(dates, values)
+    end
 end
 
 struct LocationData
@@ -29,8 +33,40 @@ struct LocationData
     vaccination_az::Timeseries{Float64}
 end
 
-function load_covid_data(begin_date, end_date)
+function clean_vaccination_data()
+    mrna_courses = [
+        "Pfizer-BioNTech Comirnaty",
+        "Pfizer-BioNTech Comirnaty pediatric 5-11 years",
+        "mRNA mixed series",
+        "Moderna Spikevax",
+        "mRNA-protein subunit mixed series",
+        "AstraZeneca Vaxzevria/COVISHIELD-mRNA mixed series",
+    ]
+    az_courses = [
+        "Mixed series (unspecified)",
+        "Janssen",
+        "Janssen mixed series",
+        "Novavax",
+        "AstraZeneca Vaxzevria/COVISHIELD",
+    ]
+    vaccination_df = CSV.File(datapath("vaccination-coverage-byVaccineType.csv")) |> DataFrame
+    vaccination_df.product_name = replace!(x -> x in mrna_courses ? "mrna" : "az", vaccination_df.product_name)
+    cleaned_df = filter(:prename => ==("Ontario"), vaccination_df) |>
+                 df -> groupby(df, [:week_end, :product_name]) |>
+                       df -> combine(df, :numtotal_fully => sum)
 
+    mrna_grouped = groupby(cleaned_df, :week_end) |> df -> combine(df, :numtotal_fully_sum => sum) |>
+                                                           df -> sort(df, :week_end)
+    mrna_timeseries = Timeseries(mrna_grouped.week_end, mrna_grouped.numtotal_fully_sum_sum)
+    return mrna_timeseries
+end
+
+function clean_strigency_data()
+    stringency_df = CSV.File(datapath("COVID-19_STRINGENCY_INDEX.csv")) |> DataFrame
+    return Timeseries(stringency_df.date, stringency_df.Ontario)
+end
+
+function load_cases_data(begin_date, end_date)
     replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype=OrderedDict)
     lineage_data = CSV.File(datapath("lineage_report.csv")) |> DataFrame
     lineage_data.lineage = map(lineage_data.lineage) do lineage
@@ -44,57 +80,55 @@ function load_covid_data(begin_date, end_date)
     # display(lineage_data.lineage)
 
     covid_cases = CSV.File(datapath("covidtesting_on.csv")) |> DataFrame
-    genomes_metadata = CSV.File(datapath("metadata_unzipped.tsv")) |> DataFrame
-    genome_lineage = innerjoin(lineage_data, genomes_metadata; on=:taxon => :strain)
-    genome_lineage.date = Date.(genome_lineage.date)
-    select!(genome_lineage, [:lineage, :date])
-    filter!(:lineage => !=("None"), genome_lineage)
 
-    all_lineages = unique(genome_lineage.lineage)
-    #sort by length, we want to match the longest tags preferentially
-    tags = sort(first.(antigenic_map); by=length, rev=true)
-    tag_per_lineage = map(all_lineages) do lineage
-        ind = findfirst(occursin(lineage), tags)
-        return isnothing(ind) ? nothing : tags[ind]
-    end
-    unmatched_lineages = [lineage for (tag, lineage) in zip(tag_per_lineage, all_lineages) if isnothing(tag)]
-    @show unmatched_lineages
-    lineage_tag_dict = Dict(tag => all_lineages[findall(==(tag), tag_per_lineage)] for tag in tags)
+    # genomes_metadata = CSV.File(datapath("metadata_unzipped.tsv")) |> DataFrame
+    # genome_lineage = innerjoin(lineage_data, genomes_metadata; on=:taxon => :strain)
+    # genome_lineage.date = Date.(genome_lineage.date)
+    # select!(genome_lineage, [:lineage, :date])
+    # filter!(:lineage => !=("None"), genome_lineage)
 
-    cases = filter(:date => x -> begin_date <= x <= end_date, covid_cases)
+    # all_lineages = unique(genome_lineage.lineage)
+    # #sort by length, we want to match the longest tags preferentially
+    # tags = sort(first.(antigenic_map); by=length, rev=true)
+    # tag_per_lineage = map(all_lineages) do lineage
+    #     ind = findfirst(occursin(lineage), tags)
+    #     return isnothing(ind) ? nothing : tags[ind]
+    # end
+    # unmatched_lineages = [lineage for (tag, lineage) in zip(tag_per_lineage, all_lineages) if isnothing(tag)]
+    # @show unmatched_lineages
+    # lineage_tag_dict = Dict(tag => all_lineages[findall(==(tag), tag_per_lineage)] for tag in tags)
 
-    lineage_fractions_by_date = DataFrame((date=first(df.date), lineages=no_occurences(df)) for df in groupby(genome_lineage, :date))
-    cases_w_fractions = innerjoin(lineage_fractions_by_date, cases; on=:date) |> df -> sort(df, :date)
-    antigenic_landscape = map(antigenic_map) do (tag, (x, y, width))
-        matching_lineages = lineage_tag_dict[tag]
+    # cases = filter(:date => x -> begin_date <= x <= end_date, covid_cases)
 
-        cases_by_date_for_tag = map(eachrow(cases_w_fractions)) do cases_on_date
-            incident_cases = cases_on_date[Symbol("Confirmed Positive")]
-            date = cases_on_date.date
-            lineages_df = cases_on_date.lineages
-            pop = 0.0
-            fraction = 0
-            for (; lineage, pop_fraction) in eachrow(lineages_df)
-                if lineage in matching_lineages
-                    pop += pop_fraction * incident_cases
-                    fraction += pop_fraction
-                end
-            end
-            return (; date, pop, fraction)
-        end
+    # lineage_fractions_by_date = DataFrame((date=first(df.date), lineages=no_occurences(df)) for df in groupby(genome_lineage, :date))
+    # cases_w_fractions = innerjoin(lineage_fractions_by_date, cases; on=:date) |> df -> sort(df, :date)
+    # antigenic_landscape = map(antigenic_map) do (tag, (x, y, width))
+    #     matching_lineages = lineage_tag_dict[tag]
 
-        return (tag=tag, coords=(map_coords_to_model_space(x, y)..., 5 * width), cases=cases_by_date_for_tag)
-    end |> DataFrame
+    #     cases_by_date_for_tag = map(eachrow(cases_w_fractions)) do cases_on_date
+    #         incident_cases = cases_on_date[Symbol("Confirmed Positive")]
+    #         date = cases_on_date.date
+    #         lineages_df = cases_on_date.lineages
+    #         pop = 0.0
+    #         fraction = 0
+    #         for (; lineage, pop_fraction) in eachrow(lineages_df)
+    #             if lineage in matching_lineages
+    #                 pop += pop_fraction * incident_cases
+    #                 fraction += pop_fraction
+    #             end
+    #         end
+    #         return (; date, pop, fraction)
+    #     end
 
-    antigenic_landscape_flat = flatten(antigenic_landscape, :cases) |>
-                               df -> transform(df, :cases => AsTable) |>
-                                     df -> select(df, Not([:cases])) |>
-                                           df -> groupby(df, :date)
+    #     return (tag=tag, coords=(map_coords_to_model_space(x, y)..., 5 * width), cases=cases_by_date_for_tag)
+    # end |> DataFrame
 
-
-    compare_cases = innerjoin(cases, combine(antigenic_landscape_flat, :pop => sum); on=:date)
+    # antigenic_landscape_flat = flatten(antigenic_landscape, :cases) |>
+    #                            df -> transform(df, :cases => AsTable) |>
+    #                                  df -> select(df, Not([:cases])) |>
+    #                                        df -> groupby(df, :date)
 
 
-    return lineage_fractions_by_date, cases_w_fractions, antigenic_landscape_flat, compare_cases
-
+    # # compare_cases = innerjoin(cases, combine(antigenic_landscape_flat, :pop => sum); on=:date)
+    # return antigenic_landscape_flat
 end

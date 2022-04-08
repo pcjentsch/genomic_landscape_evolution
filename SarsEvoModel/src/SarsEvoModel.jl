@@ -19,10 +19,11 @@ include("data.jl")
 
 
 function main()
-    init_data = SarsEvoModel.load_covid_data(Date(2021, 03, 01), Date(2021, 07, 01))
+    init_data = SarsEvoModel.load_cases_data(Date(2021, 03, 01), Date(2021, 07, 01))
     # β = Float64[0.015 * round(exp(-1 * ((i - 25)^2 / 1e3 + (j - 25)^2 / 1e3)), digits=2) for i in 1:w, j in 1:h]
     # sigma_matrix = Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h]
-
+    vaccinations = clean_vaccination_data()
+    stringency = clean_strigency_data()
     # params = ModelParameters(
     #     β,
     #     0.01,
