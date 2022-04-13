@@ -12,30 +12,34 @@ function map_coords_to_model_space(coords_x, coords_y)
 end
 include("antigenic_map.jl")
 include("model.jl")
-include("plotting.jl")
 include("data.jl")
+include("plotting.jl")
 
 
 
 
 function main()
-    init_data = SarsEvoModel.load_cases_data(Date(2021, 03, 01), Date(2021, 07, 01))
-    # β = Float64[0.015 * round(exp(-1 * ((i - 25)^2 / 1e3 + (j - 25)^2 / 1e3)), digits=2) for i in 1:w, j in 1:h]
-    # sigma_matrix = Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h]
-    vaccinations = clean_vaccination_data()
-    stringency = clean_strigency_data()
-    # params = ModelParameters(
-    #     β,
-    #     0.01,
-    #     0.07,
-    #     initial_pop,
-    #     0.00001,
-    #     sigma_matrix,
-    # )
-    # sol = run(init_data, Date(2021, 03, 01), params)
-    # plot_solution(sol)
+    β = Float64[0.015 * round(exp(-1 * ((i - 25)^2 / 1e3 + (j - 25)^2 / 1e3)), digits=2) for i in 1:w, j in 1:h]
+    sigma_matrix = Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h]
+
+    third_wave_begin = Date(2021, 03, 01)
+    third_wave_end = Date(2021, 08, 01)
+    location_data = LocationData()
+    plot_data(location_data)
+
+    params = ModelParameters(
+        β,
+        0.01,
+        0.07,
+        initial_pop,
+        0.00001,
+        sigma_matrix,
+    )
+    sol = run(location_data, third_wave_begin, third_wave_end, params)
+    plot_solution(sol)
 
     # plot_antigenic_map()
+    return location_data
 end
 
 

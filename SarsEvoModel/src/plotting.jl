@@ -27,6 +27,31 @@ end
 
 
 
+function plot_data(data::LocationData)
+    incident_cases = data.cases_by_lineage
+    anim = Animation()
+    tlist = collect(1:length(data.dates))
+    max_val = maximum(sum.(incident_cases))
+    max_stringency = 1
+    max_vac = maximum(data.vaccination_mrna)
+    max_t = maximum(tlist)
+
+    for (i, M) in enumerate(incident_cases)
+        # display(M)
+        heatmap1 = heatmap(M; xlabel="antigenic distance", ylabel="antigenic distance", title="Incident Cases", seriescolor=cgrad(:Blues))
+
+        ts1 = plot(tlist[1:i], sum.(incident_cases[1:i]); xlabel="time (days)", ylabel="total pop.", label="daily cases", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_val))
+
+        ts2 = plot(tlist[1:i], sum.(data.vaccination_mrna[1:i]); xlabel="time (days)", ylabel="total pop.", label="vaccination", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_vac))
+
+        ts3 = plot(tlist[1:i], sum.(data.stringency[1:i]); xlabel="time (days)", label="stringency", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_stringency))
+
+        p = plot(heatmap1, ts1, ts2, ts3; layout=(4, 1), size=(600, 1000),
+            plot_options...)
+        frame(anim, p)
+    end
+    gif(anim, plots_path("data"; filetype="gif"))
+end
 function plot_solution(sol)
 
     anim = Animation()

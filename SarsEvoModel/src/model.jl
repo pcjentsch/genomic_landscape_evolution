@@ -52,7 +52,7 @@ function rhs(du, u, p, t)
     end
 end
 
-function run(init_data, begin_date, params::ModelParameters)
+function run(location_data, begin_date, end_date, params::ModelParameters)
     (; β, sigma_matrix, initial_population) = params
 
     u0 = zeros(Float64, (w, h * 3))
@@ -63,45 +63,44 @@ function run(init_data, begin_date, params::ModelParameters)
 
     #IC
     S .= initial_population
-    for (lineage, (x0, y0, width), population_by_date) in init_data
-        init_population_at_coords = sum(filter(:date => <=(begin_date), population_by_date).pop)
-        active_population_at_coords = sum(filter(:date => x -> begin_date <= x <= begin_date + Day(5), population_by_date).pop)
-        for x in 1:w, y in 1:h
-            I[y, x] += sigma(x - x0, y - y0; sigma_x=width, sigma_y=width, rounding=false) .* active_population_at_coords
-            S[y, x] -= sigma(x - x0, y - y0; sigma_x=width, sigma_y=width, rounding=false) .* init_population_at_coords + sigma(x - x0, y - y0; sigma_x=width, sigma_y=width) .* active_population_at_coords
-            R[y, x] += sigma(x - x0, y - y0; sigma_x=width, sigma_y=width, rounding=false) .* init_population_at_coords
-        end
-    end
+    date_ind = findfirst(>=(begin_date), location_data.dates)
 
+    init_population_at_coords = sum(location_data.cases_by_lineage[1:date_ind])
+    active_population_at_coords = sum(location_data.cases_by_lineage[1:date_ind+5])
+    I .+= active_population_at_coords
+    S .-= (init_population_at_coords .+ active_population_at_coords)
+    R += init_population_at_coords
+
+    display(init_population_at_coords)
     # TODO make this better
     #identify strain with closest neutralization and pick that as centre for gaussian for vaccination IC
-    init_mrna_vaccinated = initial_population * 0.3 #sum(filter(:date => <=(begin_date), population_by_date).pop)
-    init_az_vaccinated = initial_population * 0.1 #sum(filter(:date => <=(begin_date), population_by_date).pop)
-    mrna_vaccine = (x_i=2.7, y_i=3.8, width=30.0, pop=init_mrna_vaccinated)#B.1.1.7
-    az_vaccine = (x_i=2.7, y_i=3.8, width=20.0, pop=init_az_vaccinated)
-    for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
-        x_i_transformed, y_i_transformed = map_coords_to_model_space(x_i, y_i)
-        S[y, x] -= sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
-        R[y, x] += sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
-    end
+    # init_mrna_vaccinated = initial_population * 0.3 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    # init_az_vaccinated = initial_population * 0.1 #sum(filter(:date => <=(begin_date), population_by_date).pop)
+    # mrna_vaccine = (x_i=2.7, y_i=3.8, width=30.0, pop=init_mrna_vaccinated)#B.1.1.7
+    # az_vaccine = (x_i=2.7, y_i=3.8, width=20.0, pop=init_az_vaccinated)
+    # for (; x_i, y_i, width, pop) in (mrna_vaccine, az_vaccine), x in 1:w, y in 1:h
+    #     x_i_transformed, y_i_transformed = map_coords_to_model_space(x_i, y_i)
+    #     S[y, x] -= sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
+    #     R[y, x] += sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
+    # end
 
 
     ##Plot sigma, beta, and S_0 for debugging
-    plt1 = heatmap(1:w, 1:h, sigma_matrix[:, :, 25, 25]; plot_options...)
+    plt1 = heatmap(-(w // 2):w//2, -h//2:h//2, sigma_matrix[:, :, 25, 25], xlabel="antigenic distance", ylabel="antigenic distance"; plot_options...)
     savefig(plt1, plots_path("sigma"))
     plt2 = heatmap(1:w, 1:h, β; plot_options...)
     savefig(plt2, plots_path("beta"))
     plt3 = heatmap(1:w, 1:h, S; plot_options...)
     savefig(plt3, plots_path("S_0"))
 
-    du0 = zeros(size(u0))
-    jac_sparsity = Symbolics.jacobian_sparsity((du, u) -> rhs(du, u, params, 0.0), du0, u0)
-    f = ODEFunction(rhs; jac_prototype=float.(jac_sparsity))
+    # du0 = zeros(size(u0))
+    # jac_sparsity = Symbolics.jacobian_sparsity((du, u) -> rhs(du, u, params, 0.0), du0, u0)
+    # f = ODEFunction(rhs; jac_prototype=float.(jac_sparsity))
 
-    prob = ODEProblem(f, u0, (0.0, 60_000.0), params)
+    # prob = ODEProblem(f, u0, (0.0, 60_000.0), params)
 
-    sol = solve(prob, Rodas5();
-        progress=true
-    )
-    return sol
+    # sol = solve(prob, Rodas5();
+    #     progress=true
+    # )
+    # return sol
 end
