@@ -74,10 +74,8 @@ struct LocationData
     stringency::Vector{Float64}
     cases_by_lineage::Vector{Matrix{Float64}}
     vaccination_mrna::Vector{Float64}
-    function LocationData()
-        stringency = clean_strigency_data()
-        vaccination = clean_vaccination_data()
-        cases_by_lineage = load_cases_data()
+    function LocationData(stringency, vaccination, cases_by_lineage)
+
         first_date = min(
             minimum(stringency.dates),
             minimum(vaccination.dates),
@@ -100,24 +98,32 @@ struct LocationData
     end
 end
 
-function get_data_from_owid(country, begin_date, end_date)
+function OntarioLocationData()
+    stringency = clean_strigency_data()
+    vaccination = clean_vaccination_data()
+    cases_by_lineage = load_cases_data()
+    return LocationData(stringency, vaccination, cases_by_lineage)
+end
+
+function UKLocationData()
+    country = "United Kingdom"
     owid_df = CSV.File(datapath("owid-covid-data.csv")) |> DataFrame |>
-              df -> filter(:location => ==(country), df) |>
-                    df -> filter(:date => x -> begin_date <= x <= end_date, df)
+              df -> filter(:location => ==(country), df)
 
-    vaccination = select(owid_df, [:date, :people_fully_vaccinated]) |>
-                  df -> dropmissing(df)
+    vaccination_df = select(owid_df, [:date, :people_fully_vaccinated]) |>
+                     df -> dropmissing(df)
 
 
-    stringency = select(owid_df, [:date, :stringency_index]) |>
-                 df -> dropmissing(df)
+    stringency_df = select(owid_df, [:date, :stringency_index]) |>
+                    df -> dropmissing(df)
 
     cases_df = select(owid_df, [:date, :new_cases_smoothed]) |>
                df -> dropmissing(df)
 
 
+
     replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype=OrderedDict)
-    lineage_data = CSV.File(datapath("lineage_report.csv")) |> DataFrame
+    lineage_data = CSV.File(datapath("uk_lineages.csv")) |> DataFrame
     lineage_data.lineage = map(lineage_data.lineage) do lineage
         initial = first(split(lineage, "."))
         if haskey(replace_dict, initial)
@@ -145,12 +151,12 @@ function get_data_from_owid(country, begin_date, end_date)
 
 
     lineage_fractions_by_date = DataFrame((date=first(df.date), lineages=no_occurences(df)) for df in groupby(genome_lineage, :date))
-    cases_w_fractions = innerjoin(lineage_fractions_by_date, covid_cases; on=:date) |> df -> sort(df, :date)
+    cases_w_fractions = innerjoin(lineage_fractions_by_date, cases_df; on=:date) |> df -> sort(df, :date)
     antigenic_landscape = map(antigenic_map) do (tag, (x, y, width))
         matching_lineages = lineage_tag_dict[tag]
 
         cases_by_date_for_tag = map(eachrow(cases_w_fractions)) do cases_on_date
-            incident_cases = cases_on_date[Symbol("Confirmed Positive")]
+            incident_cases = cases_on_date.new_cases_smoothed
             date = cases_on_date.date
             lineages_df = cases_on_date.lineages
             pop = 0.0
@@ -176,8 +182,11 @@ function get_data_from_owid(country, begin_date, end_date)
     @assert issorted(cases_by_lineage_dates)
     cases_by_lineage = [antigenic_landscape_flat[k] for k in keys(cases_by_lineage_dates)]
 
-    return Timeseries(cases_by_lineage_dates, map(cases_by_lineage_to_matrix, cases_by_lineage))
+    cases_by_lineage_ts = Timeseries(cases_by_lineage_dates, map(cases_by_lineage_to_matrix, cases_by_lineage))
+    stringency_ts = Timeseries(stringency_df.date, stringency_df.stringency_index ./ 100)
+    vaccination_ts = Timeseries(vaccination_df.date, vaccination_df.people_fully_vaccinated)
 
+    return LocationData(stringency_ts, vaccination_ts, cases_by_lineage_ts)
 end
 
 function clean_vaccination_data()
@@ -225,7 +234,7 @@ end
 
 function load_cases_data()
     replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype=OrderedDict)
-    lineage_data = CSV.File(datapath("lineage_report.csv")) |> DataFrame
+    lineage_data = CSV.File(datapath("on_lineage_report.csv")) |> DataFrame
     lineage_data.lineage = map(lineage_data.lineage) do lineage
         initial = first(split(lineage, "."))
         if haskey(replace_dict, initial)

@@ -34,7 +34,7 @@
 \begin{columns}
 \begin{column}{\textwidth}
     \begin{itemize}
-        \item Dynamic model of Sars-CoV-2 evolution, representing antigenic diversity on a lattice (as in e.g. \cite{gogDynamicsSelectionManystrain2002,kryazhimskiyStateSpaceReductionMultiStrain2007})
+        \item Dynamic model of Sars-CoV-2 evolution, representing antigenic diversity on a lattice (as in e.g. \cite{gogDynamicsSelectionManystrain2002,kryazhimskiyStateSpaceReductionMultiStrain2007, Marchi_2021})
         \item Antigenically distinct variants of the virus are mapped to 2D grid,  distance between variants corresponds to the proportional reduction in maximum serum viral titre \cite{wilksMappingSARSCoV2Antigenic2022,van2022mapping}
     \end{itemize}
 \begin{figure}
@@ -67,12 +67,13 @@
         \end{center}
     \end{table}
 \end{frame}
-\begin{frame}{\sigma}
+\begin{frame}{$\sigma$ matrix}
     
     In practice, we assume $\sigma_{ijkl}$ is just a 2-D gaussian distribution parameterized by the distance between $(i,j)$ and $(k,l)$.
     \begin{figure}
-        
+        \includegraphics[width=\textwidth]{../SarsEvoModel/plots/sigma.png}
     \end{figure}
+
 \end{frame}
 \begin{frame}{Model Equations}
     \small
@@ -90,6 +91,27 @@
 
     Initial conditions computed from genomic data in GISAID 
 \end{frame}
+
+\begin{frame}{}
+    \begin{itemize}
+    % \item The model of \cite{gogDynamicsSelectionManystrain2002} is essentially a discretized reaction-diffusion system
+    \item To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+    \end{itemize}
+
+    \small
+    \begin{equation}
+        \frac{S_{ij}}{dt} = - \int_ \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn_2}
+    \end{equation}
+
+    \begin{equation}
+        \frac{ I_{ij}(t)}{dt} = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn_2}    
+    \end{equation}
+
+    \begin{equation}
+        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij}  \label{Reqn_2}
+    \end{equation}
+\end{frame}
+
 \begin{frame}[allowframebreaks]
 
 \bibliographystyle{apalike}
