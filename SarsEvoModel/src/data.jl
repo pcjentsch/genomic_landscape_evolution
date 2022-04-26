@@ -93,8 +93,11 @@ struct LocationData
         stringency_interpolated = interpolate(dates, stringency)
         cases_by_lineage_interpolated = interpolate(dates, cases_by_lineage)
 
+
         return new(dates,
-            stringency_interpolated, cases_by_lineage_interpolated, vaccination_interpolated)
+            stringency_interpolated,
+            cases_by_lineage_interpolated,
+            vaccination_interpolated)
     end
 end
 
