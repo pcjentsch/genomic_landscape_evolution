@@ -1,51 +1,49 @@
-This is BibTeX, Version 0.99d (TeX Live 2021/Arch Linux)
+This is BibTeX, Version 0.99d (TeX Live 2022/Arch Linux)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: model.aux
 The style file: plain.bst
 Database file #1: ref.bib
 Warning--to sort, need author, editor, or key in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
 Warning--empty author and editor in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
-Warning--empty journal in Brown_Joh_Buchan_Daneman_Mishra_Patel_Day_2021
-Warning--empty publisher in Fair_Karatayev_Anand_Bauch_2021
-You've used 28 entries,
+You've used 23 entries,
             2118 wiz_defined-function locations,
-            702 strings with 12564 characters,
-and the built_in function-call counts, 12355 in all, are:
-= -- 1079
-> -- 959
+            666 strings with 10820 characters,
+and the built_in function-call counts, 9798 in all, are:
+= -- 869
+> -- 735
 < -- 1
-+ -- 385
-- -- 352
-* -- 1171
-:= -- 2181
-add.period$ -- 84
-call.type$ -- 28
-change.case$ -- 258
++ -- 295
+- -- 268
+* -- 913
+:= -- 1728
+add.period$ -- 69
+call.type$ -- 23
+change.case$ -- 201
 chr.to.int$ -- 0
-cite$ -- 32
-duplicate$ -- 302
-empty$ -- 710
-format.name$ -- 352
-if$ -- 2359
+cite$ -- 25
+duplicate$ -- 246
+empty$ -- 578
+format.name$ -- 268
+if$ -- 1881
 int.to.chr$ -- 0
-int.to.str$ -- 28
-missing$ -- 27
-newline$ -- 143
-num.names$ -- 54
-pop$ -- 229
+int.to.str$ -- 23
+missing$ -- 21
+newline$ -- 118
+num.names$ -- 44
+pop$ -- 172
 preamble$ -- 1
-purify$ -- 231
+purify$ -- 178
 quote$ -- 0
-skip$ -- 197
+skip$ -- 163
 stack$ -- 0
-substring$ -- 637
-swap$ -- 28
+substring$ -- 518
+swap$ -- 24
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 108
-warning$ -- 4
-while$ -- 81
-width$ -- 30
-write$ -- 303
-(There were 4 warnings)
+type$ -- 90
+warning$ -- 2
+while$ -- 67
+width$ -- 25
+write$ -- 251
+(There were 2 warnings)

@@ -11,14 +11,6 @@ Samuel Alizon and Minus van Baalen.
 \newblock Multiple infections, immune dynamics, and the evolution of virulence.
 \newblock {\em The American Naturalist}, 172(4):E150–E168, Oct 2008.
 
-\bibitem{Brown_Joh_Buchan_Daneman_Mishra_Patel_Day_2021}
-Kevin~A. Brown, Eugene Joh, Sarah~A. Buchan, Nick Daneman, Sharmistha Mishra,
-  Samir Patel, and Troy Day.
-\newblock Inflection in prevalence of sars-cov-2 infections missing the n501y
-  mutation as a marker of rapid delta (b.1.617.2) lineage expansion in ontario,
-  canada.
-\newblock Jun 2021.
-
 \bibitem{bubar2021model}
 Kate~M Bubar, Kyle Reinholt, Stephen~M Kissler, Marc Lipsitch, Sarah Cobey,
   Yonatan~H Grad, and Daniel~B Larremore.
@@ -31,17 +23,6 @@ Zhipeng Cai, Tong Zhang, and Xiu-Feng Wan.
 \newblock A computational framework for influenza antigenic cartography.
 \newblock {\em PLoS computational biology}, 6(10):e1000949, 2010.
 
-\bibitem{Cauchemez_Nouvellet}
-Simon Cauchemez, Pierre Nouvellet, Anne Cori, Thibaut Jombart, Tini Garske,
-  Hannah Clapham, Sean Moore, Harriet~Linden Mills, Henrik Salje, Caitlin
-  Collins, Isabel Rodriquez-Barraquer, Steven Riley, Shaun Truelove, Homoud
-  Algarni, Rafat Alhakeem, Khalid AlHarbi, Abdulhafiz Turkistani, Ricardo~J.
-  Aguas, Derek A.~T. Cummings, Maria~D. Van~Kerkhove, Christl~A. Donnelly,
-  Justin Lessler, Christophe Fraser, Ali Al-Barrak, and Neil~M. Ferguson.
-\newblock Unraveling the drivers of mers-cov transmission.
-\newblock {\em Proceedings of the National Academy of Sciences},
-  113(32):9081–9086, Aug 2016.
-
 \bibitem{danesh2021quantifying}
 Gonch{\'e} Danesh, Victor Virlogeux, Christophe Rami{\`e}re, Caroline Charre,
   Laurent Cotte, and Samuel Alizon.
@@ -49,24 +30,12 @@ Gonch{\'e} Danesh, Victor Virlogeux, Christophe Rami{\`e}re, Caroline Charre,
   infections in a heterogeneous population using sequence data.
 \newblock {\em PLoS pathogens}, 17(9):e1009916, 2021.
 
-\bibitem{Fair_Karatayev_Anand_Bauch_2021}
-Kathyrn~R Fair, Vadim~A Karatayev, Madhur Anand, and Chris~T Bauch.
-\newblock {\em Population behavioural dynamics can mediate the persistence of
-  emerging infectious diseases}.
-\newblock May 2021.
-
 \bibitem{agency_for_clinical_innovation_2022}
 Agency for Clinical~Innovation.
 \newblock Living evidence - sars-cov-2 variants.
 \newblock
   \url{https://aci.health.nsw.gov.au/covid-19/critical-intelligence-unit/sars-cov-2-variants},
   Jan 2022.
-
-\bibitem{Fraser_2007}
-Christophe Fraser.
-\newblock Estimating individual and household reproduction numbers in an
-  emerging epidemic.
-\newblock {\em PLoS ONE}, 2(8):e758, Aug 2007.
 
 \bibitem{gogDynamicsSelectionManystrain2002}
 J.~R. Gog and B.~T. Grenfell.
@@ -128,14 +97,6 @@ Emily~J. Nicoli, Diepreye Ayabina, Caroline~L. Trotter, Katherine~M.E. Turner,
   bordetella pertussis.
 \newblock {\em Theoretical Population Biology}, 103:84–92, Aug 2015.
 
-\bibitem{Nouvellet_Cori}
-Pierre Nouvellet, Anne Cori, Tini Garske, Isobel~M. Blake, Ilaria Dorigatti,
-  Wes Hinsley, Thibaut Jombart, Harriet~L. Mills, Gemma Nedjati-Gilani,
-  Maria~D. Van~Kerkhove, Christophe Fraser, Christl~A. Donnelly, Neil~M.
-  Ferguson, and Steven Riley.
-\newblock A simple approach to measure transmissibility and forecast incidence.
-\newblock {\em Epidemics}, 22:29–35, Mar 2018.
-
 \bibitem{saulnier2017inferring}
 Emma Saulnier, Olivier Gascuel, and Samuel Alizon.
 \newblock Inferring epidemiological parameters from phylogenies using
@@ -170,12 +131,12 @@ Minus van Baalen and Maurice~W. Sabelis.
 \newblock The dynamics of multiple infection and the evolution of virulence.
 \newblock {\em The American Naturalist}, 146(6):881–910, Dec 1995.
 
-\bibitem{Wallinga_Lipsitch_2007}
-J~Wallinga and M~Lipsitch.
-\newblock How generation intervals shape the relationship between growth rates
-  and reproductive numbers.
-\newblock {\em Proceedings of the Royal Society B: Biological Sciences},
-  274(1609):599–604, Feb 2007.
+\bibitem{van2022mapping}
+Karlijn van~der Straten, Denise Guerra, Marit van Gils, Ilja Bontjer, Tom~G
+  Caniels, Hugo~D van Willigen, Elke Wynberg, Meliawati Poniman, Judith~A
+  Burger, Joey~H Bouhuijs, et~al.
+\newblock Mapping the antigenic diversification of sars-cov-2.
+\newblock {\em medRxiv}, 2022.
 
 \bibitem{wilksMappingSARSCoV2Antigenic2022}
 Samuel~H. Wilks, Barbara M{\"u}hlemann, Xiaoying Shen, Sina T{\"u}reli, Eric~B.

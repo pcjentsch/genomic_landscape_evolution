@@ -105,6 +105,26 @@ To incorporate vaccination, consider each vaccine affecting a different region o
 
 This model could be used to test the effect of NPIs on Sars-CoV-2 evolution. Mechanisms for NPIs and additional compartments for heterogeneity are straightforward to add to the model equations. If a given NPI mechanism is more able to fit data with a mechanism that does not act on all strains equally, then this could be evidence that NPIs are affecting Sars-CoV-2 evolution. 
 
+\subsection{Continuous strain-space}
+
+The above model can be viewed as simply a first-order finite difference approximation of a continuous space reaction-diffusion model. Accordingly, we can generalize it to continuous strain-space as
+ 
+\begin{equation}
+    S_t(x,y,t) = \int_0^N \int_0^N \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
+\end{equation}
+\begin{equation}
+    I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
+\end{equation}
+\begin{equation}
+    R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
+\end{equation}
+
+Given a dispersion kernel $K(x,y) \in L_2$ (?) this can be generalised to non-local diffusion as follows
+
+\begin{equation}
+    I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_0^N \int_0^N K(x-x',y-y')I(x',y',t) dx' dy'   \right) \label{Ieqn_cts_nonlocal}    
+\end{equation}
+
 
 \subsection{Parameterization}
 
