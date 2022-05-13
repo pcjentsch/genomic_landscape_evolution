@@ -5,45 +5,45 @@ The style file: plain.bst
 Database file #1: ref.bib
 Warning--to sort, need author, editor, or key in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
 Warning--empty author and editor in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
-You've used 23 entries,
+You've used 24 entries,
             2118 wiz_defined-function locations,
-            666 strings with 10820 characters,
-and the built_in function-call counts, 9798 in all, are:
-= -- 869
-> -- 735
+            674 strings with 11197 characters,
+and the built_in function-call counts, 10231 in all, are:
+= -- 908
+> -- 763
 < -- 1
-+ -- 295
-- -- 268
-* -- 913
-:= -- 1728
-add.period$ -- 69
-call.type$ -- 23
-change.case$ -- 201
++ -- 306
+- -- 278
+* -- 955
+:= -- 1802
+add.period$ -- 72
+call.type$ -- 24
+change.case$ -- 209
 chr.to.int$ -- 0
-cite$ -- 25
-duplicate$ -- 246
-empty$ -- 578
-format.name$ -- 268
-if$ -- 1881
+cite$ -- 26
+duplicate$ -- 257
+empty$ -- 607
+format.name$ -- 278
+if$ -- 1966
 int.to.chr$ -- 0
-int.to.str$ -- 23
-missing$ -- 21
-newline$ -- 118
-num.names$ -- 44
-pop$ -- 172
+int.to.str$ -- 24
+missing$ -- 22
+newline$ -- 123
+num.names$ -- 46
+pop$ -- 178
 preamble$ -- 1
-purify$ -- 178
+purify$ -- 185
 quote$ -- 0
-skip$ -- 163
+skip$ -- 170
 stack$ -- 0
-substring$ -- 518
-swap$ -- 24
+substring$ -- 550
+swap$ -- 25
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 90
+type$ -- 94
 warning$ -- 2
-while$ -- 67
-width$ -- 25
-write$ -- 251
+while$ -- 70
+width$ -- 26
+write$ -- 262
 (There were 2 warnings)

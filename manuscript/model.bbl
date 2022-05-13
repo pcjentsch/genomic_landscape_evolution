@@ -11,6 +11,13 @@ Samuel Alizon and Minus van Baalen.
 \newblock Multiple infections, immune dynamics, and the evolution of virulence.
 \newblock {\em The American Naturalist}, 172(4):E150–E168, Oct 2008.
 
+\bibitem{Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+Nikolai Bessonov, Gennady Bocharov, Andreas Meyerhans, Vladimir Popov, and
+  Vitaly Volpert.
+\newblock Existence and dynamics of strains in a nonlocal reaction-diffusion
+  model of viral evolution.
+\newblock {\em SIAM Journal on Applied Mathematics}, 81(1):107–128, Jan 2021.
+
 \bibitem{bubar2021model}
 Kate~M Bubar, Kyle Reinholt, Stephen~M Kissler, Marc Lipsitch, Sarah Cobey,
   Yonatan~H Grad, and Daniel~B Larremore.

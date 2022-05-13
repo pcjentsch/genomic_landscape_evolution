@@ -58,6 +58,40 @@ function rhs(du, u, p, t)
         end
     end
 end
+function rhs_diffusion_kernel(du, u, p, t)
+    (; params, stringency, vaccination_mrna) = p
+    (; β, ξ, γ, initial_population, M, sigma_matrix) = params
+    dS = @view du[1:w, 1:h]
+    dI = @view du[1:w, (h+1):(h*2)]
+    dR = @view du[1:w, (h*2+1):(h*3)]
+    dV = @view du[1:w, (h*3+1):(h*4)]
+    S = @view u[1:w, 1:h]
+    I = @view u[1:w, (h+1):(h*2)]
+    R = @view u[1:w, (h*2+1):(h*3)]
+    V = @view u[1:w, (h*3+1):(h*4)]
+    hmone = h - 1
+    wmone = w - 1
+    day = trunc(Int, t)
+    stringency_t = stringency[day+1]
+    yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
+    vaccination_rate_by_day_t = 0.001 * (vaccination_mrna[day+1] - yesterday_vaccinations) / initial_population
+    @inbounds for j in 2:hmone
+        @inbounds for i in 2:wmone
+            force_of_infection = zero(eltype(sigma_matrix))
+            @inbounds for l in 2:hmone
+                @inbounds for k in 2:wmone
+                    force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
+                end
+            end
+
+            dS[i, j] = -1 * stringency_t * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
+            dI[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] +
+                       M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
+            dR[i, j] = ξ * I[i, j] - γ * R[i, j]
+            dV[i, j] = vaccination_rate_by_day_t * S[i, j]
+        end
+    end
+end
 
 function run(location_data, begin_date, end_date, params)
     (; β, sigma_matrix, initial_population) = params
@@ -89,9 +123,10 @@ function run(location_data, begin_date, end_date, params)
         V[y, x] += sigma(x - x_i_transformed, y - y_i_transformed * 5; sigma_x=width, sigma_y=width, rounding=false) * pop
     end
 
+    diffusion_kernel = zeros(w, h) |>
 
-    ##Plot sigma, beta, and S_0 for debugging
-    plt1 = heatmap(-div(w, 2):div(w, 2), -div(h, 2):div(h, 2), sigma_matrix[:, :, div(w, 2), div(h, 2)], xlabel="antigenic distance", ylabel="antigenic distance"; plot_options...)
+                       ##Plot sigma, beta, and S_0 for debugging
+                       plt1 = heatmap(-div(w, 2):div(w, 2), -div(h, 2):div(h, 2), sigma_matrix[:, :, div(w, 2), div(h, 2)], xlabel="antigenic distance", ylabel="antigenic distance"; plot_options...)
     savefig(plt1, plots_path("sigma"))
     plt2 = heatmap(1:w, 1:h, β; plot_options...)
     savefig(plt2, plots_path("beta"))
