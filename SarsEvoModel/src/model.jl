@@ -24,41 +24,6 @@ struct ModelParameters
 end
 
 
-function rhs(du, u, p, t)
-    (; params, stringency, vaccination_mrna) = p
-    (; β, ξ, γ, initial_population, M, sigma_matrix) = params
-    dS = @view du[1:w, 1:h]
-    dI = @view du[1:w, (h+1):(h*2)]
-    dR = @view du[1:w, (h*2+1):(h*3)]
-    dV = @view du[1:w, (h*3+1):(h*4)]
-    S = @view u[1:w, 1:h]
-    I = @view u[1:w, (h+1):(h*2)]
-    R = @view u[1:w, (h*2+1):(h*3)]
-    V = @view u[1:w, (h*3+1):(h*4)]
-    hmone = h - 1
-    wmone = w - 1
-    day = trunc(Int, t)
-    stringency_t = stringency[day+1]
-    yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-    vaccination_rate_by_day_t = 0.001 * (vaccination_mrna[day+1] - yesterday_vaccinations) / initial_population
-    @inbounds for j in 2:hmone
-        @inbounds for i in 2:wmone
-            force_of_infection = zero(eltype(sigma_matrix))
-            @inbounds for l in 2:hmone
-                @inbounds for k in 2:wmone
-                    force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
-                end
-            end
-
-            dS[i, j] = -1 * stringency_t * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
-            dI[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] +
-                       M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
-            dR[i, j] = ξ * I[i, j] - γ * R[i, j]
-            dV[i, j] = vaccination_rate_by_day_t * S[i, j]
-        end
-    end
-end
-
 Base.Base.@propagate_inbounds function rhs_diffusion_kernel(du, u, p, t)
     (; diffusion_kernel, params, stringency, vaccination_mrna, mrna_vaccine) = p
     (; β, ξ, γ, initial_population, M, sigma_matrix) = params
@@ -75,7 +40,7 @@ Base.Base.@propagate_inbounds function rhs_diffusion_kernel(du, u, p, t)
     day = trunc(Int, t)
     stringency_t = stringency[day+1]
     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-    vaccination_rate_by_day_t = (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
+    vaccination_rate_by_day_t = 15 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
     for j in 2:hmone
         for i in 2:wmone
             force_of_infection = zero(eltype(sigma_matrix))
