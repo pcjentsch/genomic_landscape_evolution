@@ -1,0 +1,24 @@
+study_title: Complete map of SARS-CoV-2 RBD mutations that escape the monoclonal antibody LY-CoV555 and its cocktail with LY-CoV016
+
+study_first_author: Starr
+
+study_year: 2021
+
+study_journal: Cell Reports Medicine
+
+study_url: https://doi.org/10.1016/j.xcrm.2021.100255
+
+lab: Bloom_JD
+
+notes: "The data are taken from here after removing LY-CoV016, which is duplicated in that file from an earlier study: https://github.com/jbloomlab/SARS-CoV-2-RBD_MAP_LY-CoV555/blob/main/results/supp_data/LY_cocktail_raw_data.csv"
+
+conditions:
+  LY-CoV555:
+    type: antibody
+    subtype: class 2
+    year: 2020
+    alias: bamlanivimab
+  LY-CoV555 + LY-CoV016:
+    type: antibody cocktail
+    subtype: none
+    year: 2020

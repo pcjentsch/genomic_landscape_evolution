@@ -1,0 +1,48 @@
+study_title: Mapping mutations to the SARS-CoV-2 RBD that escape binding by different classes of antibodies
+
+study_first_author: Greaney
+
+study_year: 2021
+
+study_journal: Nat Comm
+
+study_url: https://www.nature.com/articles/s41467-021-24435-8
+
+lab: Bloom_JD
+
+notes: "Data taken from here https://raw.githubusercontent.com/jbloomlab/SARS-CoV-2-RBD_MAP_Rockefeller/main/results/supp_data/all_samples_raw_data.csv after removing antibodies and sera that are duplicated in that file from prior studies for re-plotting."
+
+conditions:
+  COV-021: &default_serum
+    type: serum
+    subtype: convalescent serum
+    year: 2020
+    notes: null
+  COV-047: *default_serum
+  COV-057: *default_serum
+  COV-072: *default_serum
+  COV-107: *default_serum
+  C002:
+    type: antibody
+    subtype: class 2
+    year: 2020
+  C105:
+    type: antibody
+    subtype: class 1
+    year: 2020
+  C110:
+    type: antibody
+    subtype: class 3
+    year: 2020
+  C121:
+    type: antibody
+    subtype: class 2
+    year: 2020
+  C135:
+    type: antibody
+    subtype: class 3
+    year: 2020
+  C144:
+    type: antibody
+    subtype: class 2
+    year: 2020

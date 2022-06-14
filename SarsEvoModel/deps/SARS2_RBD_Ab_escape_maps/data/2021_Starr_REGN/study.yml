@@ -1,0 +1,35 @@
+study_title: Prospective mapping of viral mutations that escape antibodies used to treat COVID-19
+
+study_first_author: Starr
+
+study_year: 2021
+
+study_journal: Science
+
+study_url: https://science.sciencemag.org/content/early/2021/01/22/science.abf9302
+
+lab: Bloom_JD
+
+notes: "The data are from Data S1 of the paper, available here: https://science.sciencemag.org/highwire/filestream/756144/field_highwire_adjunct_files/0/abf9302_DataS1.csv"
+
+conditions:
+  REGN10933:
+    type: antibody
+    subtype: class 1
+    year: 2020
+    alias: casirivimab
+  REGN10987:
+    type: antibody
+    subtype: class 3
+    year: 2020
+    alias: imdevimab
+  REGN10933 + REGN10987:
+    type: antibody cocktail
+    subtype: none
+    year: 2020
+    notes: null
+  LY-CoV016:
+    type: antibody
+    subtype: class 1
+    year: 2020
+    alias: etesevimab

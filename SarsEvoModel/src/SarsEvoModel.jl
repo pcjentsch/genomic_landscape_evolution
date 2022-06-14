@@ -1,5 +1,5 @@
 module SarsEvoModel
-export main
+export main, compute_antigenic_mapping_from_samples
 using BenchmarkTools
 
 #Ontario population
@@ -10,11 +10,11 @@ const h = 25
 function map_coords_to_model_space(coords_x, coords_y)
     return trunc.(Int, (coords_x * (w / 10), coords_y * (h / 10)))
 end
-include("antigenic_map.jl")
+include("antigenic_mapping/antigenic_map.jl")
 include("model.jl")
 include("data.jl")
 include("plotting.jl")
-
+include("antigenic_mapping/analyze_snps.jl")
 
 
 

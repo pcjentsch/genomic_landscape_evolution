@@ -1,0 +1,20 @@
+name: SARS2_RBD_Ab_escape_maps
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+
+dependencies:
+  - biopython=1.79
+  - git-lfs
+  - jupyterlab
+  - nbstripout
+  - ruamel.yaml=0.16
+  - pandas=1.4
+  - pdoc
+  - pip
+  - python=3.8
+  - scikit-learn=0.24.1
+  - pip:
+    - dmslogo==0.6.3
+    - git+https://github.com/altair-viz/altair@0217b2e73703d3b7b529b73b4dec9c17e7fb09bb

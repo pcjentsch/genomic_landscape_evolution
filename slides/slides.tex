@@ -116,34 +116,16 @@
     \begin{itemize}
         \item We would like an approximate measure of antigenic distance for every sample genome
         \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
-        \item Many possible ways to do this
-    \end{itemize}    
-\end{frame}
-\begin{frame}{Developing an antigenic distance map}
-    \begin{itemize}
-        \item We would like an approximate measure of antigenic distance for every sample genome
-        \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
-        \item Many possible ways to do this, none of them seem to work very well
+        \item Many possible ways to do this, so far none of them seem to work very well
         \item Project to 2-d (hopefully) space with multidimensional scaling
     \end{itemize}    
-\end{frame}
-\begin{frame}{Homoplasy in global tree}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{gene_freq.png}
-        \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
-    \end{figure}
-\end{frame}
-\begin{frame}{Homoplasy in orf3a}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{orf3a_scatter_2.png.png}
-    \end{figure}
 \end{frame}
 \begin{frame}{Genome distance}
     Assume:
     \begin{itemize}
         \item $a,b$ are SARS-CoV-2 genomes aligned with the reference
-        \item $a_i$ the $i$th nucleotide base in $a$
-        \item \[
+        \item $a_i$ the $i$th nucleotide base in $a$ and
+         \[
             \chi(a_i,b_i) =   \begin{cases}
             1 & \text{if $a_i=b_i$} \\
             0 & \text{otherwise} \\
@@ -159,6 +141,24 @@
     \end{equation}
     That is, the average binding between two genomes plus the SNP distance weighted by the relative homoplasy of each mutation.
 \end{frame}
+\begin{frame}{Example antigenic distance map}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{multidimensional_scaling.png}
+        \caption{Multidimensional scaling plot using samples from the UK up to mid November}
+    \end{figure}
+\end{frame}
+\begin{frame}{Homoplasy in global tree}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{gene_freq.png}
+        \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
+    \end{figure}
+\end{frame}
+\begin{frame}{Homoplasy in orf3a}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{orf3a_scatter_2.png}
+    \end{figure}
+\end{frame}
+
 
 \begin{frame}[allowframebreaks]
 
