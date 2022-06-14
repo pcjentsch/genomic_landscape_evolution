@@ -93,23 +93,71 @@
 \end{frame}
 
 \begin{frame}{}
-    \begin{itemize}
-    % \item The model of \cite{gogDynamicsSelectionManystrain2002} is essentially a discretized reaction-diffusion system
-    \item To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
-    \end{itemize}
-
     \small
+    To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+    \tiny
     \begin{equation}
-        \frac{S_{ij}}{dt} = - \int_ \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn_2}
+        S_t(x,y,t) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
     \end{equation}
-
     \begin{equation}
-        \frac{ I_{ij}(t)}{dt} = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn_2}    
+        I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
     \end{equation}
-
     \begin{equation}
-        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij}  \label{Reqn_2}
+        R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
     \end{equation}
+    
+    where $\beta, \sigma, v$ have been generalized to their continuous counterparts. Given a dispersion kernel $K(x,y) \in L_2: \mathbb{R}^2 \to \mathbb{R}$ this can be generalised to non-local diffusion as follows
+    
+    \begin{equation}
+        I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} K(x-x',y-y')I(x',y',t) dx' dy' \right) \label{Ieqn_cts_nonlocal}    
+    \end{equation}
+\end{frame}
+\begin{frame}{Developing an antigenic distance map}
+    \begin{itemize}
+        \item We would like an approximate measure of antigenic distance for every sample genome
+        \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
+        \item Many possible ways to do this
+    \end{itemize}    
+\end{frame}
+\begin{frame}{Developing an antigenic distance map}
+    \begin{itemize}
+        \item We would like an approximate measure of antigenic distance for every sample genome
+        \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
+        \item Many possible ways to do this, none of them seem to work very well
+        \item Project to 2-d (hopefully) space with multidimensional scaling
+    \end{itemize}    
+\end{frame}
+\begin{frame}{Homoplasy in global tree}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{gene_freq.png}
+        \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
+    \end{figure}
+\end{frame}
+\begin{frame}{Homoplasy in orf3a}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{orf3a_scatter_2.png.png}
+    \end{figure}
+\end{frame}
+\begin{frame}{Genome distance}
+    Assume:
+    \begin{itemize}
+        \item $a,b$ are SARS-CoV-2 genomes aligned with the reference
+        \item $a_i$ the $i$th nucleotide base in $a$
+        \item \[
+            \chi(a_i,b_i) =   \begin{cases}
+            1 & \text{if $a_i=b_i$} \\
+            0 & \text{otherwise} \\
+        \end{cases}
+        \]
+        \item $h_i$ is a vector containing the number of homoplasic mutations at site $i$ in the global tree
+        \item $\mathfrak{B}(a)$ computes the polyclonal binding affinity of genome $a$ as per \cite{starr2020deep}
+    \end{itemize}
+        
+    One option for a distance measure is something like
+    \begin{equation}
+        d(a,b) = \frac{\mathfrak{B}(a) + \mathfrak{B}(b)}{2} + \sum_i \chi(a_i,b_i) h_i
+    \end{equation}
+    That is, the average binding between two genomes plus the SNP distance weighted by the relative homoplasy of each mutation.
 \end{frame}
 
 \begin{frame}[allowframebreaks]
