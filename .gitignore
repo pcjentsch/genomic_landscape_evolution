@@ -276,4 +276,4 @@ TSWLatexianTemp*
 *.lpz
 
 SarsEvoModel/data
-SarsEvoModel/deps/SARS2_RBD_Ab_escape_maps/processed_data
+SarsEvoModel/deps/

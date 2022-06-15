@@ -1,9 +1,14 @@
 using Plots
-const plot_options = (
-    dpi=300,
-    fontfamily="Computer Modern",
-    framestyle=:box
-)
+
+const plotting_settings =
+    (
+        fontfamily="serif-roman",
+        framestyle=:box,
+        dpi=300,
+        color_palette=palette(:seaborn_pastel)
+    )
+
+
 plots_path(fname; filetype="png") = joinpath(@__DIR__, "../plots", fname * "." * filetype)
 
 function plot_antigenic_map()
@@ -25,7 +30,41 @@ function plot_antigenic_map()
     savefig(p, plots_path("antigenic_map_paper"))
 end
 
+function orfplot(recurrent_df)
+    orf3a_coords = [
+        ("Topological domain, Extracellular", Interval(1, 126)),
+        ("Transmembrane, Helical", Interval(127, 183)),
+        ("Topological domain, Cytoplasmic", Interval(184, 201)),
+        ("Transmembrane, Helical", Interval(202, 279)),
+        ("Topological domain, Extracellular", Interval(280, 303)),
+        ("Transmembrane, Helical", Interval(304, 378)),
+        ("Topological domain, Cytoplasmic", Interval(379, 825)),
+    ]
 
+    orf3a_df = groupby(filter(:gene_name => ==("ORF3a"), recurrent_df), :ind) |> df -> combine(df, :occurrence => sum)
+    orf3a_df.description = map(eachrow(orf3a_df)) do r
+        inds = filter(i -> (r.ind - 25393) in last(i), orf3a_coords)
+        isempty(inds) && return missing
+        return inds |> only |> first
+    end
+    dropmissing!(orf3a_df)
+    orf3a_plot_density = plot()
+    orf3a_plot_scatter = plot()
+    total_by_coords = map(orf3a_coords) do (label, coords)
+        region_df = filter(:snp => s -> (s.ind - 25393) in coords, recurrent_df)
+        return sum(region_df.occurrence) / (last(coords) - first(coords))
+    end
+    for (key, gdf) in pairs(groupby(orf3a_df, :description))
+
+        scatter!(orf3a_plot_scatter, gdf.ind, gdf.occurrence_sum; label=key.description,
+            ylabel="total recurrences", markersize=2, markerstrokewidth=0.1, plotting_settings...)
+    end
+    bar_colors = permutedims(plotting_settings.color_palette[[1, 2, 3, 2, 1, 2, 3]])
+    bar_plot = bar(permutedims(string.(last.(orf3a_coords) .+ 25393)), permutedims(total_by_coords);
+        color=bar_colors, legend=false, ylabel="total recurrences", xlabel="nucleotide index", plotting_settings...)
+
+    savefig(plot(orf3a_plot_scatter, bar_plot; plotting_settings..., layout=(2, 1), size=(800, 500)), plots_path("orf3a"))
+end
 
 function plot_data(data::LocationData)
     incident_cases = data.cases_by_lineage

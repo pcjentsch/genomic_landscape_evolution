@@ -1,6 +1,6 @@
 
 
-function get_data_fasta(fasta_path, metadata_path)
+function get_data_fasta(fasta_path, metadata_path, binding_sites)
     snps = SNPs_from_fastas(fasta_path) |> DataFrame
     metadata = CSV.File(metadata_path) |> DataFrame
     filter!(:Collection_Date => d -> d ∉ ("2020", "2021"), metadata)
@@ -16,8 +16,8 @@ function get_data_fasta(fasta_path, metadata_path)
     return genomes_w_metadata
 end
 
-function parse_recurrent_mutations(path)
-    recurrent = CSV.File(path) |> DataFrame
+function parse_recurrent_mutations(fpath)
+    recurrent = CSV.File(fpath) |> DataFrame
     recurrent.snp = map(get_snp, recurrent.ID)
     recurrent.freq = recurrent.occurrence ./ sum(recurrent.occurrence)
     sort!(recurrent, :freq; rev=true)
@@ -29,7 +29,7 @@ function parse_recurrent_mutations(path)
     return recurrent
 end
 
-function SNPs_from_record(sample_record::FASTX.Record)
+function SNPs_from_record(sample_record, reference)
     undef_base = gap(DNA)
     id = FASTA.identifier(sample_record)
     genome = SNP[]
@@ -45,14 +45,14 @@ end
 
 
 function SNPs_from_fastas(aligned_fastas_dir::String)
-    reference_reader = FASTA.Reader(open("../reference.fasta"))
+    reference_reader = FASTA.Reader(open(joinpath(@__DIR__, "../../data/reference.fasta")))
     reference = FASTA.sequence(only(reference_reader))
     files = readdir(aligned_fastas_dir) |>
             l -> filter(s -> occursin("aligned", s), l) |>
                  l -> map(s -> joinpath(aligned_fastas_dir, s), l)
     display(files)
     file_streams = map(FASTA.Reader ∘ GzipDecompressorStream ∘ open, files)
-    SNPs_by_sample = ThreadsX.map(SNPs_from_record, Iterators.flatten(file_streams))
+    SNPs_by_sample = ThreadsX.map(r -> SNPs_from_record(r, reference), Iterators.flatten(file_streams))
     foreach(close, file_streams)
     return SNPs_by_sample
 end

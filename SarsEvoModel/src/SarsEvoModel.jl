@@ -53,13 +53,15 @@ end
 function make_antigenic_map()
 
     datasets = (
-        ("uk", "data/uk_seqeunces/alignments/", "data/uk_sequences/uk_sequences_metadata_new.tsv"),
-        ("usa", "data/usa_sequences/alignments/", "data/usa_sequences/usa_sequences_metadata.tsv")
+        ("uk", joinpath(@__DIR__, "../data/uk_sequences/alignments/"), joinpath(@__DIR__, "../data/uk_sequences/uk_sequences_metadata_new.tsv")),
+        ("usa", joinpath(@__DIR__, "..data/usa_sequences/alignments/"), joinpath(@__DIR__, "../data/usa_sequences/usa_sequences_metadata.tsv"))
     )
-    name, alignments, metadata = datasets[1]
-    genomes_w_metadata = get_data_fasta(alignments, metadata)
-    recurrent_df = parse_recurrent_mutations(path)
-
+    binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
+    # name, alignments, metadata = datasets[1]
+    # genomes_w_metadata = get_data_fasta(alignments, metadata, binding_sites)
+    recurrent_df = parse_recurrent_mutations(joinpath(@__DIR__, "../data/filtered_mutations.tsv"))
+    orfplot(recurrent_df)
+    return recurrent_df[1:10, :]
     # plot_samples(genomes_w_metadata)
     # genomes_w_metadata_new, unique_genomes_df_new, mds = analyze_binding_retained(genomes_w_metadata, recurrent_df)
     # lineages_df = load_lineages()

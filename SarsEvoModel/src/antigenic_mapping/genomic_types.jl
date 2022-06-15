@@ -5,11 +5,11 @@ end
 
 
 function Base.isequal(a::SNP, b::SNP)
-    return a.ind == b.ind && a.ref == b.ref && a.alt == b.alt
+    return a.ind == b.ind && a.alt == b.alt
 end
 
 function Base.hash(a::SNP)
-    return hash((a.ind, a.ref, a.alt))
+    return hash((a.ind, a.alt))
 end
 
 

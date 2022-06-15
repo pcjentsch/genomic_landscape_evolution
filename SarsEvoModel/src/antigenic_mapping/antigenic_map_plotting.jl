@@ -42,32 +42,7 @@ function plot_mds(genomes_df, unique_df, lineages)
 end
 
 
-function orfplot()
-    orf3a_coords = [
-        ("Topological domain, Extracellular", Interval(1, 126)),
-        ("Transmembrane, Helical", Interval(127, 183)),
-        ("Topological domain, Cytoplasmic", Interval(184, 201)),
-        ("Transmembrane, Helical", Interval(202, 279)),
-        ("Topological domain, Extracellular", Interval(280, 303)),
-        ("Transmembrane, Helical", Interval(304, 378)),
-        ("Topological domain, Cytoplasmic", Interval(379, 825)),
-    ]
 
-    orf3a_df = groupby(filter(:gene_name => ==("ORF3a"), recurrent_df), :ind) |> df -> combine(df, :occurrence => sum)
-    orf3a_df.description = map(eachrow(orf3a_df)) do r
-        inds = filter(i -> (r.ind - 25393) in last(i), orf3a_coords)
-        isempty(inds) && return missing
-        return inds |> only |> first
-    end
-    dropmissing!(orf3a_df)
-    orf3a_plot = plot()
-    for (key, gdf) in pairs(groupby(orf3a_df, :description))
-        scatter!(orf3a_plot, gdf.ind, gdf.occurrence_sum; label=key.description,
-            xlabel="nucleotide index", ylabel="total recurrences",
-            title="orf3a recurrences by index", markersize=2, markerstrokewidth=0.1, plotting_settings...)
-    end
-    savefig(orf3a_plot, "orf3a_scatter_2.png")
-end
 
 function plot_samples(genomes_w_metadata)
     df_nonempty = filter(:in_rbd => g -> !isempty(g), genomes_w_metadata)

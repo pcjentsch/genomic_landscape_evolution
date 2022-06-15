@@ -2,19 +2,10 @@ using PyCall
 using Intervals
 using DataFrames
 using CSV
-using Plots
+using StatsPlots
 using ProgressMeter
 using CodecZlib, TranscodingStreams, FASTX, BioSymbols, ThreadsX
 using MultivariateStats
-
-const plotting_settings =
-    (
-        fontfamily="serif-roman",
-        framestyle=:box,
-        dpi=300,
-        color_palette=palette(:seaborn_pastel)
-    )
-
 
 const gene_index = [
     Interval(266, 21555),
@@ -42,21 +33,26 @@ const gene_names = [
     "E",
     "ORF10",
 ]
-
-
-#matutils in usher tree
-#number of independent acquisitions 
-
-const b = import_binding_calc()
+const py_bcalc = PyNULL()
 # https://www.nature.com/articles/s41598-021-99661-7#Sec1
 const S_gene_ind = 21560
-const binding_sites = Set(py"""list($(b.sites))""") .+ S_gene_ind
 const RBD = Interval(S_gene_ind + 331, S_gene_ind + 531)
 
 
+function __init__()
+    path = joinpath(@__DIR__, "../../deps/SARS2_RBD_Ab_escape_maps/")
+    display(abspath(path))
+    py"""
+    import sys
+    sys.path.insert(0,$path)
+    """
+    bcalc = pyimport("bindingcalculator")
+    copy!(py_bcalc, bcalc.BindingCalculator(csv_or_url=joinpath(@__DIR__, "../../deps/SARS2_RBD_Ab_escape_maps/processed_data/escape_calculator_data.csv")))
+
+end
 
 function compute_binding_retained(g)
-    return b.binding_retained(
+    return py_bcalc.binding_retained(
         [(snp.ind - S_gene_ind) for snp in g])
 end
 
@@ -116,5 +112,27 @@ end
 #     elseif haskey(l.keys,"ID")
 
 # top 10 most mutated snps
+
+# 10×6 DataFrame
+#  Row │ ID       occurrence  snp               freq    ⋯
+#      │ String7  Int64       SNP               Float64 ⋯
+# ─────┼─────────────────────────────────────────────────
+#    1 │ G7328T         6766  SNP(0x1ca0, 'T')  0.00272 ⋯
+#    2 │ T27752C        6583  SNP(0x6c68, 'C')  0.00265
+#    3 │ T7124C         5086  SNP(0x1bd4, 'C')  0.00205
+#    4 │ C27638T        4746  SNP(0x6bf6, 'T')  0.00191
+#    5 │ T29402G        4744  SNP(0x72da, 'G')  0.00191 ⋯
+#    6 │ T3037C         4206  SNP(0x0bdd, 'C')  0.00169
+#    7 │ T28095A        3584  SNP(0x6dbf, 'A')  0.00144
+#    8 │ A10323G        3255  SNP(0x2853, 'G')  0.00131
+#    9 │ A21137G        3130  SNP(0x5291, 'G')  0.00126 ⋯
+#   10 │ G21618C        3006  SNP(0x5472, 'C')  0.00121
+
+#T3037C has some results 
+#e.g. https://journals.plos.org/Plospathogens/article?id=10.1371/journal.ppat.1009849
+# and https://www.nature.com/articles/s41586-021-03610-3 recognize it as a common SNP and iSNV
+
+# A10323G is mentioned as common in
+# https://web.archive.org/web/20210204225512id_/https://www.medrxiv.org/content/medrxiv/early/2021/01/09/2021.01.08.21249379.full.pdf
 # smooth out orf3a plot
 # look at k-means of distance matrix
