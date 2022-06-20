@@ -1,16 +1,15 @@
 
 
-function plot_mds(genomes_df, unique_df, lineages)
+function plot_mds(unique_df)
     # df = innerjoin(genomes_df, unique_df; on=:filtered_genome => :filtered_genome) |> df ->
     #     innerjoin(lineages, df; on=:id)
     # sort!(df, :date)
-    unique_df = innerjoin(unique_df, lineages; on=:id => :taxon, makeunique=true)
 
     p = plot()
     display(unique_df)
     # unique_df.is_omicron = map(s -> occursin("BA", s), unique_df.Pangolin)
-    for (key, gdf) in pairs(groupby(unique_df, :scorpio_call))
-        p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.scorpio_call, xlabel="MDS1", ylabel="MDS2",
+    for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
+        p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",
             title="Approximate antigenic cartography w/ RBD, UK samples",
             markersize=1.5,
             markerstrokewidth=0.3,

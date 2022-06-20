@@ -13,6 +13,33 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites)
     unique_genomes = select(unique(genomes_w_metadata, :in_rbd), [:in_rbd])
     unique_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_genomes.in_rbd)
     genomes_w_metadata = innerjoin(unique_genomes, genomes_w_metadata; on=:in_rbd)
+    lineages_df = load_lineages()
+
+    genomes_w_metadata = innerjoin(lineages_df, genomes_w_metadata; on=:taxon => :id)
+    replace_dict = JSON.parsefile("SarsEvoModel//data/lineages_replace.json"; dicttype=OrderedDict)
+
+    genomes_w_metadata.lineage = map(genomes_w_metadata.lineage) do lineage
+        initial = first(split(lineage, "."))
+        if haskey(replace_dict, initial)
+            return replace(lineage, initial => replace_dict[initial])
+        else
+            return lineage
+        end
+    end
+    omicron_prefix = "B.1.1.529"
+    delta_prefix = "B.1.617.2"
+    alpha_prefix = "B.1.1.7"
+
+    genomes_w_metadata.category = map(genomes_w_metadata.lineage) do lineage
+        occursin(omicron_prefix, lineage) && return 0 #"omicron"
+        occursin(delta_prefix, lineage) && return 1 #"delta"
+        occursin(alpha_prefix, lineage) && return 2 #"alpha"
+        return 3 #"other"
+    end
+    filter!(∉(("Unassigned", "unclassifiable")), genomes_w_metadata)
+
+
+
     return genomes_w_metadata
 end
 
@@ -20,6 +47,7 @@ function parse_recurrent_mutations(fpath)
     recurrent = CSV.File(fpath) |> DataFrame
     recurrent.snp = map(get_snp, recurrent.ID)
     recurrent.freq = recurrent.occurrence ./ sum(recurrent.occurrence)
+    recurrent.ref = map(first, recurrent.ID)
     sort!(recurrent, :freq; rev=true)
     name_by_ind(ind) = gene_names[findall(interval -> ind in interval, gene_index)]
     recurrent.ind = map(snp -> snp.ind, recurrent.snp)
@@ -60,9 +88,9 @@ end
 
 
 function load_lineages()
-    lineages = CSV.File("uk_lineages.csv") |> DataFrame
+    lineages = CSV.File(datapath("uk_lineages.csv")) |> DataFrame
     lineages.id = replace.(lineages.taxon, "/" => "_", "-" => "N")
-    lineages.scorpio_call = map(lineages.scorpio_call) do scorpio_call
+    lineages.scorpio_call_simplified = map(lineages.scorpio_call) do scorpio_call
         ismissing(scorpio_call) && return missing
         if occursin("Delta", scorpio_call)
             return "delta"

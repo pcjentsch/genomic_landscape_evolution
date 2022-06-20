@@ -48,7 +48,6 @@ function orfplot(recurrent_df)
         return inds |> only |> first
     end
     dropmissing!(orf3a_df)
-    orf3a_plot_density = plot()
     orf3a_plot_scatter = plot()
     total_by_coords = map(orf3a_coords) do (label, coords)
         region_df = filter(:snp => s -> (s.ind - 25393) in coords, recurrent_df)

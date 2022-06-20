@@ -56,34 +56,66 @@ function compute_binding_retained(g)
         [(snp.ind - S_gene_ind) for snp in g])
 end
 
-function analyze_binding_retained(df, recurrent_df)
+function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
     top_n_snps = vcat(recurrent_df[1:100, :], recurrent_df[snps_inds, :]) |> unique
     top_n_snps_set = Set(top_n_snps.snp)
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
-    df.filtered_genome = ThreadsX.map(genome -> Set(Iterators.filter(snp -> snp in top_n_snps_set, genome)), df.genome)
-    unique_genomes_df = unique(df, :filtered_genome)
+    unique_genomes_df = deepcopy(df)
+    unique_genomes_df.filtered_genome = ThreadsX.map(genome -> Set(Iterators.filter(snp -> snp in top_n_snps_set, genome)), df.genome)
+    unique!(unique_genomes_df, :filtered_genome)
+
+    lineage_tags = sort(antigenic_map; by=t -> length(first(t)), rev=true)
+    unique_genomes_df.closest_mapped_lineage = Vector{Union{String,Missing}}(undef, nrow(unique_genomes_df))
+    unique_genomes_df.mapped_lineage_position = Vector{Union{Tuple{Float64,Float64},Missing}}(undef, nrow(unique_genomes_df))
+    display(lineage_tags)
+
+    for r in eachrow(unique_genomes_df)
+        ind = findfirst(occursin(r.lineage), first.(lineage_tags))
+        r.closest_mapped_lineage = isnothing(ind) ? missing : lineage_tags[ind][1]
+        r.mapped_lineage_position = isnothing(ind) ? missing : lineage_tags[ind][2][1:2]
+    end
+    dropmissing!(unique_genomes_df, :closest_mapped_lineage)
+    return unique_genomes_df, snp_weight_dict
+end
+
+
+function pairwise_distances(unique_genomes_df, snp_weight_dict::Dict{SNP,T}) where {T<:Number}
     samples = nrow(unique_genomes_df)
-    @info samples
-    unique_genomes_subsampled = unique_genomes_df[sample(1:nrow(unique_genomes_df), samples; replace=false), :]
-    pairwise_distances = zeros(samples, samples)
-    for i in 1:samples
+    pairwise_distances = zeros(T, samples, samples)
+    Threads.@threads for i in 1:samples
         binding_i = unique_genomes_df.binding_retained[i]
         genome_i::Set{SNP} = unique_genomes_df.filtered_genome[i]
+        closest_mapped_lineage_i = unique_genomes_df.closest_mapped_lineage[i]
+        mapped_lineage_position_i = unique_genomes_df.mapped_lineage_position[i]
         for j in 1:(i-1)
             binding_j = unique_genomes_df.binding_retained[j]
             genome_j::Set{SNP} = unique_genomes_df.filtered_genome[j]
+            closest_mapped_lineage_j = unique_genomes_df.closest_mapped_lineage[j]
+            mapped_lineage_position_j = unique_genomes_df.mapped_lineage_position[j]
+
+
             snp_distance = dist(genome_i, genome_j, snp_weight_dict)
-            pairwise_distances[i, j] = snp_distance * ((1 - binding_i) + (1 - binding_j)) / 2
-            pairwise_distances[j, i] = snp_distance * ((1 - binding_i) + (1 - binding_j)) / 2
+            pt_d = sum((mapped_lineage_position_i .- mapped_lineage_position_j) .^ 2)
+            d = pt_d * snp_distance * ((1 - binding_i) + (1 - binding_j)) / 2
+            pairwise_distances[i, j] = d
+            pairwise_distances[j, i] = d
         end
     end
-    mds = fit(MDS, pairwise_distances; distances=true, maxoutdim=2)
+    return pairwise_distances
+end
+function manifold_projection(dm, unique_genomes_df)
+    n = nrow(unique_genomes_df)
+    @assert all(size(dm) .== n)
+    # samples = 1000
+    # sample_inds = rand(1:n, samples)
+    # predict_inds = filter(∉(sample_inds), 1:n)
+    # subsampled_dm = dm[sample_inds, sample_inds]
+    mds = fit(MDS, dm; distances=true, maxoutdim=2)
+    # coord_matrix = mapreduce(x -> predict(mds, x), hcat, eachcol(dm))
     coord_matrix = predict(mds)
-    unique_genomes_subsampled.mds_x = coord_matrix[1, :]
-    unique_genomes_subsampled.mds_y = coord_matrix[2, :]
-    # unique_genomes_df.mds_z = coord_matrix[3, :]
-    return df, unique_genomes_subsampled, mds
+    unique_genomes_df.mds_x = coord_matrix[1, :]
+    unique_genomes_df.mds_y = coord_matrix[2, :]
 end
 
 
