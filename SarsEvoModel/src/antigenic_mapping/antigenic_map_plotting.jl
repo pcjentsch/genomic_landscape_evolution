@@ -1,13 +1,12 @@
 
+#take 2 genomes, find common ancestor, find closest sampled genome to that ancestor
 
-function plot_mds(unique_df)
+function plot_mds(fname, unique_df)
     # df = innerjoin(genomes_df, unique_df; on=:filtered_genome => :filtered_genome) |> df ->
     #     innerjoin(lineages, df; on=:id)
     # sort!(df, :date)
-
     p = plot()
     display(unique_df)
-    # unique_df.is_omicron = map(s -> occursin("BA", s), unique_df.Pangolin)
     for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
         p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",
             title="Approximate antigenic cartography w/ RBD, UK samples",
@@ -16,28 +15,7 @@ function plot_mds(unique_df)
             size=(800, 500),
             plotting_settings...)
     end
-    savefig(p, "multidimensional_scaling.png")
-
-    # anim = Animation()
-    # xlims = extrema(df.mds_x)
-    # ylims = extrema(df.mds_y)
-    # mds_x_accum = Float64[]
-    # mds_y_accum = Float64[]
-    # for (i, (key, gdf)) in enumerate(pairs(groupby(df, :date)))
-    #     display(i)
-    #     pts_df = unique(gdf, [:mds_x, :mds_y])
-    #     append!(mds_x_accum, pts_df.mds_x)
-    #     append!(mds_y_accum, pts_df.mds_y)
-    #     p = scatter(mds_x_accum, mds_y_accum; label="samples", xlabel="MDS1", ylabel="MDS2",
-    #         title="Estimated antigenic distance, $(key.date)",
-    #         markersize=1.5,
-    #         markerstrokewidth=0.3,
-    #         xlims=xlims,
-    #         ylims=ylims,
-    #         plotting_settings...)
-    #     frame(anim, p)
-    # end
-    # gif(anim, "animation.gif")
+    savefig(p, plots_path("$(fname)_multidimensional_scaling"))
 end
 
 

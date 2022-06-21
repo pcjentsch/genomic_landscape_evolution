@@ -53,25 +53,37 @@ end
 using Clustering
 using Optimization, OptimizationOptimJL, OptimizationBBO, ForwardDiff
 function make_antigenic_map()
-
-    datasets = (
-        ("uk", joinpath(@__DIR__, "../data/uk_sequences/alignments/"), joinpath(@__DIR__, "../data/uk_sequences/uk_sequences_metadata_new.tsv")),
-        ("usa", joinpath(@__DIR__, "../data/usa_sequences/alignments/"), joinpath(@__DIR__, "../data/usa_sequences/usa_sequences_metadata.tsv"))
-    )
     binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
-    name, alignments, metadata = datasets[1]
-    recurrent_df = parse_recurrent_mutations(joinpath(@__DIR__, "../data/filtered_mutations.tsv"))
-    # genomes_w_metadata = get_data_fasta(alignments, metadata, binding_sites)
-    # serialize("genomes_$name.data", genomes_w_metadata)
-    genomes_w_metadata = deserialize("genomes_$name.data")
-
-    unique_df, snp_weight_dict = unique_genomes(genomes_w_metadata, recurrent_df, binding_sites)
-    # initial_weight_vec = values(snp_weight_dict)
-    # p = (snp_weight_dict, unique_df)
-    # display(clust_objective(initial_weight_vec, p))
-    dm = pairwise_distances(unique_df, snp_weight_dict)
-    manifold_projection(dm, unique_df)
-    plot_mds(unique_df)
+    datasets = (
+        (
+            "uk",
+            datapath("uk_sequences/alignments/"),
+            datapath("uk_sequences/uk_sequences_metadata_new.tsv"),
+            datapath("uk_sequence/uk_lineages.csv"),
+        ),
+        (
+            "usa",
+            datapath("usa_sequences/alignments/"),
+            datapath("usa_sequences/usa_sequences_metadata.tsv"),
+            datapath("usa_sequences/usa_lineages.csv"),
+        )
+    )
+    for dataset in datasets[2:2]
+        name, alignments, metadata, lineage_path = dataset
+        recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
+        genomes_w_metadata = serial_load(
+            () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path),
+            "genomes_$name.data"
+        )
+        unique_df, snp_weight_dict = unique_genomes(genomes_w_metadata, recurrent_df, binding_sites)
+        initial_weight_vec = values(snp_weight_dict)
+        p = (snp_weight_dict, unique_df)
+        # display(clust_objective(initial_weight_vec, p))
+        dm = pairwise_distances(unique_df, snp_weight_dict)
+        manifold_projection(dm, unique_df)
+        plot_mds(name, unique_df)
+        genomes_w_metadata = innerjoin(genomes_w_metadata,)
+    end
 end
 
 # f = Optimization.OptimizationFunction(clust_objective, Optimization.AutoForwardDiff())
@@ -102,25 +114,23 @@ end
 
 function analyze_recurrences()
     recurrent_df = parse_recurrent_mutations(joinpath(@__DIR__, "../data/filtered_mutations.tsv"))
-    reference_reader = FASTA.Reader(open(joinpath(@__DIR__, "../data/wuhCor1.fa")))
-    reference_reader_2 = FASTA.Reader(open(joinpath(@__DIR__, "../data/reference.fasta")))
+    reference_reader = FASTA.Reader(open(joinpath(@__DIR__, "../data/reference.fasta")))
     reference = FASTA.sequence(only(reference_reader))[1:end-2]
-    reference_2 = FASTA.sequence(only(reference_reader_2))[1:end-2]
-    display(reference)
-    display(reference_2)
-    for shift in -3:3
-        n = 0
-        for r in eachrow(recurrent_df)
-            (; ind, alt) = r.snp
-            shift_ind = ind - 0
-            if reference[shift_ind] != convert(DNA, r.ref)
-                # display((reference[shift_ind], convert(DNA, r.ref)))
-                n += 1
-            end
-        end
-        display(n)
-    end
-    return nrow(recurrent_df)
+    n = 0
+    df1 = (filter([:snp, :ref] => (s, r) -> reference[s.ind] != convert(DNA, r), recurrent_df))
+    recurrent_df.actual_ref = map(s -> reference[s.ind], recurrent_df.snp)
+    df2 = filter([:ref, :actual_ref] => (r, ra) -> ra != convert(DNA, r), recurrent_df)
+    return df1, df2
+    # for r in eachrow(recurrent_df)
+    #     (; ind, alt) = r.snp
+    #     shift_ind = ind
+    #     if reference[shift_ind] != convert(DNA, r.ref)
+    #         display((r, reference[shift_ind], convert(DNA, r.ref)))
+    #         n += 1
+    #     end
+    # end
+    # display(n)
+    # return nrow(recurrent_df)
     # orfplot(recurrent_df)
     # top_n_snps = recurrent_df[1:10, :]
     # return format_ref_w_snps(top_n_snps.snp)

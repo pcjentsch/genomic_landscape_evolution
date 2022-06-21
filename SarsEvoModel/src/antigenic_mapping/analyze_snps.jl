@@ -64,17 +64,18 @@ function unique_genomes(df, recurrent_df, binding_sites)
     unique_genomes_df = deepcopy(df)
     unique_genomes_df.filtered_genome = ThreadsX.map(genome -> Set(Iterators.filter(snp -> snp in top_n_snps_set, genome)), df.genome)
     unique!(unique_genomes_df, :filtered_genome)
+    display(unique_genomes_df)
 
     lineage_tags = sort(antigenic_map; by=t -> length(first(t)), rev=true)
     unique_genomes_df.closest_mapped_lineage = Vector{Union{String,Missing}}(undef, nrow(unique_genomes_df))
     unique_genomes_df.mapped_lineage_position = Vector{Union{Tuple{Float64,Float64},Missing}}(undef, nrow(unique_genomes_df))
-    display(lineage_tags)
 
     for r in eachrow(unique_genomes_df)
         ind = findfirst(occursin(r.lineage), first.(lineage_tags))
         r.closest_mapped_lineage = isnothing(ind) ? missing : lineage_tags[ind][1]
         r.mapped_lineage_position = isnothing(ind) ? missing : lineage_tags[ind][2][1:2]
     end
+    display([l => count(==(l), skipmissing(unique_genomes_df.closest_mapped_lineage)) for l in unique(unique_genomes_df.closest_mapped_lineage) if !ismissing(l)])
     dropmissing!(unique_genomes_df, :closest_mapped_lineage)
     return unique_genomes_df, snp_weight_dict
 end

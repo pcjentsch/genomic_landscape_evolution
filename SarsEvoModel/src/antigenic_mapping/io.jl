@@ -1,6 +1,6 @@
 
 
-function get_data_fasta(fasta_path, metadata_path, binding_sites)
+function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
     snps = SNPs_from_fastas(fasta_path) |> DataFrame
     metadata = CSV.File(metadata_path) |> DataFrame
     filter!(:Collection_Date => d -> d ∉ ("2020", "2021"), metadata)
@@ -13,8 +13,7 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites)
     unique_genomes = select(unique(genomes_w_metadata, :in_rbd), [:in_rbd])
     unique_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_genomes.in_rbd)
     genomes_w_metadata = innerjoin(unique_genomes, genomes_w_metadata; on=:in_rbd)
-    lineages_df = load_lineages()
-
+    lineages_df = load_lineages(lineage_path)
     genomes_w_metadata = innerjoin(lineages_df, genomes_w_metadata; on=:taxon => :id)
     replace_dict = JSON.parsefile("SarsEvoModel//data/lineages_replace.json"; dicttype=OrderedDict)
 
@@ -38,7 +37,7 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites)
     end
     filter!(∉(("Unassigned", "unclassifiable")), genomes_w_metadata)
 
-
+    display(genomes_w_metadata)
 
     return genomes_w_metadata
 end
@@ -87,8 +86,8 @@ end
 
 
 
-function load_lineages()
-    lineages = CSV.File(datapath("uk_lineages.csv")) |> DataFrame
+function load_lineages(path)
+    lineages = CSV.File(path) |> DataFrame
     lineages.id = replace.(lineages.taxon, "/" => "_", "-" => "N")
     lineages.scorpio_call_simplified = map(lineages.scorpio_call) do scorpio_call
         ismissing(scorpio_call) && return missing
@@ -96,6 +95,11 @@ function load_lineages()
             return "delta"
         else
             return "everything else"
+        end
+    end
+    if all(occursin.(" ", lineages.taxon))
+        lineages.taxon = map(lineages.taxon) do id
+            return split(id, " ") |> first
         end
     end
     return lineages
