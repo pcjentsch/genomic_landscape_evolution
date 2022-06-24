@@ -3,10 +3,10 @@
 function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
     snps = SNPs_from_fastas(fasta_path) |> DataFrame
     metadata = CSV.File(metadata_path) |> DataFrame
-    filter!(:Collection_Date => d -> d ∉ ("2020", "2021"), metadata)
+    filter!(:date_submitted => d -> d ∉ ("2020", "2021"), metadata)
 
     genomes_w_metadata = innerjoin(snps, metadata; on=:id => :strain)
-    genomes_w_metadata.date = Date.(genomes_w_metadata.Collection_Date)
+    genomes_w_metadata.date = Date.(genomes_w_metadata.date_submitted)
     genomes_w_metadata.in_rbd = map(genomes_w_metadata.genome) do snps
         return Set(snp for snp in snps if snp.ind in binding_sites)
     end
