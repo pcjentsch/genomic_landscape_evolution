@@ -6,6 +6,49 @@ using StatsPlots
 using ProgressMeter
 using CodecZlib, TranscodingStreams, FASTX, BioSymbols, ThreadsX
 using MultivariateStats
+const scorpio_map = Dict(
+    missing => missing,
+    "Alpha (B.1.1.7-like)" => "B.1.1.7",
+    "Delta (B.1.617.2-like)" => "B.1.617.2",
+    "Epsilon (B.1.429-like)" => "B.1.429",
+    "Epsilon (B.1.427-like)" => "B.1.429",
+    "Zeta (P.2-like)" => "B.1.1.28.1", #like gamma
+    "Iota (B.1.526-like)" => "B.1.526+E484K", #the closest we have to iota
+    "Omicron (BA.1-like)" => "B.1.1.529",
+    "Probable Omicron (BA.1-like)" => "B.1.1.529",
+    "Delta (AY.4-like)" => "B.1.617.2", #basal delta I guess
+    "Gamma (P.1-like)" => "B.1.1.28.1",
+    "Beta (B.1.351-like)" => "B.1.351",
+    "Eta (B.1.525-like)" => missing,
+    "B.1.1.318-like" => missing,
+    "A.23.1-like" => missing,
+    "Theta (P.3-like)" => "B.1.1.28.1", #like gamma
+    "Lambda (C.37-like)" => "B.1.1.1.37",
+    "B.1.1.7-like+E484K" => "B.1.1.7+E484K",
+    "B.1.617.1-like" => "B.1.617.1",
+    "B.1.617.3-like" => "B.1.617.1",
+    "Mu (B.1.621-like)" => "B.1.621",
+    "Delta (B.1.617.2-like) +K417N" => "B.1.617.2(AY.2)+K417N",
+    "Delta (AY.4.2-like)" => "B.1.617.2", #basal delta I guess
+    "Omicron (BA.2-like)" => "B.1.1.529", #basal omicron
+    "Omicron (Unassigned)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (Unassigned)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (BA.2-like)" => "B.1.1.529", #basal omicron
+    "Omicron (BA.3-like)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (BA.3-like)" => "B.1.1.529", #basal omicron
+    "Omicron (BA.5-like)" => "B.1.1.529", #basal omicron
+    "Omicron (BA.4-like)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (BA.5-like)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (BA.4-like)" => "B.1.1.529", #basal omicron
+    "Probable Omicron (XE-like)" => "B.1.1.529", #basal omicron
+    "Omicron (XE-like)" => missing, #basal omicron
+)
+function parse_scorpio(scorpio)
+    return scorpio_map[scorpio]
+    # "B.1.617.2(AY.1)+K417N"
+    # "B.1.617.2(AY.3)+E484Q"
+    # "D614G"
+end
 
 
 const gene_index = [
@@ -59,19 +102,19 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:150, :], recurrent_df[snps_inds, :]) |> unique
-    top_n_snps_set = Set(top_n_snps.snp)
+    top_n_snps = vcat(recurrent_df[1:200, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
-    lineage_tags = sort(antigenic_map; by=t -> length(first(t)), rev=true)
     unique_genomes_df.closest_mapped_lineage = Vector{Union{String,Missing}}(undef, nrow(unique_genomes_df))
     unique_genomes_df.mapped_lineage_position = Vector{Union{Tuple{Float64,Float64},Missing}}(undef, nrow(unique_genomes_df))
     for r in eachrow(unique_genomes_df)
-        ind = findfirst(occursin(r.lineage), first.(lineage_tags))
-        r.closest_mapped_lineage = isnothing(ind) ? missing : lineage_tags[ind][1]
-        r.mapped_lineage_position = isnothing(ind) ? missing : lineage_tags[ind][2][1:2]
+        map_key = parse_scorpio(r.scorpio_call)
+        map_position = antigenic_map_paper[map_key]
+        r.closest_mapped_lineage = map_key
+        r.mapped_lineage_position = ismissing(map_position) ? missing : map_position[1:2]
     end
+    @show count(ismissing, unique_genomes_df.closest_mapped_lineage) / nrow(unique_genomes_df)
     dropmissing!(unique_genomes_df, :closest_mapped_lineage)
     return unique_genomes_df, snp_weight_dict
 end
