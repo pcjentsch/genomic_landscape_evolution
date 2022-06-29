@@ -1,12 +1,11 @@
 
 #take 2 genomes, find common ancestor, find closest sampled genome to that ancestor
 
-function plot_mds(fname, unique_df)
+function plot_mds(fname, unique_df, dm)
     # df = innerjoin(genomes_df, unique_df; on=:filtered_genome => :filtered_genome) |> df ->
     #     innerjoin(lineages, df; on=:id)
     # sort!(df, :date)
     p = plot()
-    display(unique_df)
     for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
         p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",
             title="Approximate antigenic cartography w/ RBD, UK samples",
@@ -16,6 +15,14 @@ function plot_mds(fname, unique_df)
             plotting_settings...)
     end
     savefig(p, plots_path("$(fname)_multidimensional_scaling"))
+    mstress = 6
+    stress_list = zeros(mstress)
+    for i in 1:mstress
+        mds = fit(MDS, dm; distances=true, maxoutdim=i)
+        stress_list[i] = stress(mds)
+    end
+    p = plot(1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
+    savefig(p, plots_path("$(fname)_mds_stress"))
 end
 
 

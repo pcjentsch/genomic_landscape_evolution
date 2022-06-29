@@ -59,7 +59,6 @@ function interpolate(xs::AbstractVector{Date}, ts::Timeseries{T}) where {T<:Abst
 
     for i in 1:size(ts.values[1], 1), j in 1:size(ts.values[1], 2)
         vals_ij = [m[i, j] for m in ts.values]
-
         interp = LinearInterpolation(ts_xs, vals_ij, extrapolation_bc=0.0)
         xs_vals = map(x -> Dates.value(x - begin_date), xs)
         for (k, x) in enumerate(xs_vals)
@@ -120,72 +119,41 @@ function UKLocationData()
     stringency_df = select(owid_df, [:date, :stringency_index]) |>
                     df -> dropmissing(df)
 
-    cases_df = select(owid_df, [:date, :new_cases_smoothed]) |>
-               df -> dropmissing(df)
-
-
-
-    replace_dict = JSON.parsefile(datapath("lineages_replace.json"); dicttype=OrderedDict)
-    lineage_data = CSV.File(datapath("uk_lineages.csv")) |> DataFrame
-    lineage_data.lineage = map(lineage_data.lineage) do lineage
-        initial = first(split(lineage, "."))
-        if haskey(replace_dict, initial)
-            return replace(lineage, initial => replace_dict[initial])
-        else
-            return lineage
-        end
-    end
-    genomes_metadata = CSV.File(datapath("metadata_unzipped.tsv")) |> DataFrame
-    genome_lineage = innerjoin(lineage_data, genomes_metadata; on=:taxon => :strain)
-    genome_lineage.date = Date.(genome_lineage.date)
-    select!(genome_lineage, [:lineage, :date])
-    filter!(:lineage => !=("None"), genome_lineage)
-
-    all_lineages = unique(genome_lineage.lineage)
-    #sort by length, we want to match the longest tags preferentially
-    tags = sort(first.(antigenic_map); by=length, rev=true)
-    tag_per_lineage = map(all_lineages) do lineage
-        ind = findfirst(occursin(lineage), tags)
-        return isnothing(ind) ? nothing : tags[ind]
-    end
-    unmatched_lineages = [lineage for (tag, lineage) in zip(tag_per_lineage, all_lineages) if isnothing(tag)]
-    @show unmatched_lineages
-    lineage_tag_dict = Dict(tag => all_lineages[findall(==(tag), tag_per_lineage)] for tag in tags)
-
-
-    lineage_fractions_by_date = DataFrame((date=first(df.date), lineages=no_occurences(df)) for df in groupby(genome_lineage, :date))
-    cases_w_fractions = innerjoin(lineage_fractions_by_date, cases_df; on=:date) |> df -> sort(df, :date)
-    antigenic_landscape = map(antigenic_map) do (tag, (x, y, width))
-        matching_lineages = lineage_tag_dict[tag]
-
-        cases_by_date_for_tag = map(eachrow(cases_w_fractions)) do cases_on_date
-            incident_cases = cases_on_date.new_cases_smoothed
-            date = cases_on_date.date
-            lineages_df = cases_on_date.lineages
-            pop = 0.0
-            fraction = 0
-            for (; lineage, pop_fraction) in eachrow(lineages_df)
-                if lineage in matching_lineages
-                    pop += pop_fraction * incident_cases
-                    fraction += pop_fraction
-                end
-            end
-            return (; date, pop, fraction)
-        end
-
-        return (tag=tag, coords=(map_coords_to_model_space(x, y)..., 5 * width), cases=cases_by_date_for_tag)
-    end |> DataFrame
-
-    antigenic_landscape_flat = flatten(antigenic_landscape, :cases) |>
-                               df -> transform(df, :cases => AsTable) |>
-                                     df -> select(df, Not([:cases])) |>
-                                           df -> groupby(df, :date)
-
-    cases_by_lineage_dates = map(x -> x.date, keys(antigenic_landscape_flat))
-    @assert issorted(cases_by_lineage_dates)
-    cases_by_lineage = [antigenic_landscape_flat[k] for k in keys(cases_by_lineage_dates)]
-
+    cases_by_lineage = deserialize(datapath("uk_grids.data"))
     cases_by_lineage_ts = Timeseries(cases_by_lineage_dates, map(cases_by_lineage_to_matrix, cases_by_lineage))
+    stringency_ts = Timeseries(stringency_df.date, stringency_df.stringency_index ./ 100)
+    vaccination_ts = Timeseries(vaccination_df.date, vaccination_df.people_fully_vaccinated)
+
+    return LocationData(stringency_ts, vaccination_ts, cases_by_lineage_ts)
+end
+
+
+function USALocationData()
+    country = "United States"
+    owid_df = CSV.File(datapath("owid-covid-data.csv")) |> DataFrame |>
+              df -> filter(:location => ==(country), df)
+
+    vaccination_df = select(owid_df, [:date, :people_fully_vaccinated]) |>
+                     df -> dropmissing(df)
+
+
+    stringency_df = select(owid_df, [:date, :stringency_index]) |>
+                    df -> dropmissing(df)
+
+    cases_df = select(owid_df, [:date, :new_cases_smoothed]) |>
+               df -> dropmissing(df) |> df -> sort(df, :date)
+
+    lineage_fractions, dates = deserialize(datapath("usa_grids.data"))
+    cases_by_lineage = Matrix{Float64}[]
+    cases_by_lineage_dates = Date[]
+    for (lineage_fraction, date) in zip(lineage_fractions, dates)
+        ind = findfirst(==(date), cases_df.date)
+        if !isnothing(ind)
+            push!(cases_by_lineage, lineage_fraction .* cases_df.new_cases_smoothed[ind])
+            push!(cases_by_lineage_dates, date)
+        end
+    end
+    cases_by_lineage_ts = Timeseries(cases_by_lineage_dates, cases_by_lineage)
     stringency_ts = Timeseries(stringency_df.date, stringency_df.stringency_index ./ 100)
     vaccination_ts = Timeseries(vaccination_df.date, vaccination_df.people_fully_vaccinated)
 

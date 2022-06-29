@@ -102,7 +102,7 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:200, :], recurrent_df[snps_inds, :]) |> unique
+    top_n_snps = vcat(recurrent_df[1:150, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
@@ -115,34 +115,50 @@ function unique_genomes(df, recurrent_df, binding_sites)
         r.mapped_lineage_position = ismissing(map_position) ? missing : map_position[1:2]
     end
     @show count(ismissing, unique_genomes_df.closest_mapped_lineage) / nrow(unique_genomes_df)
-    dropmissing!(unique_genomes_df, :closest_mapped_lineage)
-    return unique_genomes_df, snp_weight_dict
-end
+    dropmissing!(unique_genomes_df, [:closest_mapped_lineage, :mapped_lineage_position])
 
-
-function pairwise_distances(unique_genomes_df, snp_weight_dict::Dict{SNP,T}) where {T<:Number}
-    top_n_snps_set = keys(snp_weight_dict)
-    unique_genomes_df.filtered_genome = ThreadsX.map(genome -> Set(Iterators.filter(snp -> snp in top_n_snps_set, genome)), unique_genomes_df.genome)
+    unique_genomes_df.filtered_genome = ThreadsX.map(genome -> filter(snp -> snp in top_n_snps.snp, genome), unique_genomes_df.genome)
     filtered_genome_df = deepcopy(unique_genomes_df)
     unique!(filtered_genome_df, :filtered_genome)
+    return unique_genomes_df, filtered_genome_df, snp_weight_dict
+end
+using BenchmarkTools
+using Infiltrator
+using Cthulhu
+function compute_antigenic_distance(
+    mapped_lineage_position_i::Tuple{Float64,Float64},
+    mapped_lineage_position_j::Tuple{Float64,Float64},
+    genome_i,
+    genome_j,
+    binding_i::Float64,
+    binding_j::Float64,
+    snp_weight_dict
+)
+    snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
+    pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
+    d = pt_d + ((1 - binding_i) + (1 - binding_j)) / 2 #snp_distance * 1000#
+    return d
+end
+function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict)
     samples = nrow(filtered_genome_df)
-    dm = zeros(T, samples, samples)
+    dm = zeros(Float32, samples, samples)
     prog = Progress(samples)
-    ThreadsX.foreach(lower_triangular(samples)) do (i, j)
-        binding_i = filtered_genome_df.binding_retained[i]
-        genome_i::Set{SNP} = filtered_genome_df.filtered_genome[i]
-        mapped_lineage_position_i = filtered_genome_df.mapped_lineage_position[i]
-        binding_j = filtered_genome_df.binding_retained[j]
-        genome_j::Set{SNP} = filtered_genome_df.filtered_genome[j]
-        mapped_lineage_position_j = filtered_genome_df.mapped_lineage_position[j]
-        snp_distance = dist(genome_i, genome_j, snp_weight_dict)
-        pt_d = sum((mapped_lineage_position_i .- mapped_lineage_position_j) .^ 2)
-        d = pt_d + snp_distance * ((1 - binding_i) + (1 - binding_j)) / 2 * 3_000
-        dm[i, j] = d
-        dm[j, i] = d
+    function map_distances((i, j,))
+        d = compute_antigenic_distance(
+            filtered_genome_df.mapped_lineage_position[i],
+            filtered_genome_df.mapped_lineage_position[j],
+            filtered_genome_df.filtered_genome[i],
+            filtered_genome_df.filtered_genome[j],
+            filtered_genome_df.binding_retained[i],
+            filtered_genome_df.binding_retained[j],
+            snp_weight_dict,
+        )
+        dm[i, j] = Float32(d)
+        dm[j, i] = Float32(d)
         next!(prog)
     end
-    manifold_projection(dm, filtered_genome_df)
+    ThreadsX.foreach(map_distances, lower_triangular(samples))
+    mds = manifold_projection(dm, filtered_genome_df)
     select!(filtered_genome_df, [:genome, :filtered_genome, :mds_x, :mds_y])
     unique_genomes_df.mds_x = zeros(nrow(unique_genomes_df))
     unique_genomes_df.mds_y = zeros(nrow(unique_genomes_df))
@@ -151,7 +167,7 @@ function pairwise_distances(unique_genomes_df, snp_weight_dict::Dict{SNP,T}) whe
         unique_genomes_df.mds_x[inds] .= r.mds_x
         unique_genomes_df.mds_y[inds] .= r.mds_y
     end
-    return unique_genomes_df, filtered_genome_df
+    return unique_genomes_df, filtered_genome_df, dm
 end
 function manifold_projection(dm, unique_genomes_df)
     n = nrow(unique_genomes_df)
@@ -161,9 +177,10 @@ function manifold_projection(dm, unique_genomes_df)
     coord_matrix = predict(mds)
     unique_genomes_df.mds_x = coord_matrix[1, :]
     unique_genomes_df.mds_y = coord_matrix[2, :]
+    return mds
 end
 
-
+# expectation maximization
 
 # gene_occurrence = groupby(recurrent_df,:gene_name) |> df -> combine(df, nrow) |> df -> filter(:gene_name => n ->length(n)==1,df)
 # gene_occurrence.freq = gene_occurrence.occurrence_sum .- map(i -> abs(first(i) - last(i)),gene_index)
