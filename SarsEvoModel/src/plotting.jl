@@ -84,7 +84,7 @@ function plot_data(data::LocationData)
 
         ts3 = plot(tlist[1:i], sum.(data.stringency[1:i]); xlabel="time (days)", label="stringency", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_stringency))
 
-        p = plot(heatmap1, ts1, ts2, ts3; layout=(4, 1), size=(600, 1000),
+        p = plot(heatmap1, ts1, ts2, ts3; layout=(4, 1), size=(400, 800),
             plotting_settings...)
         frame(anim, p)
     end
@@ -92,31 +92,37 @@ function plot_data(data::LocationData)
 end
 @views function plot_solution(sol, data, begin_date)
     date_ind = findfirst(>=(begin_date), data.dates)
-    incident_cases = data.cases_by_lineage[date_ind]
+    incident_cases = data.cases_by_lineage[date_ind:end]
+
     anim = Animation()
     tlist = Float64[]
     S_ts = [u_t[1:w, 1:h] for u_t in sol.u]
     I_ts = [u_t[1:w, (h+1):(h*2)] for u_t in sol.u]
+
+    C_ts = [u_t[1:w, (h*4+1):(h*5)] for u_t in sol.u]
+    incident_ts = diff(sum.(C_ts))
     R_ts = [u_t[1:w, (h*2+1):(h*3)] for u_t in sol.u]
     V_ts = [u_t[1:w, (h*3+1):(h*4)] for u_t in sol.u]
     max_S = maximum(sum.(S_ts) ./ initial_pop)
     max_I = maximum(sum.(I_ts) ./ initial_pop)
     max_R = maximum(sum.(R_ts) ./ initial_pop)
+    max_incident = maximum(incident_ts ./ initial_pop)
     max_I_data = maximum(sum.(incident_cases) ./ initial_pop)
     tlist = sol.t
+    display(length(tlist))
     max_t = maximum(tlist)
-    for (i, (S, I, R, V)) in enumerate(zip(S_ts, I_ts, R_ts, V_ts))
+    @showprogress for i in 1:length(tlist)-1
 
-        heatmapS = heatmap(S; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
-        heatmapI = heatmap(I; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
-        heatmapR = heatmap(R; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
-        heatmapV = heatmap(V; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
+        heatmapS = heatmap(S_ts[i]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
+        heatmapI = heatmap(I_ts[i]; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
+        heatmapR = heatmap(R_ts[i]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
+        heatmapV = heatmap(V_ts[i]; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
 
         tsS = plot(tlist[1:i], sum.(S_ts[1:i]) ./ initial_pop; xlabel="time", ylabel="pop. fraction", label="susceptible", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_S))
-        tsI = plot(tlist[1:i], sum.(I_ts[1:i]) ./ initial_pop; xlabel="time", label="incident cases ", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_I))
+        tsI = plot(tlist[1:i], incident_ts[1:i] ./ initial_pop; xlabel="time", label="incident cases ", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_incident))
         tsR = plot(tlist[1:i], sum.(R_ts[1:i]) ./ initial_pop; xlabel="time", label="recovered", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_R))
         tsV = plot(tlist[1:i], sum.(V_ts[1:i]) ./ initial_pop; xlabel="time", label="vaccinated", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_R))
-        # tsData = plot!(tsI, tlist[1:i], sum.(incident_cases[1:i]) ./ initial_pop; xlabel="time (days)", ylabel="total pop.", label="incident cases (data)", seriescolor=:Red, xlims=(0.0, max_t), ylims=(0.0, max_I_data))
+        tsData = plot!(tsI, tlist[1:i], sum.(incident_cases[1:i]) ./ initial_pop; xlabel="time (days)", ylabel="total pop.", label="incident cases (data)", seriescolor=:Red, xlims=(0.0, max_t), ylims=(0.0, max_incident))
         p = plot(
             heatmapS,
             heatmapI,

@@ -1,7 +1,7 @@
 module SarsEvoModel
-export main, compute_antigenic_mapping_from_samples
+export main
 using BenchmarkTools
-
+using ProgressMeter
 #Ontario population
 const initial_pop = 329.5e6
 #Size of antigenic grid
@@ -51,7 +51,7 @@ function main()
     location_data = USALocationData()
 
     inv_infectious_period = 1 / 7
-    r_0 = 2.8
+    r_0 = 2.1
     transmission_rate = r_0 * inv_infectious_period
 
     β = Float64[transmission_rate for i in 1:w, j in 1:h]
@@ -67,7 +67,7 @@ function main()
     )
     prob = create_model(location_data, third_wave_begin, third_wave_end, params)
     date_ind = findfirst(>=(third_wave_begin), location_data.dates)
-    incident_cases = location_data.cases_by_lineage[date_ind]
+    incident_cases = location_data.cases_by_lineage[date_ind:end]
 
     function optimization_objective(β)
         params = ModelParameters(
@@ -87,7 +87,7 @@ function main()
 
         new_prob = remake(prob; p=new_p)
         sol = solve(new_prob, Rodas5();)
-        I_total = diff([sum(u_t[1:w, (h+1):(h*2)]) for u_t in sol.u])
+        I_total = diff([sum(u_t[1:w, (h*4+1):(h*5)]) for u_t in sol.u])
         err = 0
         for (true_incident, incident) in zip(incident_cases, I_total)
             err += (true_incident - incident)^2
@@ -97,8 +97,9 @@ function main()
     # @show optimization_objective(rand(w, h))
     # @show optimization_objective(rand(w, h))
 
-    sol = solve(prob, Rodas5();)
+    sol = solve(prob, Rodas5(); saveat=1:length(incident_cases))
     plot_solution(sol, location_data, third_wave_begin)
+    # plot_data(location_data)
     # # plot_antigenic_map()
     # return location_data
 end
