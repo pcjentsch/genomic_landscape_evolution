@@ -187,7 +187,7 @@
 \begin{frame}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            This technique was developed to visualize the antigenic drift of H3N2 
+            This technique was developed to visualize the antigenic drift of influenza A (H3N2)
         \end{column}
         \begin{column}{0.4\textwidth}
         \begin{figure}
@@ -212,21 +212,46 @@
 
 \begin{frame}
     These results suggest that 2 dimensions might be an adequate approximation to the full space!
-
-
 \end{frame}
 
+
+\begin{frame}{Incorporating more data}
+    \begin{itemize}
+        \item We have millions of samples and hundreds of thousands of unique genomes from random sampling alone
+        \item Assign each sample to its closest lineage in the map from \cite{wilksMappingSARSCoV2Antigenic2022}
+        \item Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_snps.png}
+        \caption{Map of all unique genomes collected in random USA sampling, considering the top 150 most recurrent SNPs}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Evaluating the MDS approximation}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{usa_mds_stress.png}
+    \end{figure}
+\end{frame}
+
+    
+\begin{frame}{}
+    (animation of kernel approximation)
+\end{frame}
 
 \begin{frame}{Model Equations}
     \small
     \begin{equation}
-        \frac{S_{ij}}{dt} = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn}
+        \frac{S_{ij}}{dt} = -\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij} - V(t)S  \label{Seqn}
     \end{equation}
     \begin{equation}
-        \frac{ I_{ij}(t)}{dt} = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
+        \frac{ I_{ij}(t)}{dt} = s(t) \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
     \end{equation}
     \begin{equation}
-        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij}  \label{Reqn}
+        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij} + V(t)S \label{Reqn}
     \end{equation}
 
     Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
@@ -264,6 +289,8 @@
                 $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
                 $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
                 $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
+                $v(t)$ & vaccination rate at time $t$\\
+                $s(t)$ & stringency at $t$\\
                 $\xi$ & Recovery rate of all strains \\
                 $\gamma$ & Rate of immunity loss of all strains \\
         \end{tabular}
@@ -273,82 +300,79 @@
         \end{center}
     \end{table}
 \end{frame}
-\begin{frame}{$\sigma$ matrix}
-    
-    In practice, we assume $\sigma_{ijkl}$ is just a 2-D gaussian distribution parameterized by the distance between $(i,j)$ and $(k,l)$.
-    \begin{figure}
-        \includegraphics[width=\textwidth]{../SarsEvoModel/plots/sigma.png}
-    \end{figure}
 
+\begin{frame}
+    I am working on fitting to data at the moment
 \end{frame}
 
 
-\begin{frame}{}
-    \small
-    To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
-    \tiny
-    \begin{equation}
-        S_t(x,y,t) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
-    \end{equation}
-    \begin{equation}
-        I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
-    \end{equation}
-    \begin{equation}
-        R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
-    \end{equation}
+
+% \begin{frame}{}
+%     \small
+%     To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+%     \tiny
+%     \begin{equation}
+%         S_t(x,y,t) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
+%     \end{equation}
+%     \begin{equation}
+%         I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
+%     \end{equation}
+%     \begin{equation}
+%         R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
+%     \end{equation}
     
-    where $\beta, \sigma, v$ have been generalized to their continuous counterparts. Given a dispersion kernel $K(x,y) \in L_2: \mathbb{R}^2 \to \mathbb{R}$ this can be generalised to non-local diffusion as follows
+%     where $\beta, \sigma, v$ have been generalized to their continuous counterparts. Given a dispersion kernel $K(x,y) \in L_2: \mathbb{R}^2 \to \mathbb{R}$ this can be generalised to non-local diffusion as follows
     
-    \begin{equation}
-        I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} K(x-x',y-y')I(x',y',t) dx' dy' \right) \label{Ieqn_cts_nonlocal}    
-    \end{equation}
-\end{frame}
-\begin{frame}{Developing an antigenic distance map}
-    \begin{itemize}
-        \item We would like an approximate measure of antigenic distance for every sample genome
-        \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
-        \item Many possible ways to do this, so far none of them seem to work very well
-        \item Project to 2-d (hopefully) space with multidimensional scaling
-    \end{itemize}    
-\end{frame}
-\begin{frame}{Genome distance}
-    Assume:
-    \begin{itemize}
-        \item $a,b$ are SARS-CoV-2 genomes aligned with the reference
-        \item $a_i$ the $i$th nucleotide base in $a$ and
-         \[
-            \chi(a_i,b_i) =   \begin{cases}
-            1 & \text{if $a_i=b_i$} \\
-            0 & \text{otherwise} \\
-        \end{cases}
-        \]
-        \item $h_i$ is a vector containing the number of homoplasic mutations at site $i$ in the global tree
-        \item $\mathfrak{B}(a)$ computes the polyclonal binding affinity of genome $a$ as per \cite{starr2020deep}
-    \end{itemize}
+%     \begin{equation}
+%         I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} K(x-x',y-y')I(x',y',t) dx' dy' \right) \label{Ieqn_cts_nonlocal}    
+%     \end{equation}
+% \end{frame}
+% \begin{frame}{Developing an antigenic distance map}
+%     \begin{itemize}
+%         \item We would like an approximate measure of antigenic distance for every sample genome
+%         \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
+%         \item Many possible ways to do this, so far none of them seem to work very well
+%         \item Project to 2-d (hopefully) space with multidimensional scaling
+%     \end{itemize}    
+% \end{frame}
+% \begin{frame}{Genome distance}
+%     Assume:
+%     \begin{itemize}
+%         \item $a,b$ are SARS-CoV-2 genomes aligned with the reference
+%         \item $a_i$ the $i$th nucleotide base in $a$ and
+%          \[
+%             \chi(a_i,b_i) =   \begin{cases}
+%             1 & \text{if $a_i=b_i$} \\
+%             0 & \text{otherwise} \\
+%         \end{cases}
+%         \]
+%         \item $h_i$ is a vector containing the number of homoplasic mutations at site $i$ in the global tree
+%         \item $\mathfrak{B}(a)$ computes the polyclonal binding affinity of genome $a$ as per \cite{starr2020deep}
+%     \end{itemize}
         
-    One option for a distance measure is something like
-    \begin{equation}
-        d(a,b) = \frac{\mathfrak{B}(a) + \mathfrak{B}(b)}{2} + \sum_i \chi(a_i,b_i) h_i
-    \end{equation}
-    That is, the average binding between two genomes plus the SNP distance weighted by the relative homoplasy of each mutation.
-\end{frame}
-\begin{frame}{Example antigenic distance map}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{uk_multidimensional_scaling.png}
-        \caption{Multidimensional scaling plot using samples from the UK up to mid November}
-    \end{figure}
-\end{frame}
-\begin{frame}{Homoplasy in global tree}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{gene_freq.png}
-        \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
-    \end{figure}
-\end{frame}
-\begin{frame}{Homoplasy in orf3a}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{orf3a_scatter_2.png}
-    \end{figure}
-\end{frame}
+%     One option for a distance measure is something like
+%     \begin{equation}
+%         d(a,b) = \frac{\mathfrak{B}(a) + \mathfrak{B}(b)}{2} + \sum_i \chi(a_i,b_i) h_i
+%     \end{equation}
+%     That is, the average binding between two genomes plus the SNP distance weighted by the relative homoplasy of each mutation.
+% \end{frame}
+% \begin{frame}{Example antigenic distance map}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{uk_multidimensional_scaling.png}
+%         \caption{Multidimensional scaling plot using samples from the UK up to mid November}
+%     \end{figure}
+% \end{frame}
+% \begin{frame}{Homoplasy in global tree}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{gene_freq.png}
+%         \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
+%     \end{figure}
+% \end{frame}
+% \begin{frame}{Homoplasy in orf3a}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{orf3a_scatter_2.png}
+%     \end{figure}
+% \end{frame}
 
 
 \begin{frame}[allowframebreaks]

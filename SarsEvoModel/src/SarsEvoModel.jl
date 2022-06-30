@@ -43,8 +43,14 @@ const datasets = (
         datapath("usa_sequences/usa_lineages.csv"),
     )
 )
-
-using Optimization, ForwardDiff, ReverseDiff, OptimizationNLopt, OptimizationBBO
+function total_variation(A)
+    t = 0.0
+    for i in 1:first(size(A))-1, j in 1:last(size(A))-1
+        t += abs(A[i+1, j] - A[i, j]) + abs(A[i, j] - A[i, j+1])
+    end
+    return t
+end
+using Optimization, ForwardDiff, ReverseDiff, OptimizationNLopt, OptimizationBBO, StatsBase
 function main()
 
     third_wave_begin = Date(2021, 03, 01)
@@ -88,23 +94,31 @@ function main()
     end
 
     function loss(sol, x)
+        β = reshape(x, (w, h))
         l = length(sol.u)
         err = 0
-        umone = sol.u[1][1:w, (h*4+1):(h*5)]
-        for (true_incident, incident) in zip(incident_cases,)
-            err += (true_incident - incident)^2
+        umone = sum(sol.u[1][1:w, (h*4+1):(h*5)])
+        for i in 2:l
+            u_i = sum(sol.u[i][1:w, (h*4+1):(h*5)])
+            err += (incident_cases[i] - (u_i - umone))^2 / 1e6
+            umone = u_i
         end
-        display(err)
-        return err + std(x)
+        err /= l
+        # display(err)
+        # display(total_variation(β) * 1e6)
+        return err + total_variation(β) * 1e6
     end
     # @show ForwardDiff.derivative(x -> optimization_objective(x, 0), 0.0001)
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
     β = Float64[transmission_rate / 2 for i in 1:w, j in 1:h]
+    β2 = Float64[i == j ? 1.0 : 0.0 for i in 1:w, j in 1:h]
     x0 = vec(β)
     @show loss(optimization_objective(x0), x0)
+    # x0 = vec(β2)
+    # @show loss(optimization_objective(x0), x0)
 
     prob = Optimization.OptimizationProblem(f, x0, 0, lb=fill(0.0, length(x0)), ub=fill(transmission_rate, length(x0)))
-    optimizer = solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=100000, maxtime=1000.0)
+    optimizer = solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=100000, maxtime=5000.0)
 
     sol = optimization_objective(optimizer)
     plot_solution(sol, params)
