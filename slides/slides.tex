@@ -39,7 +39,7 @@
 \date{\today}
 
 \begin{document}
-
+\setbeamertemplate{caption}{\insertcaption\par}
 \frame{\titlepage}
 
 \begin{frame}
@@ -97,15 +97,20 @@
         \includegraphics[width=0.5\textwidth]{phylogeny.png}
     \end{figure}
 \end{frame}
-
 \begin{frame}
     \begin{columns}
 \begin{column}{\textwidth}
-    \begin{itemize}
-        \item Can extend these models to a sequence of variants
-        \item Assume each variant is indexed by $i$ 
-        \item The dynamics at each variant $i$ are determined by a simple compartmental model
-    \end{itemize} 
+    \begin{figure}
+        \includegraphics[width=0.6\textwidth]{gog_paper.png}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.6\textwidth]{gog_paper_2.png}
+    \end{figure}
+    % \begin{itemize}
+    %     \item Can extend these models to a sequence of variants
+    %     \item Assume each variant is indexed by $i$ 
+    %     \item The dynamics at each variant $i$ are determined by a simple compartmental model
+    % \end{itemize} 
     % \centering
     % \vspace{5cm}
     % \tiny{\cite{gogDynamicsSelectionManystrain2002}}
@@ -117,13 +122,13 @@
 \end{frame}
 \begin{frame}
     \begin{columns}
+        % \begin{column}{0.5\textwidth}
+        %     \begin{itemize}
+        %         \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
+        %         \item A variant $i$ mutates to neighbouring indices $i+1, i-1$ proportional to the population of variant $i$
+        %         \end{itemize}         
+        % \end{column}
         \begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
-                \item A variant $i$ mutates to neighbouring indices $i+1, i-1$ proportional to the population of variant $i$
-                \end{itemize}         
-        \end{column}
-        \begin{column}{0.6\textwidth}
             \begin{figure}
                 \includegraphics[width=\textwidth]{gog_fig.png}
             \end{figure}
@@ -153,11 +158,25 @@
 \end{frame}
 
 \begin{frame}{Antigenic cartography }
-    \begin{itemize}
-        \item Practice of mapping out immune responses to related pathogens
-        \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
-% ,  usually as proportional reduction in serum viral titre
-    \end{itemize}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            Technique developed to visualize the antigenic drift of influenza A (H3N2)
+        \end{column}
+        \begin{column}{0.4\textwidth}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{smith_antigenic.png}    
+        \end{figure}   
+    \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
+    % \begin{itemize}
+    %     \item Practice of mapping out immune responses to related pathogens
+    %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
+% ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
+    % \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -184,22 +203,6 @@
     \tiny{\cite{scikit-learn}}
 
 \end{frame}
-\begin{frame}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            This technique was developed to visualize the antigenic drift of influenza A (H3N2)
-        \end{column}
-        \begin{column}{0.4\textwidth}
-        \begin{figure}
-        \includegraphics[width=\textwidth]{smith_antigenic.png}    
-        \end{figure}   
-    \end{column}
-    \end{columns}
-    \centering
-    \vfill
-    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
-
-\end{frame}
 
 \begin{frame}
         \begin{figure}
@@ -217,19 +220,32 @@
 
 \begin{frame}{Incorporating more data}
     \begin{itemize}
-        \item We have millions of samples and hundreds of thousands of unique genomes from random sampling alone
+        \item A huge amount of genomic data is available
+        % \item We have millions of samples and hundreds of thousands of unique genomes from random sampling alone
         \item Assign each sample to its closest lineage in the map from \cite{wilksMappingSARSCoV2Antigenic2022}
-        \item Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
+        \item Two methods to further differentiate genomes: homoplasic mutations or antibody binding
+        % Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
     \end{itemize}
 \end{frame}
 
-
-\begin{frame}
+\begin{frame}{Mutation homoplasy}
     \begin{figure}
-        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_snps.png}
-        \caption{Map of all unique genomes collected in random USA sampling, considering the top 150 most recurrent SNPs}
+        \includegraphics[width=\textwidth]{gene_freq.png}
     \end{figure}
 \end{frame}
+\begin{frame}{Antibody Binding map}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_binding.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Homoplasic mutations map}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_snps.png}
+    \end{figure}
+\end{frame}
+
+
 
 \begin{frame}{Evaluating the MDS approximation}
     \begin{figure}
@@ -241,7 +257,30 @@
 \begin{frame}{}
     (animation of kernel approximation)
 \end{frame}
-
+\begin{frame}{Model parameters/variables}
+    \begin{table}[h!]
+        \begin{center}
+        \begin{tabular}{c|p{8cm}}
+                Symbol & Description \\
+                \hline
+                \hline
+                $N$ & Size of variant grid \\
+                $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
+                $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
+                $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
+                $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
+                $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
+                $v(t)$ & vaccination rate at time $t$\\
+                $s(t)$ & stringency at $t$\\
+                $\xi$ & Recovery rate of all strains \\
+                $\gamma$ & Rate of immunity loss of all strains \\
+        \end{tabular}
+        \caption{Table of symbols for Model 2}
+    
+        \label{variables_2}
+        \end{center}
+    \end{table}
+\end{frame}
 \begin{frame}{Model Equations}
     \small
     \begin{equation}
@@ -276,36 +315,20 @@
 
 % \end{columns}
 % \end{frame}
-\begin{frame}{Model parameters/variables}
-    \begin{table}[h!]
-        \begin{center}
-        \begin{tabular}{c|p{8cm}}
-                Symbol & Description \\
-                \hline
-                \hline
-                $N$ & Size of variant grid \\
-                $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
-                $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
-                $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
-                $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
-                $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
-                $v(t)$ & vaccination rate at time $t$\\
-                $s(t)$ & stringency at $t$\\
-                $\xi$ & Recovery rate of all strains \\
-                $\gamma$ & Rate of immunity loss of all strains \\
-        \end{tabular}
-        \caption{Table of symbols for Model 2}
-    
-        \label{variables_2}
-        \end{center}
-    \end{table}
-\end{frame}
+
 
 \begin{frame}
-    I am working on fitting to data at the moment
+    (gifs of model dynamics)
 \end{frame}
 
 
+\begin{frame}{Further work}
+    \begin{itemize}
+        \item Estimating a nonlocal diffusion kernel
+        \item Better model fitting
+        \item Predicting vaccine targets
+    \end{itemize}
+\end{frame}
 
 % \begin{frame}{}
 %     \small

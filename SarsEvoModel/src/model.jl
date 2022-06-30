@@ -67,7 +67,7 @@ function ModelParameters(
     end
 
     init_population_at_coords = [sum([m[x, y] for m in location_data.cases_by_lineage[1:date_ind]]) for x in 1:w, y in 1:h]
-    active_population_at_coords = [sum([m[x, y] for m in location_data.cases_by_lineage[date_ind:date_ind+5]]) for x in 1:w, y in 1:h]
+    active_population_at_coords = [sum([m[x, y] for m in location_data.cases_by_lineage[date_ind-10:date_ind]]) for x in 1:w, y in 1:h]
     I .+= active_population_at_coords
     S .-= (init_population_at_coords .+ active_population_at_coords)
     R += init_population_at_coords
@@ -108,13 +108,13 @@ function rhs(du, u, p, t)
     day = trunc(Int, t)
     stringency_t = stringency[day+1]
     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-    vaccination_rate_by_day_t = (vaccination_mrna[day+1] - yesterday_vaccinations) / initial_population
+    vaccination_rate_by_day_t = 10.0 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
     @inbounds for j in 2:hmone
         @inbounds for i in 2:wmone
             force_of_infection = zero(eltype(sigma_matrix))
             @inbounds for l in 2:hmone
                 @inbounds for k in 2:wmone
-                    force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
+                    force_of_infection += (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
                 end
             end
 
@@ -135,7 +135,6 @@ function create_model(params::ModelParameters{T,T2}, jac_sparsity) where {T,T2}
     u0 = zeros(element_type, (w, h * 5))
     #IC
     u0 .= params.u0
-
     f = ODEFunction(rhs, jac_prototype=float.(jac_sparsity))
     prob = ODEProblem(f, u0, (0.0, length(params) - 1), params)
     return prob

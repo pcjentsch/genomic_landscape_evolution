@@ -53,13 +53,11 @@ end
 using Optimization, ForwardDiff, ReverseDiff, OptimizationNLopt, OptimizationBBO, StatsBase
 function main()
 
-    third_wave_begin = Date(2021, 03, 01)
-    begin_date = Date(2021, 03, 01)
-    third_wave_end = Date(2021, 08, 01)
+    begin_date = Date(2020, 9, 01)
     location_data = USALocationData()
 
     inv_infectious_period = 1 / 7
-    r_0 = 3.0
+    r_0 = 1.55
     transmission_rate = r_0 * inv_infectious_period
     diffusion_kernel = [sigma(i, j; sigma_x=20.0, sigma_y=20.0, rounding=false) for i = -25:25, j = -25:25]
     diffusion_kernel = diffusion_kernel ./ sum(diffusion_kernel)
@@ -82,46 +80,57 @@ function main()
     du0 = similar(u0, size(u0))
 
     jac_sparsity = Symbolics.jacobian_sparsity((du, u) -> rhs(du, u, params, 0.0), du0, u0)
-    date_ind = findfirst(>=(begin_date), location_data.dates)
-    incident_cases = sum.(location_data.cases_by_lineage[date_ind:end])
-
+    incident_cases = sum.(params.location_data.cases_by_lineage)
+    # display(plot(incident_cases))
     function optimization_objective(x)
         new_β = reshape(x, (w, h))
         new_p = @set params.β = new_β
         prob = create_model(new_p, jac_sparsity)
-        sol = solve(prob, Rodas5())
+        sol = solve(prob, Rodas5(); saveat=1:length(params))
         return sol
     end
 
     function loss(sol, x)
+        if sol.retcode != :Success
+            return Inf
+        end
         β = reshape(x, (w, h))
         l = length(sol.u)
         err = 0
+        # reconstructed = Float64[]
         umone = sum(sol.u[1][1:w, (h*4+1):(h*5)])
         for i in 2:l
+
             u_i = sum(sol.u[i][1:w, (h*4+1):(h*5)])
-            err += (incident_cases[i] - (u_i - umone))^2 / 1e6
+            # push!(reconstructed, (u_i - umone))
+
+            err += (incident_cases[i] - (u_i - umone))^2
             umone = u_i
         end
+        # p = plot(reconstructed; ylims=(0, max(maximum(reconstructed), maximum(incident_cases))))
+
+        # plot!(incident_cases; ylims=(0, max(maximum(reconstructed), maximum(incident_cases))))
+        # display(p)
         err /= l
+        yield()
         # display(err)
         # display(total_variation(β) * 1e6)
-        return err + total_variation(β) * 1e6
+        return err + total_variation(β) * 1e5
     end
     # @show ForwardDiff.derivative(x -> optimization_objective(x, 0), 0.0001)
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    β = Float64[transmission_rate / 2 for i in 1:w, j in 1:h]
-    β2 = Float64[i == j ? 1.0 : 0.0 for i in 1:w, j in 1:h]
+    β = Float64[transmission_rate for i in 1:w, j in 1:h]
     x0 = vec(β)
     @show loss(optimization_objective(x0), x0)
-    # x0 = vec(β2)
-    # @show loss(optimization_objective(x0), x0)
 
-    prob = Optimization.OptimizationProblem(f, x0, 0, lb=fill(0.0, length(x0)), ub=fill(transmission_rate, length(x0)))
+    prob = Optimization.OptimizationProblem(f, x0, 0, lb=fill(0.0001, length(x0)), ub=fill(transmission_rate * 1.2, length(x0)))
     optimizer = solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=100000, maxtime=5000.0)
-
     sol = optimization_objective(optimizer)
+
+    # # sol = optimization_objective(x0)
+    # # return loss(sol, x0)
     plot_solution(sol, params)
+    # loss(sol, x0)
     # plot_data(location_data)
     # # plot_antigenic_map()
     # return location_data
