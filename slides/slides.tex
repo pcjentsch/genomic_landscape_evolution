@@ -2,9 +2,20 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{cite}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
 
+\usepackage{tikzit}
 
+\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{shapes.multipart,matrix,positioning,arrows,arrows.meta}
 \usefonttheme{serif}
+\tikzstyle{black circle}=[fill=white, draw=black, shape=circle, tikzit shape=circle]
+\tikzstyle{Arrow}=[->]
+
+% Edge styles
+\tikzstyle{new edge style 0}=[->]
 
 \setbeamertemplate{footline}[frame number]{}
 \setbeamertemplate{navigation symbols}{}
@@ -19,6 +30,7 @@
 \usetheme{default}
 \beamertemplatenavigationsymbolsempty
 \setbeamercolor{titlelike}{fg=blue}
+\setbeamertemplate{caption}{\insertcaption\par}
 
 %Information to be included in the title page:
 \title{Strain-space model for Sars-CoV-2}
@@ -31,20 +43,214 @@
 \frame{\titlepage}
 
 \begin{frame}
-\begin{columns}
-\begin{column}{\textwidth}
     \begin{itemize}
-        \item Dynamic model of Sars-CoV-2 evolution, representing antigenic diversity on a lattice (as in e.g. \cite{gogDynamicsSelectionManystrain2002,kryazhimskiyStateSpaceReductionMultiStrain2007, Marchi_2021})
-        \item Antigenically distinct variants of the virus are mapped to 2D grid,  distance between variants corresponds to the proportional reduction in maximum serum viral titre \cite{wilksMappingSARSCoV2Antigenic2022,van2022mapping}
+        \item Infection spread is often modelled using compartmental models
+
+        \item Represent subsets of a host population and rates of movement between them
     \end{itemize}
-\begin{figure}
-    \includegraphics[width=0.5\textwidth]{../SarsEvoModel/plots/antigenic_map_paper.png}
-    \caption{Antigenic cartography of Sars-CoV-2, reproduced from \cite{wilksMappingSARSCoV2Antigenic2022}, Fig. 2}
-\end{figure}
+
+    \begin{figure}
+        \centering
+            \begin{tikzpicture}[node distance=1.5cm, auto,
+                >=Latex, 
+                every node/.append style={align=center},
+                int/.style={draw, minimum size=0.5cm}]
+            
+            \node [int] (S)             {$S$};
+            \node [int, right=of S ] (I) {$I$};
+            \node [int, right=of I] (R) {$R$};
+            \path[->] (S) edge node {$ \beta S I$} (I);
+            \path[->] (I) edge node {$\gamma I$} (R);
+            \end{tikzpicture}
+            \label{SIR_diagram}
+    \end{figure}
+    
+\end{frame}
+
+\begin{frame}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+
+            \begin{itemize}
+                \item Multiple infections (e.g. competing VoCs) can be represented as more compartments
+                \item Work on multiple infections is usually here due to lack of data, increasing complexity
+            \end{itemize}
+    
 \end{column}
 
+
+    \begin{column}{0.4\textwidth}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{voc_model_diagram.png}
+\label{model_structure}
+\end{figure}
+\end{column}
 \end{columns}
+% (e.g. \cite{Alizon_van_Baalen_2008, van_Baalen_Sabelis_1995, Lipsitch_Colijn_Cohen_Hanage_Fraser_2009, Nicoli_Ayabina_Trotter_Turner_Colijn_2015})
 \end{frame}
+
+\begin{frame}
+    This only represents a tiny amount of the genomic data we have for Sars-CoV-2!
+    \begin{figure}
+        \includegraphics[width=0.5\textwidth]{phylogeny.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{columns}
+\begin{column}{\textwidth}
+    \begin{itemize}
+        \item Can extend these models to a sequence of variants
+        \item Assume each variant is indexed by $i$ 
+        \item The dynamics at each variant $i$ are determined by a simple compartmental model
+    \end{itemize} 
+    % \centering
+    % \vspace{5cm}
+    % \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+\end{column}
+\end{columns}
+
+
+
+\end{frame}
+\begin{frame}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
+                \item A variant $i$ mutates to neighbouring indices $i+1, i-1$ proportional to the population of variant $i$
+                \end{itemize}         
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{gog_fig.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+\end{frame}
+\begin{frame}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{gog_2d_a.png}
+            \end{figure}        
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{gog_2d_b.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+
+\end{frame}
+
+\begin{frame}{Antigenic cartography }
+    \begin{itemize}
+        \item Practice of mapping out immune responses to related pathogens
+        \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
+% ,  usually as proportional reduction in serum viral titre
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.4\textwidth]{mds_1.png}
+                
+            \end{figure}   
+        \end{column}
+        \begin{column}{0.01\textwidth}
+            \huge{$\Longrightarrow$}
+            
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+            \includegraphics[width=\textwidth]{mds_2.png}
+            
+        \end{figure}   
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{scikit-learn}}
+
+\end{frame}
+\begin{frame}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            This technique was developed to visualize the antigenic drift of H3N2 
+        \end{column}
+        \begin{column}{0.4\textwidth}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{smith_antigenic.png}    
+        \end{figure}   
+    \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
+
+\end{frame}
+
+\begin{frame}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{wilks.png}
+    \end{figure}   
+    \centering
+    \vfill
+    \tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
+\end{frame}
+
+\begin{frame}
+    These results suggest that 2 dimensions might be an adequate approximation to the full space!
+
+
+\end{frame}
+
+
+\begin{frame}{Model Equations}
+    \small
+    \begin{equation}
+        \frac{S_{ij}}{dt} = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn}
+    \end{equation}
+    \begin{equation}
+        \frac{ I_{ij}(t)}{dt} = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
+    \end{equation}
+    \begin{equation}
+        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij}  \label{Reqn}
+    \end{equation}
+
+    Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
+
+    Initial conditions computed from genomic data in GISAID 
+\end{frame}
+% \begin{frame}
+% \begin{columns}
+% \begin{column}{\textwidth}
+%     \begin{itemize}
+%         \item Dynamic model of Sars-CoV-2 evolution, representing antigenic diversity on a lattice
+%         %  (as in e.g. \cite{gogDynamicsSelectionManystrain2002,kryazhimskiyStateSpaceReductionMultiStrain2007, Marchi_2021})
+%         \item Antigenically distinct variants of the virus are mapped to 2D grid,  distance between variants corresponds to the proportional reduction in maximum serum viral titre 
+    
+%         % \cite{wilksMappingSARSCoV2Antigenic2022,van2022mapping}
+%     \end{itemize}
+% \begin{figure}
+%     \includegraphics[width=0.5\textwidth]{../SarsEvoModel/plots/antigenic_map_paper.png}
+%     \caption{\small{reproduced from \cite{wilksMappingSARSCoV2Antigenic2022}, Fig. 2}}
+% \end{figure}
+% \end{column}
+
+% \end{columns}
+% \end{frame}
 \begin{frame}{Model parameters/variables}
     \begin{table}[h!]
         \begin{center}
@@ -75,22 +281,7 @@
     \end{figure}
 
 \end{frame}
-\begin{frame}{Model Equations}
-    \small
-    \begin{equation}
-        \frac{S_{ij}}{dt} = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn}
-    \end{equation}
-    \begin{equation}
-        \frac{ I_{ij}(t)}{dt} = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
-    \end{equation}
-    \begin{equation}
-        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij}  \label{Reqn}
-    \end{equation}
 
-    Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
-
-    Initial conditions computed from genomic data in GISAID 
-\end{frame}
 
 \begin{frame}{}
     \small

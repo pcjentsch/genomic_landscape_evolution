@@ -90,10 +90,11 @@ function plot_data(data::LocationData)
     end
     gif(anim, plots_path("data"; filetype="gif"))
 end
-@views function plot_solution(sol, data, begin_date)
-    date_ind = findfirst(>=(begin_date), data.dates)
-    incident_cases = data.cases_by_lineage[date_ind:end]
-
+@views function plot_solution(sol, params)
+    (; initial_population, location_data, begin_date) = params
+    date_ind = findfirst(>=(begin_date), location_data.dates)
+    incident_cases = location_data.cases_by_lineage[date_ind:end]
+    initial_pop = initial_population
     anim = Animation()
     tlist = Float64[]
     S_ts = [u_t[1:w, 1:h] for u_t in sol.u]
@@ -113,10 +114,10 @@ end
     max_t = maximum(tlist)
     @showprogress for i in 1:length(tlist)-1
 
-        heatmapS = heatmap(S_ts[i]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
-        heatmapI = heatmap(I_ts[i]; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
-        heatmapR = heatmap(R_ts[i]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
-        heatmapV = heatmap(V_ts[i]; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
+        heatmapS = heatmap(S_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
+        heatmapI = heatmap(I_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
+        heatmapR = heatmap(R_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
+        heatmapV = heatmap(V_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
 
         tsS = plot(tlist[1:i], sum.(S_ts[1:i]) ./ initial_pop; xlabel="time", ylabel="pop. fraction", label="susceptible", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_S))
         tsI = plot(tlist[1:i], incident_ts[1:i] ./ initial_pop; xlabel="time", label="incident cases ", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_incident))

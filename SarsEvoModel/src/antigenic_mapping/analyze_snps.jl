@@ -180,6 +180,62 @@ function manifold_projection(dm, unique_genomes_df)
     return mds
 end
 
+
+using AverageShiftedHistograms
+function make_antigenic_map()
+    binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
+    for dataset in datasets[2:2]
+        name, alignments, metadata, lineage_path = dataset
+        recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
+        genomes_w_metadata = serial_load(
+            () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path),
+            datapath("genomes_$name.data")
+        )
+        @info "filtering unique genomes.."
+        unique_df, filter_df, snp_weight_dict = serial_load(
+            () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
+            datapath("unique_df_$name.data")
+        )
+        @info "computing pairwise distances"
+
+        unique_df, filter_df, dm = pairwise_distances(unique_df, filter_df, snp_weight_dict)
+        @info "computing stress"
+
+        plot_mds(name, unique_df, dm)
+
+        unique_df.week_submitted = round.(unique_df.date_submitted, Week)
+
+        bounds_x = extrema(unique_df.mds_x)
+        bounds_y = extrema(unique_df.mds_y)
+        x_grid = LinRange(bounds_x..., 25)
+        y_grid = LinRange(bounds_y..., 25)
+        anim = Animation()
+        heatmap_anim = Animation()
+        sort!(unique_df, :week_submitted)
+        @info "Plotting..."
+        grped_by_date = groupby(unique_df, :date_submitted; sort=true)
+        dates = Date[]
+        grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+        @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+            o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+            grids[i] = o.z
+            push!(dates, key.date_submitted)
+            p = plot()
+            scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+                markerstrokewidth=0.3,
+                size=(400, 300),
+                plotting_settings...)
+            plot!(p, o.rngx, o.rngy, o.z; title=key.date_submitted, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+            htmp = heatmap(o.z; title=key.date_submitted, plotting_settings...)
+            frame(anim, p)
+            frame(heatmap_anim, htmp)
+        end
+        gif(anim, plots_path("$(name)_mds_density"; filetype="gif"))
+        gif(heatmap_anim, plots_path("$(name)_mds_density_heatmap"; filetype="gif"))
+        serialize(SarsEvoModel.datapath("$(name)_grids.data"), (grids, dates))
+        return unique_df, filter_df, grids
+    end
+end
 # expectation maximization
 
 # gene_occurrence = groupby(recurrent_df,:gene_name) |> df -> combine(df, nrow) |> df -> filter(:gene_name => n ->length(n)==1,df)

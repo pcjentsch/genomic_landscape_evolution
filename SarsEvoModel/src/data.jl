@@ -73,33 +73,32 @@ struct LocationData
     stringency::Vector{Float64}
     cases_by_lineage::Vector{Matrix{Float64}}
     vaccination_mrna::Vector{Float64}
-    function LocationData(stringency, vaccination, cases_by_lineage)
-
-        first_date = min(
-            minimum(stringency.dates),
-            minimum(vaccination.dates),
-            minimum(cases_by_lineage.dates),
-        )
-
-        last_date = max(
-            maximum(stringency.dates),
-            maximum(vaccination.dates),
-            maximum(cases_by_lineage.dates),
-        )
-        dates = collect(first_date:Day(1):last_date)
-
-        vaccination_interpolated = interpolate(dates, vaccination)
-        stringency_interpolated = interpolate(dates, stringency)
-        cases_by_lineage_interpolated = interpolate(dates, cases_by_lineage)
-
-
-        return new(dates,
-            stringency_interpolated,
-            cases_by_lineage_interpolated,
-            vaccination_interpolated)
-    end
 end
+function LocationData(stringency, vaccination, cases_by_lineage)
 
+    first_date = min(
+        minimum(stringency.dates),
+        minimum(vaccination.dates),
+        minimum(cases_by_lineage.dates),
+    )
+
+    last_date = max(
+        maximum(stringency.dates),
+        maximum(vaccination.dates),
+        maximum(cases_by_lineage.dates),
+    )
+    dates = collect(first_date:Day(1):last_date)
+
+    vaccination_interpolated = interpolate(dates, vaccination)
+    stringency_interpolated = interpolate(dates, stringency)
+    cases_by_lineage_interpolated = interpolate(dates, cases_by_lineage)
+
+
+    return LocationData(dates,
+        stringency_interpolated,
+        cases_by_lineage_interpolated,
+        vaccination_interpolated)
+end
 function OntarioLocationData()
     stringency = clean_strigency_data()
     vaccination = clean_vaccination_data()
