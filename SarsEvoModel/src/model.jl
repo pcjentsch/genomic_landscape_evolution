@@ -3,6 +3,7 @@ using LabelledArrays
 using DifferentialEquations
 using LoopVectorization
 using Symbolics
+using Polyester
 using BenchmarkTools
 using StaticArrays
 import Base.length
@@ -90,8 +91,11 @@ end
 function Base.length(p::ModelParameters)
     return length(p.location_data.stringency)
 end
-function rhs(du, u, p, t)
-    (; M, ξ, γ, β, sigma_matrix, initial_population, location_data) = p
+
+const x_i_transformed, y_i_transformed = map_coords_to_model_space(2.7, 3.8)
+function rhs(du, u, p, t, const_params)
+    β = reshape(p, (w, h))
+    (; M, ξ, γ, sigma_matrix, initial_population, location_data) = const_params
     (; stringency, vaccination_mrna) = location_data
     dS = @view du[1:w, 1:h]
     dI = @view du[1:w, (h+1):(h*2)]
@@ -108,13 +112,13 @@ function rhs(du, u, p, t)
     day = trunc(Int, t)
     stringency_t = stringency[day+1]
     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-    vaccination_rate_by_day_t = 10.0 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
+    vaccination_rate_by_day_t = (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
     @inbounds for j in 2:hmone
         @inbounds for i in 2:wmone
             force_of_infection = zero(eltype(sigma_matrix))
             @inbounds for l in 2:hmone
                 @inbounds for k in 2:wmone
-                    force_of_infection += (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
+                    force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
                 end
             end
 
@@ -122,75 +126,16 @@ function rhs(du, u, p, t)
             diffusion = M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
             dI[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + diffusion
             dR[i, j] = ξ * I[i, j] - γ * R[i, j]
-            x_i_transformed, y_i_transformed = map_coords_to_model_space(2.7, 3.8)
             dV[i, j] = vaccination_rate_by_day_t * S[i, j] * sigma(i - x_i_transformed, j - y_i_transformed; sigma_x=20.0, sigma_y=20.0, rounding=false)
             dC[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] + diffusion
-
         end
     end
 end
 
-function create_model(params::ModelParameters{T,T2}, jac_sparsity) where {T,T2}
-    element_type = promote_type(Float64, eltype(T), T2)
-    u0 = zeros(element_type, (w, h * 5))
+function create_model(params, jac_sparsity, const_params)
     #IC
-    u0 .= params.u0
-    f = ODEFunction(rhs, jac_prototype=float.(jac_sparsity))
-    prob = ODEProblem(f, u0, (0.0, length(params) - 1), params)
+    u0 = const_params.u0
+    f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params), jac_prototype=jac_sparsity)
+    prob = ODEProblem(f, u0, (0.0, length(const_params) - 1), params)
     return prob
 end
-
-
-##Plot sigma, beta, and S_0 for debugging
-# plt1 = heatmap(-div(w, 2):div(w, 2), -div(h, 2):div(h, 2), sigma_matrix[:, :, div(w, 2), div(h, 2)], xlabel="antigenic distance", ylabel="antigenic distance"; plotting_settings...)
-# savefig(plt1, plots_path("sigma"))
-# plt2 = heatmap(1:w, 1:h, β; plotting_settings...)
-# savefig(plt2, plots_path("beta"))
-# plt3 = heatmap(1:w, 1:h, S; plotting_settings...)
-# savefig(plt3, plots_path("S_0"))
-
-# function rhs_diffusion_kernel(du, u, p, t)
-#     (; diffusion_kernel, params, stringency, vaccination_mrna) = p
-#     (; β, ξ, γ, initial_population, M, sigma_matrix) = params
-#     dS = @view du[1:w, 1:h]
-#     dI = @view du[1:w, (h+1):(h*2)]
-#     dR = @view du[1:w, (h*2+1):(h*3)]
-#     dV = @view du[1:w, (h*3+1):(h*4)]
-#     dC = @view du[1:w, (h*4+1):(h*5)]
-
-#     S = @view u[1:w, 1:h]
-#     I = @view u[1:w, (h+1):(h*2)]
-#     R = @view u[1:w, (h*2+1):(h*3)]
-
-#     hmone = h - 1
-#     wmone = w - 1
-#     day = trunc(Int, t)
-#     stringency_t = stringency[day+1]
-#     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-#     vaccination_rate_by_day_t = 0.1 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
-#     for j in 2:hmone
-#         for i in 2:wmone
-#             force_of_infection = zero(eltype(sigma_matrix))
-#             for l in 2:hmone
-#                 for k in 2:wmone
-#                     force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
-#                 end
-#             end
-#             diffusion = 0.0
-#             for l in 2:hmone
-#                 for k in 2:wmone
-#                     diffusion += I[k, l] * diffusion_kernel[i-k+wmone, j-l+hmone] # sigma(i - k, j - l; sigma_x=20.0, sigma_y=20.0, rounding=false)
-#                 end
-#             end
-
-#             dS[i, j] = -1 * stringency_t * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
-#             dI[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + M * diffusion
-#             dR[i, j] = ξ * I[i, j] - γ * R[i, j]
-
-#             x_i_transformed, y_i_transformed = map_coords_to_model_space(2.7, 3.8)
-#             dV[i, j] = vaccination_rate_by_day_t * S[i, j] * sigma(i - x_i_transformed, j - y_i_transformed; sigma_x=20.0, sigma_y=20.0, rounding=false)
-#             dC[i, j] = M * diffusion + (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j]
-#         end
-#     end
-
-# end
