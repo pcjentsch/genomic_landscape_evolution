@@ -5,17 +5,13 @@
 \usepackage{tikz}
 \usepackage{amsmath}
 \usepackage{graphicx}
-
 \usepackage{tikzit}
 
 \usetikzlibrary{arrows.meta,positioning}
 \usetikzlibrary{shapes.multipart,matrix,positioning,arrows,arrows.meta}
 \usefonttheme{serif}
-\tikzstyle{black circle}=[fill=white, draw=black, shape=circle, tikzit shape=circle]
-\tikzstyle{Arrow}=[->]
-
+\input{sample.tikzstyles}
 % Edge styles
-\tikzstyle{new edge style 0}=[->]
 
 \setbeamertemplate{footline}[frame number]{}
 \setbeamertemplate{navigation symbols}{}
@@ -42,112 +38,154 @@
 \setbeamertemplate{caption}{\insertcaption\par}
 \frame{\titlepage}
 
-\begin{frame}
-    \begin{itemize}
-        \item Infection spread is often modelled using compartmental models
-
-        \item Represent subsets of a host population and rates of movement between them
-    \end{itemize}
-
-    \begin{figure}
-        \centering
-            \begin{tikzpicture}[node distance=1.5cm, auto,
-                >=Latex, 
-                every node/.append style={align=center},
-                int/.style={draw, minimum size=0.5cm}]
+% \begin{frame}{Infection spread with compartmental models}
+%     % \begin{itemize}
+%     %     \item Infection spread is often modelled using compartmental models
+%     %     \item Represent subsets of a host population and rates of movement between them
+%     % \end{itemize}
+%     \begin{figure}
+%         \centering
+%             \begin{tikzpicture}[node distance=1.5cm, auto,
+%                 >=Latex, 
+%                 every node/.append style={align=center},
+%                 int/.style={draw, minimum size=0.5cm}]
             
-            \node [int] (S)             {$S$};
-            \node [int, right=of S ] (I) {$I$};
-            \node [int, right=of I] (R) {$R$};
-            \path[->] (S) edge node {$ \beta S I$} (I);
-            \path[->] (I) edge node {$\gamma I$} (R);
-            \end{tikzpicture}
-            \label{SIR_diagram}
-    \end{figure}
+%             \node [int] (S)             {$S$};
+%             \node [int, right=of S ] (I) {$I$};
+%             \node [int, right=of I] (R) {$R$};
+%             \path[->] (S) edge node {$ \beta S I$} (I);
+%             \path[->] (I) edge node {$\gamma I$} (R);
+%             \end{tikzpicture}
+%             \label{SIR_diagram}
+%     \end{figure}
+% \end{frame}
+\begin{frame}{Modeling multiple infections is challenging}
+    % \begin{columns}
+%         \begin{column}{0.6\textwidth}
+
+%             \begin{itemize}
+%                 \item Multiple infections (e.g. competing VoCs) can be represented as more compartments
+%                 \item Work on multiple infections is usually here due to lack of data, increasing complexity
+%             \end{itemize}
     
-\end{frame}
-
-\begin{frame}
-    \begin{columns}
-        \begin{column}{0.6\textwidth}
-
-            \begin{itemize}
-                \item Multiple infections (e.g. competing VoCs) can be represented as more compartments
-                \item Work on multiple infections is usually here due to lack of data, increasing complexity
-            \end{itemize}
-    
-\end{column}
-
-
-    \begin{column}{0.4\textwidth}
-
+% \end{column}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{voc_model_diagram.png}
+    \scalebox{0.55}{
+    \input{diagram_wide.tikz}
+    }
+% \caption{State diagram of model with two different types of vaccination and strong competition.}
 \label{model_structure}
 \end{figure}
-\end{column}
-\end{columns}
+
+%     \begin{column}{\textwidth}
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=\textwidth]{voc_model_diagram.png}
+% \label{model_structure}
+% % \end{figure}
+% \end{column}
+% \end{columns}
 % (e.g. \cite{Alizon_van_Baalen_2008, van_Baalen_Sabelis_1995, Lipsitch_Colijn_Cohen_Hanage_Fraser_2009, Nicoli_Ayabina_Trotter_Turner_Colijn_2015})
 \end{frame}
 
-\begin{frame}
-    This only represents a tiny amount of the genomic data we have for Sars-CoV-2!
+\begin{frame}{How to incorporate more data?}
+    
     \begin{figure}
-        \includegraphics[width=0.5\textwidth]{phylogeny.png}
+        \includegraphics[width=0.9\textwidth]{phylogeny.png}
     \end{figure}
 \end{frame}
-\begin{frame}
+\begin{frame}{A useful approximation}
     \begin{columns}
 \begin{column}{\textwidth}
     \begin{figure}
-        \includegraphics[width=0.6\textwidth]{gog_paper.png}
+        \includegraphics[width=0.8\textwidth]{gog_paper.png}
     \end{figure}
     \begin{figure}
-        \includegraphics[width=0.6\textwidth]{gog_paper_2.png}
+        \includegraphics[width=0.8\textwidth]{gog_paper_2.png}
     \end{figure}
-    % \begin{itemize}
+\end{column}
+\end{columns}
+\end{frame}
     %     \item Can extend these models to a sequence of variants
     %     \item Assume each variant is indexed by $i$ 
     %     \item The dynamics at each variant $i$ are determined by a simple compartmental model
-    % \end{itemize} 
-    % \centering
-    % \vspace{5cm}
-    % \tiny{\cite{gogDynamicsSelectionManystrain2002}}
-\end{column}
-\end{columns}
-
-
-
-\end{frame}
-\begin{frame}
-    \begin{columns}
-        % \begin{column}{0.5\textwidth}
+            % \begin{column}{0.5\textwidth}
         %     \begin{itemize}
         %         \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
         %         \item A variant $i$ mutates to neighbouring indices $i+1, i-1$ proportional to the population of variant $i$
         %         \end{itemize}         
         % \end{column}
+
+\begin{frame}{Begin with simple SIR model}
+    
+    \begin{figure}
+        \centering
+        \scalebox{0.8}{
+        \input{tikz_models/gog_model_1.tikz}
+        }
+    \end{figure}
+\end{frame}
+\begin{frame}{Organize strains on a lattice}
+    \begin{figure}
+        \centering
+        \scalebox{0.8}{
+        \input{tikz_models/gog_model_2.tikz}
+        }
+    \end{figure}
+\end{frame}
+\begin{frame}{Strains mutate into adjacent strains}
+    \begin{figure}
+        \centering
+        \scalebox{0.8}{
+        \input{tikz_models/gog_model_3.tikz}
+        }
+    \end{figure}
+\end{frame}
+\begin{frame}{Infections provide cross-immunity to nearby strains}
+        \centering
+            \begin{figure}
+                \includegraphics[width=0.6\textwidth]{gog_fig.png}
+            \end{figure}
+    \centering
+    \vfill
+    \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+\end{frame}
+\begin{frame}{Full strain lattice model in 1 dimension}
+    \begin{figure}
+        \centering
+        \scalebox{0.8}{
+        \input{tikz_models/gog_model_4.tikz}
+        }
+    \end{figure}
+\end{frame}
+        %         \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
+\begin{frame}{Extending the strain lattice to 2 dimensions}
+    \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\textwidth]{gog_fig.png}
-            \end{figure}
+                \includegraphics[width=\textwidth]{gog_2d_fig/gog_2d_a_1.png}
+            \end{figure}        
+        \end{column}
+        \begin{column}{0.5\textwidth}
         \end{column}
     \end{columns}
     \centering
     \vfill
     \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+
 \end{frame}
-\begin{frame}
+\begin{frame}{Extending the strain lattice to 2 dimensions}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\textwidth]{gog_2d_a.png}
+                \includegraphics[width=\textwidth]{gog_2d_fig/gog_2d_a.png}
             \end{figure}        
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\textwidth]{gog_2d_b.png}
+                \includegraphics[width=\textwidth]{gog_2d_fig/gog_2d_b.png}
             \end{figure}
         \end{column}
     \end{columns}
@@ -156,16 +194,78 @@
     \tiny{\cite{gogDynamicsSelectionManystrain2002}}
 
 \end{frame}
-
-\begin{frame}{Antigenic cartography }
-
+\begin{frame}{Projecting to low dimensions while preserving distances}
     \begin{columns}
-        \begin{column}{0.5\textwidth}
-            Technique developed to visualize the antigenic drift of influenza A (H3N2)
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.4\textwidth]{standalone/mds_1.png}
+                
+            \end{figure}   
+        \end{column}
+        \begin{column}{0.01\textwidth}
+            \huge{$\Longrightarrow$}
+            
         \end{column}
         \begin{column}{0.4\textwidth}
+        %     \begin{figure}
+        %     \includegraphics[width=\textwidth]{standalone/mds_2.png}
+            
+        % \end{figure}   
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{scikit-learn}}
+
+\end{frame}
+\begin{frame}{Projecting to low dimensions while preserving distances}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.4\textwidth]{standalone/mds_1.png}
+                
+            \end{figure}   
+        \end{column}
+        \begin{column}{0.01\textwidth}
+            \huge{$\Longrightarrow$}
+            
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+            \includegraphics[width=\textwidth]{standalone/mds_2.png}
+            
+        \end{figure}   
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{scikit-learn}}
+
+\end{frame}
+\begin{frame}{Approximating genomic data in 2 dimesions }
+
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
         \begin{figure}
-        \includegraphics[width=\textwidth]{smith_antigenic.png}    
+        \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_1.png}    
+        \end{figure}   
+    \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
+    % \begin{itemize}
+    %     \item Practice of mapping out immune responses to related pathogens
+    %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
+% ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
+    % \end{itemize}
+\end{frame}
+\begin{frame}{Approximating genomic data in 2 dimesions }
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_2.png}    
         \end{figure}   
     \end{column}
     \end{columns}
@@ -179,69 +279,75 @@
     % \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{figure}
-                \includegraphics[width=1.4\textwidth]{mds_1.png}
-                
-            \end{figure}   
-        \end{column}
-        \begin{column}{0.01\textwidth}
-            \huge{$\Longrightarrow$}
-            
-        \end{column}
-        \begin{column}{0.4\textwidth}
-            \begin{figure}
-            \includegraphics[width=\textwidth]{mds_2.png}
-            
-        \end{figure}   
-        \end{column}
-    \end{columns}
-    \centering
-    \vfill
-    \tiny{\cite{scikit-learn}}
 
-\end{frame}
-
-\begin{frame}
+\begin{frame}{Mapping SARS-CoV-2 in 2D}
         \begin{figure}
-        \includegraphics[width=\textwidth]{wilks.png}
+        \includegraphics[width=\textwidth]{sars_cov_2_map/wilks_1.png}
     \end{figure}   
     \centering
     \vfill
     \tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
 \end{frame}
 
-\begin{frame}
-    These results suggest that 2 dimensions might be an adequate approximation to the full space!
-\end{frame}
 
 
-\begin{frame}{Incorporating more data}
-    \begin{itemize}
-        \item A huge amount of genomic data is available
-        % \item We have millions of samples and hundreds of thousands of unique genomes from random sampling alone
-        \item Assign each sample to its closest lineage in the map from \cite{wilksMappingSARSCoV2Antigenic2022}
-        \item Two methods to further differentiate genomes: homoplasic mutations or antibody binding
-        % Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Mutation homoplasy}
+\begin{frame}{Mapping SARS-CoV-2 in 2D}
     \begin{figure}
-        \includegraphics[width=\textwidth]{gene_freq.png}
-    \end{figure}
+    \includegraphics[width=\textwidth]{sars_cov_2_map/wilks_2.png}
+\end{figure}   
+\centering
+\vfill
+\tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
 \end{frame}
-\begin{frame}{Antibody Binding map}
+
+
+\begin{frame}{Mapping SARS-CoV-2 in 2D}
     \begin{figure}
-        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_binding.png}
+    \includegraphics[width=\textwidth]{sars_cov_2_map/wilks_3.png}
+\end{figure}   
+\centering
+\vfill
+\tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
+\end{frame}
+
+% \begin{itemize}
+%     \item A huge amount of genomic data is available
+%     % \item We have millions of samples and hundreds of thousands of unique genomes from random sampling alone
+%     \item Assign each sample to its closest lineage in the map from \cite{wilksMappingSARSCoV2Antigenic2022}
+%     \item Two methods to further differentiate genomes: homoplasic mutations or antibody binding
+%     % Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
+% \end{itemize}
+\begin{frame}{Methods of adding more genomes: homoplasic sites}
+    \begin{figure}
+        \centering
+        \scalebox{1.1}{
+        \input{tikz_models/homoplasy.tikz}
+        }
     \end{figure}
+    \centering
+    \vfill
+    \tiny{\cite{page2009molecular}}
 \end{frame}
 
 \begin{frame}{Homoplasic mutations map}
     \begin{figure}
-        \includegraphics[width=\textwidth]{usa_multidimensional_scaling_snps.png}
+        \includegraphics[width=\textwidth]{my_figs/usa_multidimensional_scaling_snps.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Methods of adding more genomes: polyclonal antibody binding studies}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{standalone/2022-07-06-13-06-32.png}
+    \end{figure}
+    \centering
+\vfill
+\tiny{\cite{greaney2022antibody}}
+\end{frame}
+
+
+\begin{frame}{Antibody Binding map}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{my_figs/usa_multidimensional_scaling_binding.png}
     \end{figure}
 \end{frame}
 
@@ -249,14 +355,16 @@
 
 \begin{frame}{Evaluating the MDS approximation}
     \begin{figure}
-        \includegraphics[width=\textwidth]{usa_mds_stress.png}
+        \includegraphics[width=\textwidth]{my_figs/usa_mds_stress.png}
     \end{figure}
 \end{frame}
 
     
-\begin{frame}{}
-    (animation of kernel approximation)
-\end{frame}
+% \begin{frame}{Kernel approximations of}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{my_figs/kernel_approx_still.png}
+%     \end{figure}
+% \end{frame}
 \begin{frame}{Model parameters/variables}
     \begin{table}[h!]
         \begin{center}
@@ -403,5 +511,9 @@
 \bibliographystyle{apalike}
 \bibliography{ref.bib}
 \end{frame}
-
+\begin{frame}{Mutation homoplasy}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{gene_freq.png}
+    \end{figure}
+\end{frame}
 \end{document}

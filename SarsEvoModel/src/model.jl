@@ -16,19 +16,18 @@ import Base.length
 end
 
 
-struct ModelParameters{T,T2}
+struct ModelParameters{T,T2,T3}
     begin_date::Date
     initial_population::Float64
     β::T
     ξ::Float64
     γ::Float64
     M::T2
-    sigma_matrix::Array{Float64,4}
+    sigma_matrix::T3
     location_data::LocationData
-    diffusion_kernel::Matrix{Float64}
+    vaccination_matrix::Matrix{Float64}
     u0::Matrix{Float64}
 end
-
 
 function ModelParameters(
     begin_date,
@@ -37,10 +36,10 @@ function ModelParameters(
     ξ,
     γ,
     M::T2,
-    sigma_matrix,
+    sigma_matrix::T3,
     location_data,
-    diffusion_kernel,
-) where {T,T2}
+    vaccination_matrix
+) where {T,T2,T3}
     u0 = zeros(Float64, (w, h * 5))
     S = @view u0[1:w, 1:h]
     I = @view u0[1:w, (h+1):(h*2)]
@@ -75,7 +74,7 @@ function ModelParameters(
 
 
 
-    return ModelParameters{T,T2}(
+    return ModelParameters{T,T2,T3}(
         begin_date,
         initial_population,
         β,
@@ -84,18 +83,17 @@ function ModelParameters(
         M,
         sigma_matrix,
         location_data_from_date,
-        diffusion_kernel,
-        u0
+        vaccination_matrix,
+        u0,
     )
 end
 function Base.length(p::ModelParameters)
     return length(p.location_data.stringency)
 end
 
-const x_i_transformed, y_i_transformed = map_coords_to_model_space(2.7, 3.8)
 function rhs(du, u, p, t, const_params)
-    β = reshape(p, (w, h))
-    (; M, ξ, γ, sigma_matrix, initial_population, location_data) = const_params
+    (; β, M, sigma_matrix) = p
+    (; ξ, γ, initial_population, location_data, vaccination_matrix) = const_params
     (; stringency, vaccination_mrna) = location_data
     dS = @view du[1:w, 1:h]
     dI = @view du[1:w, (h+1):(h*2)]
@@ -106,36 +104,35 @@ function rhs(du, u, p, t, const_params)
     S = @view u[1:w, 1:h]
     I = @view u[1:w, (h+1):(h*2)]
     R = @view u[1:w, (h*2+1):(h*3)]
-    V = @view u[1:w, (h*3+1):(h*4)]
     hmone = h - 1
     wmone = w - 1
     day = trunc(Int, t)
     stringency_t = stringency[day+1]
     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
-    vaccination_rate_by_day_t = (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
+    vaccination_rate_by_day_t = 10 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
     @inbounds for j in 2:hmone
         @inbounds for i in 2:wmone
             force_of_infection = zero(eltype(sigma_matrix))
-            @inbounds for l in 2:hmone
-                @inbounds for k in 2:wmone
-                    force_of_infection += (β[i, j] / initial_population) * sigma_matrix[k, l, i, j] * I[k, l]
+            @turbo for l in 2:hmone
+                for k in 2:wmone
+                    force_of_infection += sigma_matrix[k-i+w, l-j+h] * I[k, l] #should optimize this more
                 end
             end
 
-            dS[i, j] = -1 * stringency_t * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
+            dS[i, j] = -1 * stringency_t * β[i, j] * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
             diffusion = M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
-            dI[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + diffusion
+            dI[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + diffusion
             dR[i, j] = ξ * I[i, j] - γ * R[i, j]
-            dV[i, j] = vaccination_rate_by_day_t * S[i, j] * sigma(i - x_i_transformed, j - y_i_transformed; sigma_x=20.0, sigma_y=20.0, rounding=false)
-            dC[i, j] = (β[i, j] / initial_population) * stringency_t * I[i, j] * S[i, j] + diffusion
+            dV[i, j] = vaccination_rate_by_day_t * S[i, j] * vaccination_matrix[i, j]
+            dC[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] + diffusion
         end
     end
 end
 
-function create_model(params, jac_sparsity, const_params)
+function create_model(params, const_params)
     #IC
     u0 = const_params.u0
-    f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params), jac_prototype=jac_sparsity)
+    f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params))#, jac_prototype=jac_sparsity)
     prob = ODEProblem(f, u0, (0.0, length(const_params) - 1), params)
     return prob
 end
