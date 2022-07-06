@@ -84,7 +84,6 @@ function main()
     incident_cases = sum.(const_params.location_data.cases_by_lineage)
     # display(plot(incident_cases))
     function optimization_objective(x)
-
         β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ const_params.initial_population
         M = x[4]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
@@ -100,14 +99,21 @@ function main()
         err = 0
         umone = view(sol.u[1], 1:w, (h*4+1):(h*5))
         umone_sum = sum(umone)
+        # a = Animation()
         for (i, t) in enumerate(sol.t[2:end])
             ind = Int(t)
             u_i = view(sol.u[i+1], 1:w, (h*4+1):(h*5))
             u_i_sum = sum(umone_sum)
-            err += sum((incident_cases[ind] .- (u_i - umone)) .^ 2)
-            err += (sum(incident_cases[ind]) - (u_i_sum - umone_sum))
+            # p = heatmap(const_params.location_data.cases_by_lineage[i])
+            # p2 = heatmap(u_i .- umone)
+            # fig = plot(p, p2)
+            # display(fig)
+            # frame(a, fig)
+            err += sum((const_params.location_data.cases_by_lineage[i] .- (u_i - umone)) .^ 2)
+            # err += (sum(incident_cases[ind]) - (u_i_sum - umone_sum))
             umone = u_i
         end
+        # gif(a, plots_path("debug"; filetype=".gif"))
         err /= length(sol.t)
         yield()
         return err
@@ -121,36 +127,31 @@ function main()
     # @profview foreach(x -> rhs(du0, u0, ((; β, M, const_params.sigma_matrix)), 0.0, const_params), 1:10_000)
 
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.001, -0.5, -0.5, 0.01, 0.1, 0.1], ub=[0.5, 0.5, 0.5, 5.0, 20.0, 20.0])#lb=fill(0.001, length(x0)), ub=fill(transmission_rate * 1.2, length(x0)))
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.001, -0.5, -0.5, 0.01, 0.1, 0.1], ub=[1.0, 0.5, 0.5, 5.0, 40.0, 40.0])#lb=fill(0.001, length(x0)), ub=fill(transmission_rate * 1.2, length(x0)))
 
-    prob = Optimization.OptimizationProblem(f, x0, 0, lb=fill(0.001, length(x0)), ub=fill(transmission_rate * 1.2, length(x0)))
-    optimizer = solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=100000.0)
+    optimizers = ThreadsX.map(
+        x -> solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=100000.0)
+        Threads.nthreads + 1)
 
-    #fitting total
-    # optimizer = [
-    #     0.21579569308769048,
-    #     0.0011674132043181739,
-    #     0.0021210341458213146,
-    #     0.0614459608077942,
-    #     0.04193769262381863,
-    #     0.04042184393862126
-    # ]
-    sol = optimization_objective(optimizer)
-    plot_solution(sol, const_params)
-    return optimizer
+    return optimizers
+    # sol = optimization_objective(optimizer)
+    # plot_solution(sol, const_params)
+    # loss(sol, const_params)
 end
 
-# function map_snp_distances(filter_df)
-#     limx = extrema(filter_df.mds_x)
-#     limy = extrema(filter_df.mds_y)
-#     filter_df.gridded_position = map((x, y) -> map_coords_to_model_space(x, y; limx, limy), filter_df.mds_x, filter_df.mds_y)
-#     df = groupby(filter_df, :gridded_position)
-#     return df
-#     snp_distances_matrix = zeros(25, 25, 25, 25)
-#     for ind in CartesianIndices(snp_distances_matrix)
-
-#     end
-# end
-
+#2522.98 secs, 2777 evals, 2657 steps, improv/step: 0.250 (last = 0.0000), fitness=222894924.461761177
+# ^C┌ Warning: Optimization interrupted, recovering intermediate results...
+# └ @ BlackBoxOptim /home/workaccount/.julia/packages/BlackBoxOptim/dvDGl/src/opt_controller.jl:483
+# 588
+# Progress: 100%|██████████████████████████████████████████████| Time: 0:01:42
+# ┌ Info: Saved animation to
+# └   fn = "/home/workaccount/Work/postdoc/VoC_model/SarsEvoModel/plots/model.gif"
+# u: 6-element Vector{Float64}:
+#   0.48816792944503556
+#  -0.03378768040205102
+#  -0.007711016471248729
+#   0.3594928335707491
+#   0.5209967948289511
+#  18.46451481226305
 
 end
