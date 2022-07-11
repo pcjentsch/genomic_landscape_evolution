@@ -126,6 +126,8 @@ function rhs(du, u, p, t, const_params)
             dC[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] + diffusion
         end
     end
+    yield()
+
 end
 
 function create_model(params, const_params)

@@ -125,7 +125,21 @@ end
 using BenchmarkTools
 using Infiltrator
 using Cthulhu
-function compute_antigenic_distance(
+function compute_antigenic_distance_binding(
+    mapped_lineage_position_i::Tuple{Float64,Float64},
+    mapped_lineage_position_j::Tuple{Float64,Float64},
+    genome_i,
+    genome_j,
+    binding_i::Float64,
+    binding_j::Float64,
+    snp_weight_dict
+)
+    pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
+    d = pt_d + ((1 - binding_i) + (1 - binding_j)) / 2 * 10.0
+    return d
+end
+
+function compute_antigenic_distance_homoplasy(
     mapped_lineage_position_i::Tuple{Float64,Float64},
     mapped_lineage_position_j::Tuple{Float64,Float64},
     genome_i,
@@ -136,15 +150,15 @@ function compute_antigenic_distance(
 )
     snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
     pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
-    d = pt_d + ((1 - binding_i) + (1 - binding_j)) / 2 #snp_distance * 1000#
+    d = pt_d + snp_distance * 1000.0
     return d
 end
-function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict)
+function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
     samples = nrow(filtered_genome_df)
     dm = zeros(Float32, samples, samples)
     prog = Progress(samples)
     function map_distances((i, j,))
-        d = compute_antigenic_distance(
+        d = map_distances_fn(
             filtered_genome_df.mapped_lineage_position[i],
             filtered_genome_df.mapped_lineage_position[j],
             filtered_genome_df.filtered_genome[i],
@@ -169,6 +183,7 @@ function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_di
     end
     return unique_genomes_df, filtered_genome_df, dm
 end
+
 function manifold_projection(dm, unique_genomes_df)
     n = nrow(unique_genomes_df)
     @assert all(size(dm) .== n)
@@ -185,55 +200,59 @@ using AverageShiftedHistograms
 function make_antigenic_map()
     binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
     for dataset in datasets[2:2]
-        name, alignments, metadata, lineage_path = dataset
+        dataset_name, alignments, metadata, lineage_path = dataset
         recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
-        genomes_w_metadata = serial_load(
-            () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path),
-            datapath("genomes_$name.data")
-        )
+
         @info "filtering unique genomes.."
-        unique_df, filter_df, snp_weight_dict = serial_load(
-            () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
-            datapath("unique_df_$name.data")
-        )
-        @info "computing pairwise distances"
 
-        unique_df, filter_df, dm = pairwise_distances(unique_df, filter_df, snp_weight_dict)
-        @info "computing stress"
-
-        plot_mds(name, unique_df, dm)
-
-        unique_df.week_submitted = round.(unique_df.date_submitted, Week)
-
-        bounds_x = extrema(unique_df.mds_x)
-        bounds_y = extrema(unique_df.mds_y)
-        x_grid = LinRange(bounds_x..., 25)
-        y_grid = LinRange(bounds_y..., 25)
-        anim = Animation()
-        heatmap_anim = Animation()
-        sort!(unique_df, :week_submitted)
-        @info "Plotting..."
-        grped_by_date = groupby(unique_df, :date_submitted; sort=true)
-        dates = Date[]
-        grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
-        @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
-            o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
-            grids[i] = o.z
-            push!(dates, key.date_submitted)
-            p = plot()
-            scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
-                markerstrokewidth=0.3,
-                size=(400, 300),
-                plotting_settings...)
-            plot!(p, o.rngx, o.rngy, o.z; title=key.date_submitted, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
-            htmp = heatmap(o.z; title=key.date_submitted, plotting_settings...)
-            frame(anim, p)
-            frame(heatmap_anim, htmp)
+        dist_funcs = [("binding", compute_antigenic_distance_binding), ("homoplasy", compute_antigenic_distance_homoplasy)]
+        for (method, dist_fn) in dist_funcs
+            genomes_w_metadata = serial_load(
+                () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path),
+                datapath("genomes_$dataset_name.data")
+            )
+            unique_df, filter_df, snp_weight_dict = serial_load(
+                () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
+                datapath("unique_df_$dataset_name.data")
+            )
+            @info "computing pairwise distances $method"
+            name = "$(method)_$(dataset_name)"
+            (unique_df, filter_df, dm) = serial_load(
+                () -> pairwise_distances(unique_df, filter_df, snp_weight_dict, dist_fn),
+                datapath("$name.data")
+            )
+            @info "computing stress"
+            plot_mds(name, unique_df, dm)
+            unique_df.week_submitted = round.(unique_df.date_submitted, Week)
+            bounds_x = extrema(unique_df.mds_x)
+            bounds_y = extrema(unique_df.mds_y)
+            x_grid = LinRange(bounds_x..., w)
+            y_grid = LinRange(bounds_y..., h)
+            anim = Animation()
+            heatmap_anim = Animation()
+            sort!(unique_df, :week_submitted)
+            @info "Interpolating..."
+            grped_by_date = groupby(unique_df, :date_submitted; sort=true)
+            dates = Date[]
+            grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+            @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+                o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+                grids[i] = o.z
+                push!(dates, key.date_submitted)
+                p = plot()
+                scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+                    markerstrokewidth=0.3,
+                    size=(400, 300),
+                    plotting_settings...)
+                plot!(p, o.rngx, o.rngy, o.z; title=key.date_submitted, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+                htmp = heatmap(o.z; title=key.date_submitted, plotting_settings...)
+                frame(anim, p)
+                frame(heatmap_anim, htmp)
+            end
+            gif(anim, plots_path("$(name)_mds_density"; filetype="gif"))
+            gif(heatmap_anim, plots_path("$(name)_mds_density_heatmap"; filetype="gif"))
+            serialize(datapath("$(name)_grids.data"), (grids, dates))
         end
-        gif(anim, plots_path("$(name)_mds_density"; filetype="gif"))
-        gif(heatmap_anim, plots_path("$(name)_mds_density_heatmap"; filetype="gif"))
-        serialize(SarsEvoModel.datapath("$(name)_grids.data"), (grids, dates))
-        return unique_df, filter_df, grids
     end
 end
 # expectation maximization

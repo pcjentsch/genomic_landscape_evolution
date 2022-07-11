@@ -45,6 +45,8 @@ end
 
 
 
+
+
 # function sorted_hash_dist(g1, g2)
 #     d = 0
 #     ind_1 = 1

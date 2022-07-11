@@ -8,21 +8,22 @@ function plot_mds(fname, unique_df, dm)
     p = plot()
     for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
         p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",
-            title="Approximate antigenic cartography w/ RBD, UK samples",
             markersize=1.5,
             markerstrokewidth=0.3,
-            size=(800, 500),
+            margin=5Plots.mm,
+            size=(800, 300),
+            legend=:outerright,
             plotting_settings...)
     end
     savefig(p, plots_path("$(fname)_multidimensional_scaling"))
-    mstress = 6
-    stress_list = zeros(mstress)
-    for i in 1:mstress
-        mds = fit(MDS, dm; distances=true, maxoutdim=i)
-        stress_list[i] = stress(mds)
-    end
-    p = plot(1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
-    savefig(p, plots_path("$(fname)_mds_stress"))
+    # mstress = 6
+    # stress_list = zeros(mstress)
+    # for i in 1:mstress
+    #     mds = fit(MDS, dm; distances=true, maxoutdim=i)
+    #     stress_list[i] = stress(mds)
+    # end
+    # p = plot(1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
+    # savefig(p, plots_path("$(fname)_mds_stress"))
 end
 
 

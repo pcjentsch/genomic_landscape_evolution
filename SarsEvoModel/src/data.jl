@@ -9,6 +9,7 @@ datapath(fname) = joinpath(@__DIR__, "../data", fname)
 
 using Serialization
 function serial_load(load_func, fname)
+    @show abspath(fname)
     if !isfile(fname)
         @info "loading $fname"
 
@@ -142,7 +143,7 @@ function USALocationData()
     cases_df = select(owid_df, [:date, :new_cases_smoothed]) |>
                df -> dropmissing(df) |> df -> sort(df, :date)
 
-    lineage_fractions, dates = deserialize(datapath("usa_grids.data"))
+    lineage_fractions, dates = deserialize(datapath("homoplasy_usa_grids.data"))
     cases_by_lineage = Matrix{Float64}[]
     cases_by_lineage_dates = Date[]
     for (lineage_fraction, date) in zip(lineage_fractions, dates)
