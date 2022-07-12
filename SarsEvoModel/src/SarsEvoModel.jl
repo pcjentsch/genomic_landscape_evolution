@@ -100,13 +100,13 @@ function main()
     end
     x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0]
 
-    # f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    # prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0], ub=[1.5, 0.5, 0.5, 5.0, 50.0, 50.0], TraceMode=:silent)
-    # optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=15_000.0), 1:12)
-    # optimizer = argmin(o -> o.minimum, optimizers).u
+    f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0], ub=[1.5, 0.5, 0.5, 5.0, 50.0, 50.0], TraceMode=:silent)
+    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=15_000.0), 1:12)
+    optimizer = argmin(o -> o.minimum, optimizers).u
 
-    # sol = optimization_objective(optimizer)
-    sol = optimization_objective(x0)
+    sol = optimization_objective(optimizer)
+    # sol = optimization_objective(x0)
     plot_solution(sol, const_params)
     # return optimizer
 end
