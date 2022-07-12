@@ -16,17 +16,8 @@ function plot_mds(fname, unique_df, dm)
             plotting_settings...)
     end
     savefig(p, plots_path("$(fname)_multidimensional_scaling"))
-    # mstress = 6
-    # stress_list = zeros(mstress)
-    # for i in 1:mstress
-    #     mds = fit(MDS, dm; distances=true, maxoutdim=i)
-    #     stress_list[i] = stress(mds)
-    # end
-    # p = plot(1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
-    # savefig(p, plots_path("$(fname)_mds_stress"))
+
 end
-
-
 
 
 function plot_samples(genomes_w_metadata)

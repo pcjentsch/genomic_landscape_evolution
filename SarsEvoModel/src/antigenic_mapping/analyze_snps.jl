@@ -255,6 +255,25 @@ function make_antigenic_map()
         end
     end
 end
+
+
+function stress_plot()
+    (_, _, binding_dm) = deserialize(datapath("binding_usa.data"))
+    (_, _, homoplasy_dm) = deserialize(datapath("homoplasy_usa.data"))
+    mstress = 10
+    stress_list = zeros(mstress)
+    p = plot()
+    for (k, dm) in enumerate((binding_dm, homoplasy_dm))
+        display(k)
+        Threads.@threads for i in 1:mstress
+            mds = fit(MDS, dm; distances=true, maxoutdim=i)
+            stress_list[i] = stress(mds)
+        end
+        plot!(p, 1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
+    end
+    savefig(p, plots_path("combined_mds_stress"))
+
+end
 # expectation maximization
 
 # gene_occurrence = groupby(recurrent_df,:gene_name) |> df -> combine(df, nrow) |> df -> filter(:gene_name => n ->length(n)==1,df)

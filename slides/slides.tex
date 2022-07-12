@@ -53,11 +53,17 @@
             \node [int] (S)             {$S$};
             \node [int, right=of S ] (I) {$I$};
             \node [int, right=of I] (R) {$R$};
-            \path[->] (S) edge node {$ \beta S I$} (I);
+            \path[->] (S) edge node {$\beta S I$} (I);
             \path[->] (I) edge node {$\gamma I$} (R);
             \end{tikzpicture}
             \label{SIR_diagram}
     \end{figure}
+    \begin{itemize}
+        \item $S(t)$ - fraction of susceptible hosts at $t$
+        \item $I(t)$ - fraction of infected hosts at $t$
+        \item $R(t)$ - fraction of recovered hosts at $t$
+        \item $1 = S(t) + I(t) + R(t)$ is constant
+    \end{itemize} 
 \end{frame}
 
 \begin{frame}{Modeling multiple infections is challenging}
@@ -135,12 +141,24 @@
         % \end{column}
 
 \begin{frame}{Begin with SIR model}
-    \begin{figure}
-        \centering
-        \scalebox{0.8}{
-        \input{tikz_models/gog_model_1.tikz}
-        }
-    \end{figure}
+    \begin{columns}       
+         \begin{column}{0.5\textwidth}
+        \begin{itemize}
+            \item Consider strains of a pathogen numbered $i \in [1,N]$ 
+            \item $S(t)$ - population of hosts susceptible to strain $i$ at $t$
+            \item $I(t)$ - population of hosts infected with strain $i$ at $t$
+            \item $R(t)$ - population of hosts recovered from strain $i$ at $t$
+        \end{itemize} 
+    \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \scalebox{1.0}{
+                \input{tikz_models/gog_model_1.tikz}
+                }
+            \end{figure}
+        \end{column}
+        \end{columns}
 \end{frame}
 \begin{frame}{Organize strains on a lattice}
     \begin{figure}
@@ -167,6 +185,7 @@
     \vfill
     \tiny{\cite{gogDynamicsSelectionManystrain2002}}
 \end{frame}
+%notice that the flow of population out of each susceptible compartment $i$ is the number of people no longer susceptible to strain $i$, and only a proportion of those go into the infected compartment i
 \begin{frame}{Full strain lattice model in 1 dimension}
     \begin{figure}
         \centering
@@ -214,8 +233,7 @@
 %The next step is to place at least some of the genomic data on the, hopefully 2 or 3 dimensional, lattice.
 %in order to do this, we need some way to quantify the differences in immune response to viruses.
 
-%Most methods of assessing immune response involve taking serum that has been raised against one strain, antiserum, and exposing it to another strain. Often, this is done with neutralization assays. 
-
+%Most methods of assessing immune response involve taking serum that has been raised against one strain, antiserum, and exposing it to another strain to determine how many antibodies bind, which is done in an neutralization assay.
 
 \begin{frame}{Quantifying antigenicity between viruses}
     \begin{figure}
@@ -229,8 +247,8 @@
 
 \begin{frame}{Neutralization assays are used to estimate relative antibody titre}
     \begin{figure}
-        \includegraphics[width=\textwidth]{2022-07-11-22-36-27.png}
-        \caption{Illustration of mechanism behind hemagglutination assay, used for influenza}
+        \includegraphics[width=0.5\textwidth]{2022-07-11-22-36-27.png}
+        \caption{Illustration of mechanism behind hemagglutination assay}
     \end{figure}
     \centering
     \vfill
@@ -238,7 +256,7 @@
 \end{frame}
 % The same serum sample is spread among well plates, progressively more diluted in each well. A sample of virus with known concentration is added to each well, and a test is conducted to see if all the virus has been bound with antibodies. Hemagglutinating viruses, such as influenza, are called this because they bind to red blood cells preventing them from clumping. Since they cannot bind to red blood cells if they're bound to antibodies, antibodies binding can be assessed this way. This method determines the titre of antibodies in the serum sample that react to the viral particles.
 % SARS-CoV-2 neutralizing assays work similarly, except using dyes to assess antibody binding, but the principle is the same.
-%  An undetectable titre, in extreme cases such as with some Omicron samples against ancestral antiserum, is 
+
 % Even a small number of viral samples and corresponding antisera will product a very high-dimensional dataset, which is not amenable to the 2 or 3 dimensional space that we want to use.
 % Therefore, Lapedes and Farber came up with the used a modification of a technique called Multidimensional scaling, that given distances, produces a lower-dimensional manifold that minimizes the changes to the distances. 
 
