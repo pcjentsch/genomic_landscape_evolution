@@ -64,13 +64,13 @@ function main()
         inv_infectious_period,
         0.07,
         0.5,
-        Float64[sigma(i, j) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)],
+        Float64[sigma(i, j) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)], #Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h],#
         location_data,
         [sigma(i - x_mrna, j - y_mrna; sigma_x=20.0, sigma_y=20.0, rounding=false) for i in 1:w, j in 1:h]
     )
     incident_cases = sum.(const_params.location_data.cases_by_lineage)
     function optimization_objective(x)
-        β = [transmission_rate + x[1] * i + x[2] * j for i in 1:w, j in 1:h] ./ initial_pop
+        β = Float64[transmission_rate for i in 1:w, j in 1:h] ./ initial_pop#β = [transmission_rate + x[1] * i + x[2] * j for i in 1:w, j in 1:h] ./ initial_pop
         M = x[3]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[4], sigma_y=x[5]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
         # sigma_matrix = Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h]
