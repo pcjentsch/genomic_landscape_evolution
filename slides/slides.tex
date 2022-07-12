@@ -73,7 +73,15 @@
         \item $1 = S(t) + I(t) + R(t)$ is constant
     \end{itemize} 
 \end{frame}
-
+\begin{frame}{Broad use of genomic data in dynamical epidemic models has been limited}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{2022-07-12-00-57-38.png}
+    \end{figure}
+    \centering
+    \vfill
+    \tiny{\cite{grenfell2004unifying}}
+\end{frame}
 \begin{frame}{Modeling multiple infections is challenging}
     % \begin{itemize}
     %     \item Infection spread is often modelled using compartmental models
@@ -236,8 +244,8 @@
     \tiny{\cite{gogDynamicsSelectionManystrain2002}}
 
 \end{frame}
-%This is the abstraction I will use to make it relatively tractable to model a lattice of related infection strains
-
+%This is the abstraction I will use to make it relatively tractable to model a lattice of related infection strains, complexity scales linearly
+% As implied above, we use “polarized immunity,” which means that partial cross-immunity acts to render some of the hosts totally immune. The partial aspect of the immunity is introduced through a probability that a given host will gain immunity; only some hosts gain immunity when exposed to a partially crossreacting strain; other hosts do not gain immunity from that exposure. 
 %The next step is to place at least some of the genomic data on the, hopefully 2 or 3 dimensional, lattice.
 %in order to do this, we need some way to quantify the differences in immune response to viruses.
 
@@ -443,6 +451,7 @@
                 \hline
                 \hline
                 $N$ & Size of variant grid \\
+                $K$ & Total population \\
                 $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
                 $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
                 $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
@@ -462,14 +471,14 @@
 \begin{frame}{Model Equations}
     \small
     \begin{equation}
-        \frac{S_{ij}}{dt} = \textcolor{myred}{-\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma R_{ij} - V(t)S  \label{Seqn}
+        \frac{S_{ij}}{dt} = \textcolor{myred}{-\frac{1}{K}\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma (K - S_{ij} - I_{ij}) - V(t)S  \label{Seqn}
     \end{equation}
     \begin{equation}
-        \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
+        \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{\frac{1}{K}s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
     \end{equation}
-    \begin{equation}
-        \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij} + V(t)S \label{Reqn}
-    \end{equation}
+    % \begin{equation}
+    %     \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij} + V(t)S \label{Reqn}
+    % \end{equation}
 
     Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
 \end{frame}
@@ -495,7 +504,7 @@
 
 \begin{frame}{Model Dynamics}
     \begin{figure} 
-        \includegraphics[width=1.1\textwidth]{2022-07-11-22-45-53.png}
+        \includegraphics[width=1.1\textwidth]{2022-07-12-01-05-21.png}
     \end{figure}
 \end{frame}
 

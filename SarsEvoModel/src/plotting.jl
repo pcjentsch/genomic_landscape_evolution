@@ -113,27 +113,27 @@ end
     # display(p)
     @showprogress for i in 1:length(tlist)-1
 
-        heatmapS = heatmap(S_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
+        # heatmapS = heatmap(S_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
         heatmapI = heatmap(I_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
         # heatmapR = heatmap(R_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
         heatmapV = heatmap(V_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
 
         # tsS = plot(tlist[1:i], sum.(S_ts[1:i]) ./ initial_pop; xlabel="time", ylabel="pop. fraction", label="susceptible", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_S))
-        tsI = plot(tlist[1:i], incident_ts[1:i] ./ initial_population; xlabel="time", label="incident cases ", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_incident))
+        tsI = plot(tlist[1:i], incident_ts[1:i] ./ initial_population; xlabel="time", label="model", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_incident))
         # tsR = plot(tlist[1:i], sum.(R_ts[1:i]) ./ initial_pop; xlabel="time", label="recovered", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_R))
         tsV = plot(tlist[1:i], sum.(V_ts[1:i]) ./ initial_population; xlabel="time", label="vaccinated", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_V))
         tsData = plot!(tsI, tlist[1:i], sum.(incident_cases[1:i]) ./ initial_population;
-            xlabel="time (days)", ylabel="total pop.", label="incident cases (data)",
+            xlabel="time (days)", ylabel="pop. fraction", label="data", title="Incident (daily) cases",
             seriescolor=:Red, xlims=(0.0, max_t), ylims=(0.0, max(max_incident)))
         p = plot(
             # heatmapS,
             heatmapI,
             # heatmapR,
             heatmapV,
-            tsS,
+            # tsS,
             tsI,
             # tsR,
-            tsV; margin=5Plots.mm, layout=(2, 2), size=(900, 400),#, legend=:outerright,
+            tsV; margin=5Plots.mm, layout=(2, 2), size=(700, 400),#, legend=:outerright,
             plotting_settings...)
         frame(anim, p)
     end
