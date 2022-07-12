@@ -75,15 +75,10 @@ function plot_data(data::LocationData)
     max_t = maximum(tlist)
 
     for (i, M) in enumerate(incident_cases)
-        # display(M)
         heatmap1 = heatmap(M; xlabel="antigenic distance", ylabel="antigenic distance", title="Incident Cases", seriescolor=cgrad(:Blues))
-
         ts1 = plot(tlist[1:i], sum.(incident_cases[1:i]); xlabel="time (days)", ylabel="total pop.", label="daily cases", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_val))
-
         ts2 = plot(tlist[1:i], data.vaccination_mrna[1:i]; xlabel="time (days)", ylabel="total pop.", label="total vaccinations", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_vac))
-
         ts3 = plot(tlist[1:i], sum.(data.stringency[1:i]); xlabel="time (days)", label="stringency", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_stringency))
-
         p = plot(heatmap1, ts1, ts2, ts3; layout=(4, 1), size=(400, 800),
             plotting_settings...)
         frame(anim, p)
@@ -120,12 +115,12 @@ end
 
         heatmapS = heatmap(S_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", ylabel="antigenic distance", title="S", seriescolor=cgrad(:Blues))
         heatmapI = heatmap(I_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="I", seriescolor=cgrad(:Blues))
-        heatmapR = heatmap(R_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
+        # heatmapR = heatmap(R_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="R", seriescolor=cgrad(:Blues))
         heatmapV = heatmap(V_ts[i][2:end-1, 2:end-1]; xlabel="antigenic distance", title="V", seriescolor=cgrad(:Blues))
 
         tsS = plot(tlist[1:i], sum.(S_ts[1:i]) ./ initial_pop; xlabel="time", ylabel="pop. fraction", label="susceptible", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_S))
         tsI = plot(tlist[1:i], incident_ts[1:i] ./ initial_population; xlabel="time", label="incident cases ", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_incident))
-        tsR = plot(tlist[1:i], sum.(R_ts[1:i]) ./ initial_pop; xlabel="time", label="recovered", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_R))
+        # tsR = plot(tlist[1:i], sum.(R_ts[1:i]) ./ initial_pop; xlabel="time", label="recovered", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_R))
         tsV = plot(tlist[1:i], sum.(V_ts[1:i]) ./ initial_population; xlabel="time", label="vaccinated", seriescolor=:Blue, xlims=(0.0, max_t), ylims=(0.0, max_V))
         tsData = plot!(tsI, tlist[1:i], sum.(incident_cases[1:i]) ./ initial_population;
             xlabel="time (days)", ylabel="total pop.", label="incident cases (data)",
@@ -133,13 +128,12 @@ end
         p = plot(
             heatmapS,
             heatmapI,
-            heatmapR,
+            # heatmapR,
             heatmapV,
             tsS,
             tsI,
-            tsR,
-            tsV;
-            layout=(2, 4), size=(1400, 400),
+            # tsR,
+            tsV; margin=5Plots.mm, layout=(2, 3), size=(1200, 400),#, legend=:outerright,
             plotting_settings...)
         frame(anim, p)
     end

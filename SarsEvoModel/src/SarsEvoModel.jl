@@ -51,8 +51,8 @@ function main()
     begin_date = Date(2020, 9, 01)
     location_data = USALocationData()
 
-    inv_infectious_period = 1 / 7
-    r_0 = 1.65
+    inv_infectious_period = 1 / 9
+    r_0 = 2.1
     transmission_rate = r_0 * inv_infectious_period
     initial_pop = 329.5e6
     β = Float64[transmission_rate for i in 1:w, j in 1:h]
@@ -64,16 +64,15 @@ function main()
         inv_infectious_period,
         0.07,
         0.5,
-        Float64[sigma(i, j) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)], #Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h],#
+        Float64[sigma(i, j) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)],
         location_data,
         [sigma(i - x_mrna, j - y_mrna; sigma_x=20.0, sigma_y=20.0, rounding=false) for i in 1:w, j in 1:h]
     )
     incident_cases = sum.(const_params.location_data.cases_by_lineage)
     function optimization_objective(x)
-        β = Float64[transmission_rate for i in 1:w, j in 1:h] ./ initial_pop#β = [transmission_rate + x[1] * i + x[2] * j for i in 1:w, j in 1:h] ./ initial_pop
-        M = x[3]
-        sigma_matrix = Float64[sigma(i, j; sigma_x=x[4], sigma_y=x[5]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
-        # sigma_matrix = Float64[sigma(i - k, j - l) for i in 1:w, j in 1:h, k in 1:w, l in 1:h]
+        β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ initial_pop
+        M = x[4]
+        sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
         prob = create_model((; β, M, sigma_matrix), const_params)
         sol = solve(prob, Tsit5(); saveat=1:1:length(const_params))
         return sol
@@ -99,15 +98,15 @@ function main()
         yield()
         return err
     end
-    x0 = [transmission_rate, 0.0001, 0.0001, 0.5, 4.0, 4.0]
+    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0]
 
-    # f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    # # prob = Optimization.OptimizationProblem(f, x0, 0; lb=[-0.5, -0.5, 0.01, 1.0, 1.0], ub=[0.5, 0.5, 5.0, 100.0, 100.0], TraceMode=:silent)
-    # # optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=5000.0), 1:12)
-    # # optimizer = argmin(o -> o.minimum, optimizers).u
+    f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0], ub=[0.5, 0.5, 0.5, 5.0, 50.0, 50.0], TraceMode=:silent)
+    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=5000.0), 1:12)
+    optimizer = argmin(o -> o.minimum, optimizers).u
 
-    # sol = optimization_objective(optimizer)
-    sol = optimization_objective(x0)
+    sol = optimization_objective(optimizer)
+    # sol =p optimization_objective(x0)
     plot_solution(sol, const_params)
     # return optimizer
 end

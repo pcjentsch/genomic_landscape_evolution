@@ -214,6 +214,9 @@
 %The next step is to place at least some of the genomic data on the, hopefully 2 or 3 dimensional, lattice.
 %in order to do this, we need some way to quantify the differences in immune response to viruses.
 
+%Most methods of assessing immune response involve taking serum that has been raised against one strain, antiserum, and exposing it to another strain. Often, this is done with neutralization assays. 
+
+
 \begin{frame}{Quantifying antigenicity between viruses}
     \begin{figure}
         \centering
@@ -223,7 +226,24 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{Projecting to low dimensions while preserving distances}
+
+\begin{frame}{Neutralization assays are used to estimate relative antibody titre}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{2022-07-11-22-36-27.png}
+        \caption{Illustration of mechanism behind hemagglutination assay, used for influenza}
+    \end{figure}
+    \centering
+    \vfill
+    \tiny{\cite{payne2017viruses}}
+\end{frame}
+% The same serum sample is spread among well plates, progressively more diluted in each well. A sample of virus with known concentration is added to each well, and a test is conducted to see if all the virus has been bound with antibodies. Hemagglutinating viruses, such as influenza, are called this because they bind to red blood cells preventing them from clumping. Since they cannot bind to red blood cells if they're bound to antibodies, antibodies binding can be assessed this way. This method determines the titre of antibodies in the serum sample that react to the viral particles.
+% SARS-CoV-2 neutralizing assays work similarly, except using dyes to assess antibody binding, but the principle is the same.
+%  An undetectable titre, in extreme cases such as with some Omicron samples against ancestral antiserum, is 
+% Even a small number of viral samples and corresponding antisera will product a very high-dimensional dataset, which is not amenable to the 2 or 3 dimensional space that we want to use.
+% Therefore, Lapedes and Farber came up with the used a modification of a technique called Multidimensional scaling, that given distances, produces a lower-dimensional manifold that minimizes the changes to the distances. 
+
+
+\begin{frame}{Projecting points to low dimensions while preserving distances}
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{figure}
@@ -245,7 +265,6 @@
     \centering
     \vfill
     \tiny{\cite{scikit-learn}}
-
 \end{frame}
 \begin{frame}{Projecting to low dimensions while preserving distances}
     \begin{columns}
@@ -271,24 +290,27 @@
     \tiny{\cite{scikit-learn}}
 
 \end{frame}
-\begin{frame}{Approximating genomic data in 2 dimesions }
+% \begin{frame}{Approximating genomic data in 2 dimesions }
 
-    \begin{columns}
-        \begin{column}{0.6\textwidth}
-        \begin{figure}
-        \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_1.png}    
-        \end{figure}   
-    \end{column}
-    \end{columns}
-    \centering
-    \vfill
-    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
-    % \begin{itemize}
-    %     \item Practice of mapping out immune responses to related pathogens
-    %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
-% ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
-    % \end{itemize}
-\end{frame}
+%     \begin{columns}
+%         \begin{column}{0.6\textwidth}
+%         \begin{figure}
+%         \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_1.png}    
+%         \end{figure}   
+%     \end{column}
+%     \end{columns}
+%     \centering
+%     \vfill
+%     \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
+%     % \begin{itemize}
+%     %     \item Practice of mapping out immune responses to related pathogens
+%     %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
+% % ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
+%     % \end{itemize}
+% \end{frame}
+
+%This technique was developed for influenza 
+
 \begin{frame}{Approximating genomic data in 2 dimesions }
 
     \begin{columns}
@@ -318,8 +340,7 @@
     \tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
 \end{frame}
 
-
-
+%wilks et al are using geometric mean titre here 
 \begin{frame}{Mapping SARS-CoV-2 in 2D}
     \begin{figure}
     \includegraphics[width=\textwidth]{sars_cov_2_map/wilks_3.png}
@@ -328,8 +349,8 @@
 \vfill
 \tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
 \end{frame}
-%unconstrained site
-%systematic error in sequencing 
+
+%how to interpolate more data into this map?
 %start with RBD stuff
 % \begin{itemize}
 %     \item A huge amount of genomic data is available
@@ -367,6 +388,8 @@
     \tiny{\cite{page2009molecular}}
 \end{frame}
 
+%unconstrained site
+%systematic error in sequencing 
 \begin{frame}{Homoplasic mutations map}
     \begin{figure}
         \includegraphics[width=\textwidth]{my_figs/homoplasy_usa_multidimensional_scaling.png}
@@ -390,7 +413,7 @@
     \begin{table}[h!]
         \begin{center}
         \begin{tabular}{c|p{8cm}}
-                Symbol & Description \\
+                Symbol & Description\\
                 \hline
                 \hline
                 $N$ & Size of variant grid \\
@@ -445,7 +468,9 @@
 
 
 \begin{frame}{Model Dynamics}
-    (gifs of model dynamics)
+    \begin{figure} 
+        \includegraphics[width=1.1\textwidth]{2022-07-11-22-45-53.png}
+    \end{figure}
 \end{frame}
 
 

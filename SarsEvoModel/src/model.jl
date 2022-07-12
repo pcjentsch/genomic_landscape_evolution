@@ -110,10 +110,10 @@ function rhs(du, u, p, t, const_params)
     stringency_t = stringency[day+1]
     yesterday_vaccinations = day >= 1 ? vaccination_mrna[day] : 0.0
     vaccination_rate_by_day_t = 10 * (vaccination_mrna[day+1] - yesterday_vaccinations) / (initial_population * w * h)
-    for j in 2:hmone
-        for i in 2:wmone
+    @inbounds for j in 2:hmone
+        @inbounds for i in 2:wmone
             force_of_infection = zero(eltype(sigma_matrix))
-            for l in 2:hmone
+            @turbo for l in 2:hmone
                 for k in 2:wmone
                     force_of_infection += sigma_matrix[k-i+w, l-j+h] * I[k, l]
                 end

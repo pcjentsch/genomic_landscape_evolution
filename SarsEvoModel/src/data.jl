@@ -149,7 +149,7 @@ function USALocationData()
     for (lineage_fraction, date) in zip(lineage_fractions, dates)
         ind = findfirst(==(date), cases_df.date)
         if !isnothing(ind)
-            push!(cases_by_lineage, lineage_fraction .* cases_df.new_cases_smoothed[ind] * 1.5) #50% more
+            push!(cases_by_lineage, lineage_fraction .* cases_df.new_cases_smoothed[ind] * 1.65) #50% more
             push!(cases_by_lineage_dates, date)
         end
     end
