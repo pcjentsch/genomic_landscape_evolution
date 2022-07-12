@@ -210,7 +210,7 @@
         }
     \end{figure}
 \end{frame}
-        %         \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$.
+        %         \item Variants are related by a function $\sigma(i,j)$ that determines how much an infection by variant $i$ reduces probability of infection to variant $j$. Note that sigma(i,i) = 1.
 \begin{frame}{Extending the strain lattice to 2 dimensions}
     \begin{columns}
         \begin{column}{0.5\textwidth}
@@ -260,21 +260,11 @@
     \end{figure}
 \end{frame}
 
-
-\begin{frame}{Neutralization assays are used to estimate relative antibody titre}
-    \begin{figure}
-        \includegraphics[width=0.5\textwidth]{2022-07-11-22-36-27.png}
-        \caption{Illustration of mechanism behind hemagglutination assay}
-    \end{figure}
-    \centering
-    \vfill
-    \tiny{\cite{payne2017viruses}}
-\end{frame}
 % The same serum sample is spread among well plates, progressively more diluted in each well. A sample of virus with known concentration is added to each well, and a test is conducted to see if all the virus has been bound with antibodies. Hemagglutinating viruses, such as influenza, are called this because they bind to red blood cells preventing them from clumping. Since they cannot bind to red blood cells if they're bound to antibodies, antibodies binding can be assessed this way. This method determines the titre of antibodies in the serum sample that react to the viral particles.
-% SARS-CoV-2 neutralizing assays work similarly, except using dyes to assess antibody binding, but the principle is the same.
+% SARS-CoV-2 neutralizing assays work similarly, except using dyes to assess antibody binding and outcomes are often similar.
 
 % Even a small number of viral samples and corresponding antisera will product a very high-dimensional dataset, which is not amenable to the 2 or 3 dimensional space that we want to use.
-% Therefore, Lapedes and Farber came up with the used a modification of a technique called Multidimensional scaling, that given distances, produces a lower-dimensional manifold that minimizes the changes to the distances. 
+% Therefore, Alan Lapedes and Robert Farber came up with the used a modification of a technique called Multidimensional scaling, that given distances, produces a lower-dimensional manifold that minimizes the changes to the distances. 
 
 
 \begin{frame}{Projecting points to low dimensions while preserving distances}
@@ -394,6 +384,7 @@
 %     % Distance between any two samples is determined by the distance between the respective closest lineage in Wilks, plus the SNP distance, where each SNP is weighted by how often it recurs in the global tree
 % \end{itemize}
 
+
 \begin{frame}{Methods of adding more genomes: polyclonal antibody binding studies}
     \begin{figure}
         \includegraphics[width=\textwidth]{standalone/2022-07-06-13-06-32.png}
@@ -403,10 +394,46 @@
 \tiny{\cite{greaney2022antibody}}
 \end{frame}
 
-
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item 
+        \item
+        \item 
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item
+        \item
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item Distance between $g_i$ and $g_j$ is $||x_i - x_j|| + B(g_i,g_j)$
+        \item
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item Distance between $g_i$ and $g_j$ is $||x_i - x_j|| + B(g_i,g_j)$
+        \item Use these distances as inputs to multidimensional scaling
+    \end{enumerate}
+\end{frame}
 \begin{frame}{Antibody Binding map}
     \begin{figure}
-        \includegraphics[width=\textwidth]{my_figs/binding_usa_multidimensional_scaling.png}
+        \centering
+        \includegraphics[width=1.1\textwidth]{my_figs/binding_usa_multidimensional_scaling.png}
     \end{figure}
 \end{frame}
 
@@ -426,7 +453,9 @@
 %systematic error in sequencing 
 \begin{frame}{Homoplasic mutations map}
     \begin{figure}
-        \includegraphics[width=\textwidth]{my_figs/homoplasy_usa_multidimensional_scaling.png}
+        \centering
+
+        \includegraphics[width=1.1\textwidth]{my_figs/homoplasy_usa_multidimensional_scaling.png}
     \end{figure}
 \end{frame}
 
@@ -482,6 +511,20 @@
 
     Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
 \end{frame}
+\begin{frame}{Model Equations}
+    \small
+    \begin{equation}
+        \frac{S_{ij}}{dt} = \textcolor{myred}{-\frac{1}{K}\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma R - V(t)S  \label{Seqn}
+    \end{equation}
+    \begin{equation}
+        \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{\frac{1}{K}s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
+    \end{equation}
+    \begin{equation}
+        \frac{R_{ij}(t)}{dt} =  \textcolor{myred}{\frac{1}{K}\sum_{kl \neq ij} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \xi I_{ij} - \gamma R_{ij} + V(t)S \label{Reqn}
+    \end{equation}
+
+    Boundary conditions: $I_{0,j} = 0, I_{j,0} = 0,  I_{N,j} = 0, I_{j,N} = 0$
+\end{frame}
 % \begin{frame}
 % \begin{columns}
 % \begin{column}{\textwidth}
@@ -511,6 +554,7 @@
 
 \begin{frame}{Further work}
     \begin{itemize}
+        \item More detailed methods for interpolation of additional genome data
         \item Differentiate between antigenic and genomic space
         \begin{itemize}
             \item[$\rightarrow$] non-local diffusion
