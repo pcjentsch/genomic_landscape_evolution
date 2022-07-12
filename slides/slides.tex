@@ -7,6 +7,14 @@
 \usepackage{graphicx}
 \usepackage{tikzit}
 
+\usepackage{xcolor}
+
+\definecolor{myred}{RGB}{255, 0, 0}
+\definecolor{myyellow1}{RGB}{255, 255, 219}
+\definecolor{mygreen1}{RGB}{0, 255, 0}
+\definecolor{mygreen2}{RGB}{0, 126, 0}
+\definecolor{myblue}{RGB}{0, 0, 255}
+
 \usetikzlibrary{arrows.meta,positioning}
 \usetikzlibrary{shapes.multipart,matrix,positioning,arrows,arrows.meta}
 \usefonttheme{serif}
@@ -454,10 +462,10 @@
 \begin{frame}{Model Equations}
     \small
     \begin{equation}
-        \frac{S_{ij}}{dt} = -\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij} - V(t)S  \label{Seqn}
+        \frac{S_{ij}}{dt} = \textcolor{myred}{-\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma R_{ij} - V(t)S  \label{Seqn}
     \end{equation}
     \begin{equation}
-        \frac{ I_{ij}(t)}{dt} = s(t) \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
+        \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
     \end{equation}
     \begin{equation}
         \frac{R_{ij}(t)}{dt} = \xi I_{ij} - \gamma R_{ij} + V(t)S \label{Reqn}
