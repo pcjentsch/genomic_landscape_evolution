@@ -2,9 +2,6 @@
 #take 2 genomes, find common ancestor, find closest sampled genome to that ancestor
 
 function plot_mds(fname, unique_df, dm)
-    # df = innerjoin(genomes_df, unique_df; on=:filtered_genome => :filtered_genome) |> df ->
-    #     innerjoin(lineages, df; on=:id)
-    # sort!(df, :date)
     p = plot()
     for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
         p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",

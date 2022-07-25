@@ -6,7 +6,12 @@ using ProgressMeter
 using Optimization, OptimizationBBO, StatsBase
 
 using Setfield
-#Ontario population
+
+#config for sars-cov-2 amplicon tiling schemes
+#references for monkeypox
+#wtf are primer sets
+#get monkeypox workflow working with reference genomes
+
 #Size of antigenic grid
 const w = 25
 const h = 25
@@ -22,7 +27,6 @@ function map_coords_to_model_space(coords_x, coords_y; limx=(1, 10), limy=(1, 10
 end
 include("antigenic_mapping/antigenic_map.jl")
 include("antigenic_mapping/genomic_types.jl")
-
 include("data.jl")
 include("model.jl")
 include("plotting.jl")
@@ -30,6 +34,10 @@ include("antigenic_mapping/analyze_snps.jl")
 include("antigenic_mapping/antigenic_map_plotting.jl")
 include("antigenic_mapping/io.jl")
 
+#test the interpolation of wilks 
+#importations
+#viral-recon nextflow workflow
+#
 lower_triangular(n) = ((i, j) for i in 1:n, j in 1:n if j < i)
 const datasets = (
     (
@@ -98,15 +106,15 @@ function main()
         yield()
         return err
     end
+
     x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0]
 
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
     prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0], TraceMode=:silent)
-    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=15_000.0), 1:12)
+    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=10_000.0), 1:12)
     optimizer = argmin(o -> o.minimum, optimizers).u
 
     sol = optimization_objective(optimizer)
-    # sol = optimization_objective(x0)
     plot_solution(sol, const_params)
     return optimizers
 end

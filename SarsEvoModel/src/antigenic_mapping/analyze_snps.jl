@@ -6,6 +6,8 @@ using StatsPlots
 using ProgressMeter
 using CodecZlib, TranscodingStreams, FASTX, BioSymbols, ThreadsX
 using MultivariateStats
+using Distributions, Random
+using OnlineStats
 const scorpio_map = Dict(
     missing => missing,
     "Alpha (B.1.1.7-like)" => "B.1.1.7",
@@ -183,7 +185,6 @@ function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_di
     end
     return unique_genomes_df, filtered_genome_df, dm
 end
-
 function manifold_projection(dm, unique_genomes_df)
     n = nrow(unique_genomes_df)
     @assert all(size(dm) .== n)
@@ -193,6 +194,54 @@ function manifold_projection(dm, unique_genomes_df)
     unique_genomes_df.mds_x = coord_matrix[1, :]
     unique_genomes_df.mds_y = coord_matrix[2, :]
     return mds
+end
+function pairwise_distances_bootstrap_ci(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
+    samples = nrow(filtered_genome_df)
+    dm = zeros(Float32, samples, samples)
+    prog = Progress(samples)
+    function map_distances((i, j,))
+        d = map_distances_fn(
+            filtered_genome_df.mapped_lineage_position[i],
+            filtered_genome_df.mapped_lineage_position[j],
+            filtered_genome_df.filtered_genome[i],
+            filtered_genome_df.filtered_genome[j],
+            filtered_genome_df.binding_retained[i],
+            filtered_genome_df.binding_retained[j],
+            snp_weight_dict,
+        )
+        dm[i, j] = Float32(d)
+        dm[j, i] = Float32(d)
+        next!(prog)
+    end
+    ThreadsX.foreach(map_distances, lower_triangular(samples))
+    noise_dist = LogNormal(0.0, 0.25)
+
+    filtered_genome_df.mds_x_ci = [Variance() for _ in 1:samples]
+    filtered_genome_df.mds_y_ci = [Variance() for _ in 1:samples]
+    noise_vec = zeros(div(samples * (samples - 1), 2))
+    no_bootstraps = 10
+    for k in 1:no_bootstraps
+        rand!(noise_dist, noise_vec)
+        ind = 1
+        for i in 1:samples
+            for j in 1:i
+                dm[i, j] += noise_vec[ind]
+                dm[i, j] += noise_vec[ind]
+            end
+        end
+        display(dm)
+        mds = fit(MDS, dm; distances=true, maxoutdim=2)
+        coord_matrix = predict(mds)
+        fit!.(filtered_genome_df.mds_x_ci, coord_matrix[1, :])
+        fit!.(filtered_genome_df.mds_y_ci, coord_matrix[2, :])
+    end
+
+    for r in eachrow(filtered_genome_df)
+        inds = findall(==(r.filtered_genome), unique_genomes_df.filtered_genome)
+        unique_genomes_df.mds_x[inds] .= r.mds_x
+        unique_genomes_df.mds_y[inds] .= r.mds_y
+    end
+    return unique_genomes_df, filtered_genome_df, dm
 end
 
 
@@ -221,8 +270,24 @@ function make_antigenic_map()
                 () -> pairwise_distances(unique_df, filter_df, snp_weight_dict, dist_fn),
                 datapath("$name.data")
             )
-            @info "computing stress"
-            plot_mds(name, unique_df, dm)
+            # for k in 1:10
+            #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
+            #     subsampled = filter_df[filter_idxs, :]
+            #     subsampled_dm = dm[filter_idxs, filter_idxs]
+            #     manifold_projection(subsampled_dm, subsampled)
+            #     plot_mds("$name/subsample_$(k)_$name", subsampled, dm)
+            # end
+            # for lineage in unique(unique_df.closest_mapped_lineage)
+            #     filter_idxs = filter_df.closest_mapped_lineage .!= lineage
+            #     subsampled = filter_df[filter_idxs, :]
+            #     subsampled_dm = dm[filter_idxs, filter_idxs]
+            #     manifold_projection(subsampled_dm, subsampled)
+            #     plot_mds("$name/filter_lineage_$(lineage)_$name", subsampled, dm)
+            # end
+
+
+
+
             unique_df.week_submitted = round.(unique_df.date_submitted, Week)
             bounds_x = extrema(unique_df.mds_x)
             bounds_y = extrema(unique_df.mds_y)
@@ -249,8 +314,8 @@ function make_antigenic_map()
                 frame(anim, p)
                 frame(heatmap_anim, htmp)
             end
-            gif(anim, plots_path("$(name)_mds_density"; filetype="gif"))
-            gif(heatmap_anim, plots_path("$(name)_mds_density_heatmap"; filetype="gif"))
+            gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
+            gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
             serialize(datapath("$(name)_grids.data"), (grids, dates))
         end
     end

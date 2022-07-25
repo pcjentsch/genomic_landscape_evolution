@@ -121,7 +121,7 @@ function rhs(du, u, p, t, const_params)
             dS[i, j] = -1 * stringency_t * β[i, j] * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
             diffusion = M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
             dI[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + diffusion
-            dR[i, j] = ξ * I[i, j] - γ * R[i, j]
+            dR[i, j] = stringency_t * β[i, j] * (force_of_infection- I[i,j]) * S[i, j] + ξ * I[i, j] - γ * R[i, j]
             dV[i, j] = vaccination_rate_by_day_t * S[i, j] * vaccination_matrix[i, j]
             dC[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] + diffusion
         end
