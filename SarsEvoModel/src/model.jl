@@ -121,19 +121,34 @@ function rhs(du, u, p, t, const_params)
             dS[i, j] = -1 * stringency_t * β[i, j] * force_of_infection * S[i, j] + γ * R[i, j] - vaccination_rate_by_day_t * S[i, j]
             diffusion = M * (-4 * I[i, j] + I[i-1, j] + I[i+1, j] + I[i, j+1] + I[i, j-1])
             dI[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] - ξ * I[i, j] + diffusion
-            dR[i, j] = stringency_t * β[i, j] * (force_of_infection- I[i,j]) * S[i, j] + ξ * I[i, j] - γ * R[i, j]
+            dR[i, j] = stringency_t * β[i, j] * (force_of_infection - I[i, j]) * S[i, j] + ξ * I[i, j] - γ * R[i, j]
             dV[i, j] = vaccination_rate_by_day_t * S[i, j] * vaccination_matrix[i, j]
             dC[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] + diffusion
         end
     end
     yield()
-
 end
+
+function import_callback(integrator)
+    omicron_x, omicron_y, width = antigenic_map_paper["B.1.1.529"]
+    omicron_x, omicron_y = map_coords_to_model_space(omicron_x, omicron_y)
+    S = @view integrator.u[1:w, 1:h]
+    I = @view integrator.u[1:w, (h+1):(h*2)]
+    for x in 1:w, y in 1:h
+        S[y, x] -= sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * 1000.0
+        I[y, x] += sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * 1000.0
+    end
+end
+
+
 
 function create_model(params, const_params)
     #IC
     u0 = const_params.u0
-    f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params))#, jac_prototype=jac_sparsity)
+    tstops = 400.0:430.0
+
+    import_cb = DiscreteCallback((u, t, int) -> t in tstops, import_callback, save_positions=(false, false))
+    f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params))
     prob = ODEProblem(f, u0, (0.0, length(const_params) - 1), params)
-    return prob
+    return prob, import_cb, tstops
 end

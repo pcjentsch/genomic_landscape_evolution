@@ -81,8 +81,8 @@ function main()
         β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ initial_pop
         M = x[4]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
-        prob = create_model((; β, M, sigma_matrix), const_params)
-        sol = solve(prob, Tsit5(); saveat=1:1:length(const_params))
+        prob, cb, tstops = create_model((; β, M, sigma_matrix), const_params)
+        sol = solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
         return sol
     end
 
