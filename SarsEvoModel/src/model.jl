@@ -129,14 +129,14 @@ function rhs(du, u, p, t, const_params)
     yield()
 end
 
-function import_callback(integrator)
+function import_callback(integrator, num_imports_per_day)
     omicron_x, omicron_y, width = antigenic_map_paper["B.1.1.529"]
     omicron_x, omicron_y = map_coords_to_model_space(omicron_x, omicron_y)
     S = @view integrator.u[1:w, 1:h]
     I = @view integrator.u[1:w, (h+1):(h*2)]
     for x in 1:w, y in 1:h
-        S[y, x] -= sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * 1000.0
-        I[y, x] += sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * 1000.0
+        S[y, x] -= sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * num_imports_per_day
+        I[y, x] += sigma(x - omicron_x, y - omicron_y; sigma_x=width, sigma_y=width, rounding=false) * num_imports_per_day
     end
 end
 
@@ -145,9 +145,9 @@ end
 function create_model(params, const_params)
     #IC
     u0 = const_params.u0
-    tstops = 400.0:430.0
+    tstops = 375.0:410.0
 
-    import_cb = DiscreteCallback((u, t, int) -> t in tstops, import_callback, save_positions=(false, false))
+    import_cb = DiscreteCallback((u, t, int) -> t in tstops, int -> import_callback(int, params.num_imports_per_day), save_positions=(false, false))
     f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params))
     prob = ODEProblem(f, u0, (0.0, length(const_params) - 1), params)
     return prob, import_cb, tstops

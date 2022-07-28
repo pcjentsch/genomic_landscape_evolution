@@ -80,8 +80,9 @@ function main()
     function optimization_objective(x)
         β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ initial_pop
         M = x[4]
+        num_imports_per_day = x[7]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
-        prob, cb, tstops = create_model((; β, M, sigma_matrix), const_params)
+        prob, cb, tstops = create_model((; β, M, sigma_matrix, num_imports_per_day), const_params)
         sol = solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
         return sol
     end
@@ -107,10 +108,10 @@ function main()
         return err
     end
 
-    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0]
+    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 1000.0]
 
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0], TraceMode=:silent)
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 100_000.0], TraceMode=:silent)
     optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=10_000.0), 1:12)
     optimizer = argmin(o -> o.minimum, optimizers).u
 
