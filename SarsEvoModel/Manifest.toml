@@ -2,7 +2,7 @@
 
 julia_version = "1.8.0-rc3"
 manifest_format = "2.0"
-project_hash = "2efbcfeda4a3f21eb3276634f0d6718174fb401b"
+project_hash = "4b837973e6ac21461ce3e4765060012b9d5f581e"
 
 [[deps.ATK_jll]]
 deps = ["Artifacts", "Glib_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -110,12 +110,6 @@ version = "0.8.8"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
-
-[[deps.AutoGrad]]
-deps = ["Libdl", "LinearAlgebra", "SpecialFunctions", "Statistics", "TimerOutputs"]
-git-tree-sha1 = "0f97c20e513d18e9c0d8f58e1b6eb0e288249832"
-uuid = "6710c13c-97f1-543f-91c5-74e8f7d95b35"
-version = "1.2.5"
 
 [[deps.AutoHashEquals]]
 git-tree-sha1 = "45bb6705d93be619b81451bb2006b7ee5d4e4453"
