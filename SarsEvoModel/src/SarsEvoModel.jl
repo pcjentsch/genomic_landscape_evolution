@@ -112,10 +112,10 @@ function main()
 
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
     prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 100_000.0], TraceMode=:silent)
-    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000, maxtime=10_000.0), 1:12)
-    optimizer = argmin(o -> o.minimum, optimizers).u
+    optimizers = Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000)
+    # optimizer = argmin(o -> o.minimum, optimizers).u
 
-    sol = optimization_objective(optimizer)
+    sol = optimization_objective(x0)
     plot_solution(sol, const_params)
     return optimizers
 end
