@@ -90,17 +90,6 @@
     
 \end{frame}
 
-\begin{frame}{Complexity only increases with vaccination dynamics etc.}
-
-\begin{figure}[h!]
-    \centering
-    \scalebox{0.5}{
-    \input{diagram_wide.tikz}
-    }
-\label{model_structure}
-\end{figure}
-\end{frame}
-
 \begin{frame}{How to incorporate more data?}
     \centering
     \begin{figure}
@@ -121,42 +110,42 @@
 \end{frame}
 
 
-\begin{frame}{Begin with SIR model}
-    \begin{columns}       
-         \begin{column}{0.5\textwidth}
-        \begin{itemize}
-            \item Consider strains of a pathogen numbered $i \in [1,N]$ 
-            \item $S(t)$ - population of hosts susceptible to strain $i$ at $t$
-            \item $I(t)$ - population of hosts infected with strain $i$ at $t$
-            \item $R(t)$ - population of hosts recovered from strain $i$ at $t$
-        \end{itemize} 
-    \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \centering
-                \scalebox{1.0}{
-                \input{tikz_models/gog_model_1.tikz}
-                }
-            \end{figure}
-        \end{column}
-        \end{columns}
-\end{frame}
-\begin{frame}{Organize strains on a lattice}
-    \begin{figure}
-        \centering
-        \scalebox{0.8}{
-        \input{tikz_models/gog_model_2.tikz}
-        }
-    \end{figure}
-\end{frame}
-\begin{frame}{Strains mutate into adjacent strains}
-    \begin{figure}
-        \centering
-        \scalebox{0.8}{
-        \input{tikz_models/gog_model_3.tikz}
-        }
-    \end{figure}
-\end{frame}
+% \begin{frame}{Begin with SIR model}
+%     \begin{columns}       
+%          \begin{column}{0.5\textwidth}
+%         \begin{itemize}
+%             \item Consider strains of a pathogen numbered $i \in [1,N]$ 
+%             \item $S(t)$ - population of hosts susceptible to strain $i$ at $t$
+%             \item $I(t)$ - population of hosts infected with strain $i$ at $t$
+%             \item $R(t)$ - population of hosts recovered from strain $i$ at $t$
+%         \end{itemize} 
+%     \end{column}
+%         \begin{column}{0.5\textwidth}
+%             \begin{figure}
+%                 \centering
+%                 \scalebox{1.0}{
+%                 \input{tikz_models/gog_model_1.tikz}
+%                 }
+%             \end{figure}
+%         \end{column}
+%         \end{columns}
+% \end{frame}
+% \begin{frame}{Organize strains on a lattice}
+%     \begin{figure}
+%         \centering
+%         \scalebox{0.8}{
+%         \input{tikz_models/gog_model_2.tikz}
+%         }
+%     \end{figure}
+% \end{frame}
+% \begin{frame}{Strains mutate into adjacent strains}
+%     \begin{figure}
+%         \centering
+%         \scalebox{0.8}{
+%         \input{tikz_models/gog_model_3.tikz}
+%         }
+%     \end{figure}
+% \end{frame}
 \begin{frame}{Infections provide cross-immunity to nearby strains}
         \centering
             \begin{figure}
@@ -167,14 +156,14 @@
     \tiny{\cite{gogDynamicsSelectionManystrain2002}}
 \end{frame}
 
-\begin{frame}{Full strain lattice model in 1 dimension}
-    \begin{figure}
-        \centering
-        \scalebox{0.8}{
-        \input{tikz_models/gog_model_4.tikz}
-        }
-    \end{figure}
-\end{frame}
+% \begin{frame}{Full strain lattice model in 1 dimension}
+%     \begin{figure}
+%         \centering
+%         \scalebox{0.8}{
+%         \input{tikz_models/gog_model_4.tikz}
+%         }
+%     \end{figure}
+% \end{frame}
 
 \begin{frame}{Extending the strain lattice to 2 dimensions}
     \begin{columns}
@@ -211,14 +200,14 @@
 \end{frame}
 
 
-\begin{frame}{Quantifying antigenicity between viruses}
-    \begin{figure}
-        \centering
-        \scalebox{0.9}{
-        \input{tikz_models/antigenic_fig.tikz}
-        }
-    \end{figure}
-\end{frame}
+% \begin{frame}{Quantifying antigenicity between viruses}
+%     \begin{figure}
+%         \centering
+%         \scalebox{0.9}{
+%         \input{tikz_models/antigenic_fig.tikz}
+%         }
+%     \end{figure}
+% \end{frame}
 
 
 
@@ -381,17 +370,17 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{Methods of adding more genomes: homoplasic sites}
-    \begin{figure}
-        \centering
-        \scalebox{1.1}{
-        \input{tikz_models/homoplasy.tikz}
-        }
-    \end{figure}
-    \centering
-    \vfill
-    \tiny{\cite{page2009molecular}}
-\end{frame}
+% \begin{frame}{Methods of adding more genomes: homoplasic sites}
+%     \begin{figure}
+%         \centering
+%         \scalebox{1.1}{
+%         \input{tikz_models/homoplasy.tikz}
+%         }
+%     \end{figure}
+%     \centering
+%     \vfill
+%     \tiny{\cite{page2009molecular}}
+% \end{frame}
 
 \begin{frame}{Homoplasic mutations map}
     \begin{figure}
@@ -454,7 +443,6 @@
         \includegraphics[width=1.1\textwidth]{2022-07-12-01-13-30.png}
     \end{figure}
 \end{frame}
-
 
 \begin{frame}{Further work}
     \begin{itemize}

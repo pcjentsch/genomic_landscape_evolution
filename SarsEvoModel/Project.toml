@@ -4,7 +4,6 @@ authors = ["pjentsch <pjentsch@uwaterloo.ca>"]
 version = "0.1.0"
 
 [deps]
-AutoGrad = "6710c13c-97f1-543f-91c5-74e8f7d95b35"
 AverageShiftedHistograms = "77b51b56-6f8f-5c3a-9cb4-d71f9594ea6e"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
@@ -59,7 +58,6 @@ ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 VariantCallFormat = "28eba6e3-a997-4ad9-87c6-d933b8bca6c1"
-Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [extras]
 CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
