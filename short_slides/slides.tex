@@ -1,0 +1,355 @@
+\documentclass{beamer}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikzit}
+
+\usepackage{xcolor}
+
+\definecolor{myred}{RGB}{255, 0, 0}
+\definecolor{myyellow1}{RGB}{255, 255, 219}
+\definecolor{mygreen1}{RGB}{0, 255, 0}
+\definecolor{mygreen2}{RGB}{0, 126, 0}
+\definecolor{myblue}{RGB}{0, 0, 255}
+
+\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{shapes.multipart,matrix,positioning,arrows,arrows.meta}
+\usefonttheme{serif}
+\input{sample.tikzstyles}
+% Edge styles
+
+\setbeamertemplate{footline}[frame number]{}
+\setbeamertemplate{navigation symbols}{}
+
+\usecolortheme{lily}
+\setbeamercolor{block title}{bg=blue!20,fg=black}
+\setbeamercolor{block body}{bg = blue!10, fg = black}
+\setbeamertemplate{itemize item}[square]
+\setbeamercolor{itemize item}{fg = cyan}
+\setbeamercolor{enumerate item}{fg = cyan}
+
+\usetheme{default}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{titlelike}{fg=blue}
+\setbeamertemplate{caption}{\insertcaption\par}
+
+%Information to be included in the title page:
+\title{Characterizing evolutionary dynamics on a broader scale: a strain-space model for SARS-CoV-2}
+\author{Peter C. Jentsch, PhD \inst{1,4} \and Finlay Maguire, PhD  \inst{3,5} \and Samira Mubareka, MD, FRCPC \inst{1,2}}
+\institute{\inst{1} Sunnybrook Research Institute, Toronto, Canada  \and \inst{2} University of Toronto, Toronto, Canada \and \inst{3} Dalhousie University, Halifax, Canada \and \inst{4} Simon Fraser University, Burnaby, Canada \and \inst{5} Shared Hospital Laboratory, Toronto, Canada}
+\date{\today}
+
+\begin{document}
+\setbeamertemplate{caption}{\insertcaption\par}
+\frame{\titlepage}
+
+
+\begin{frame}{Full strain lattice model in 1 dimension}
+    \begin{figure}
+        \centering
+        \scalebox{0.8}{
+        \input{tikz_models/gog_model_4.tikz}
+        }
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Extending the strain lattice to 2 dimensions}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{gog_2d_fig/gog_2d_a.png}
+            \end{figure}        
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{gog_2d_fig/gog_2d_b.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{gogDynamicsSelectionManystrain2002}}
+
+\end{frame}
+
+
+\begin{frame}{Quantifying antigenicity between viruses}
+    \begin{figure}
+        \centering
+        \scalebox{0.9}{
+        \input{tikz_models/antigenic_fig.tikz}
+        }
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Projecting to low dimensions while preserving distances}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.4\textwidth]{standalone/mds_1.png}
+                
+            \end{figure}   
+        \end{column}
+        \begin{column}{0.01\textwidth}
+            \huge{$\Longrightarrow$}
+            
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+            \includegraphics[width=\textwidth]{standalone/mds_2.png}
+            
+        \end{figure}   
+        \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{scikit-learn}}
+
+\end{frame}     
+
+\begin{frame}{Approximating genomic data in 2 dimesions }
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_2.png}    
+        \end{figure}   
+    \end{column}
+    \end{columns}
+    \centering
+    \vfill
+    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
+    % \begin{itemize}
+    %     \item Practice of mapping out immune responses to related pathogens
+    %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
+% ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
+    % \end{itemize}
+\end{frame}
+
+%wilks et al are using geometric mean titre here 
+\begin{frame}{Mapping SARS-CoV-2 in 2D}
+    \begin{figure}
+    \includegraphics[width=\textwidth]{sars_cov_2_map/wilks_3.png}
+\end{figure}   
+\centering
+\vfill
+\tiny{\cite{wilksMappingSARSCoV2Antigenic2022}}
+\end{frame}
+
+\begin{frame}{Methods of adding more genomes: polyclonal antibody binding studies}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{standalone/2022-07-06-13-06-32.png}
+    \end{figure}
+    \centering
+\vfill
+\tiny{\cite{greaney2022antibody}}
+\end{frame}
+
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item 
+        \item
+        \item 
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item
+        \item
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item Distance between $g_i$ and $g_j$ is $||x_i - x_j|| + B(g_i,g_j)$
+        \item
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Interpolating more data into antigenic map}
+    For each pair of genomes $g_i$ and $g_j$ ($i\neq j$)
+    \begin{enumerate}
+        \item Find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$
+        \item Determine difference in polyclonal binding affinity $B(g_i,g_j)$
+        \item Distance between $g_i$ and $g_j$ is $||x_i - x_j|| + B(g_i,g_j)$
+        \item Use these distances as inputs to multidimensional scaling
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Antibody Binding map}
+    \begin{figure}
+        \centering
+        \includegraphics[width=1.1\textwidth]{my_figs/binding_usa_multidimensional_scaling.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Methods of adding more genomes: homoplasic sites}
+    \begin{figure}
+        \centering
+        \scalebox{1.1}{
+        \input{tikz_models/homoplasy.tikz}
+        }
+    \end{figure}
+    \centering
+    \vfill
+    \tiny{\cite{page2009molecular}}
+\end{frame}
+
+\begin{frame}{Homoplasic mutations map}
+    \begin{figure}
+        \centering
+
+        \includegraphics[width=1.1\textwidth]{my_figs/homoplasy_usa_multidimensional_scaling.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Evaluating the MDS approximation}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{my_figs/usa_mds_stress.png}
+    \end{figure}
+\end{frame}
+\begin{frame}{Model parameters/variables}
+    \begin{table}[h!]
+        \begin{center}
+        \begin{tabular}{c|p{8cm}}
+                Symbol & Description\\
+                \hline
+                \hline
+                $N$ & Size of variant grid \\
+                $K$ & Total population \\
+                $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
+                $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
+                $R_{ij}$ & Recovered from variant $(i,j) \in [0,N]^2$\\
+                $V_{ij}$ & Immune by vaccination to variant $(i,j) \in [0,N]^2$\\
+                $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
+                $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
+                $v_{ij}(t)$ & vaccination rate at time $t$ against variant $(i,j)$\\
+                $s(t)$ & stringency at $t$\\
+                $\xi$ & Recovery rate of all strains \\
+                $\gamma$ & Rate of immunity loss of all strains \\
+        \end{tabular}
+        \caption{Table of symbols for Model 2}
+    
+        \label{variables_2}
+        \end{center}
+    \end{table}
+\end{frame}
+\begin{frame}{Model Equations}
+    \small
+    \begin{equation}
+        \frac{S_{ij}}{dt} = \textcolor{myred}{-\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma (R_{ij} + V{i,j})  - v_{ij}(t)S  \label{Seqn}
+    \end{equation}
+    \begin{equation}
+        \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
+    \end{equation}
+    \begin{equation}
+        \frac{R_{ij}(t)}{dt} =  \textcolor{myred}{\sum_{kl \neq ij} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \xi I_{ij} - \gamma R_{ij} + v_ij(t)S \label{Reqn}
+    \end{equation}
+    \begin{equation}
+    \frac{V_{ij}(t)}{dt} =  v_{ij}(t)S  - \gamma V_{ij}  \label{Veqn}
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Model Dynamics}
+    \begin{figure} 
+        \includegraphics[width=1.1\textwidth]{2022-07-12-01-13-30.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Case importation}
+    \begin{itemize}
+        \item Evolution of Omicron represents a huge shift in antigenic space
+        \item Intermediate steps not represented in data
+        \item We add imports to solve this problem
+    \end{itemize}
+\end{frame}
+
+% \begin{frame}{}
+%     \small
+%     To incorporate more realistic mutation rates, we can go to continuous strain-space and use nonlocal reaction-diffusion dynamics as in \cite{Rouzine_Rozhnova_2018,Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+%     \tiny
+%     \begin{equation}
+%         S_t(x,y,t) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
+%     \end{equation}
+%     \begin{equation}
+%         I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
+%     \end{equation}
+%     \begin{equation}
+%         R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
+%     \end{equation}
+    
+%     where $\beta, \sigma, v$ have been generalized to their continuous counterparts. Given a dispersion kernel $K(x,y) \in L_2: \mathbb{R}^2 \to \mathbb{R}$ this can be generalised to non-local diffusion as follows
+    
+%     \begin{equation}
+%         I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} K(x-x',y-y')I(x',y',t) dx' dy' \right) \label{Ieqn_cts_nonlocal}    
+%     \end{equation}
+% \end{frame}
+% \begin{frame}{Developing an antigenic distance map}
+%     \begin{itemize}
+%         \item We would like an approximate measure of antigenic distance for every sample genome
+%         \item Using all samples, we compute pairwise distances between each unique genome in some way that encodes antigenic response   
+%         \item Many possible ways to do this, so far none of them seem to work very well
+%         \item Project to 2-d (hopefully) space with multidimensional scaling
+%     \end{itemize}    
+% \end{frame}
+% \begin{frame}{Genome distance}
+%     Assume:
+%     \begin{itemize}
+%         \item $a,b$ are SARS-CoV-2 genomes aligned with the reference
+%         \item $a_i$ the $i$th nucleotide base in $a$ and
+%          \[
+%             \chi(a_i,b_i) =   \begin{cases}
+%             1 & \text{if $a_i=b_i$} \\
+%             0 & \text{otherwise} \\
+%         \end{cases}
+%         \]
+%         \item $h_i$ is a vector containing the number of homoplasic mutations at site $i$ in the global tree
+%         \item $\mathfrak{B}(a)$ computes the polyclonal binding affinity of genome $a$ as per \cite{starr2020deep}
+%     \end{itemize}
+        
+%     One option for a distance measure is something like
+%     \begin{equation}
+%         d(a,b) = \frac{\mathfrak{B}(a) + \mathfrak{B}(b)}{2} + \sum_i \chi(a_i,b_i) h_i
+%     \end{equation}
+%     That is, the average binding between two genomes plus the SNP distance weighted by the relative homoplasy of each mutation.
+% \end{frame}
+% \begin{frame}{Example antigenic distance map}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{uk_multidimensional_scaling.png}
+%         \caption{Multidimensional scaling plot using samples from the UK up to mid November}
+%     \end{figure}
+% \end{frame}
+% \begin{frame}{Homoplasy in global tree}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{gene_freq.png}
+%         \caption{Number of recurrent (homoplasic) mutations per base by gene, (normalized by gene length)}
+%     \end{figure}
+% \end{frame}
+% \begin{frame}{Homoplasy in orf3a}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{orf3a_scatter_2.png}
+%     \end{figure}
+% \end{frame}
+
+
+\begin{frame}[allowframebreaks]
+
+\bibliographystyle{apalike}
+\bibliography{ref.bib}
+\end{frame}
+\begin{frame}{Mutation homoplasy}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{my_figs/gene_freq.png}
+    \end{figure}
+\end{frame}
+\end{document}

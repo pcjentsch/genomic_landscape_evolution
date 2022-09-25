@@ -126,7 +126,6 @@ function rhs(du, u, p, t, const_params)
             dC[i, j] = β[i, j] * stringency_t * I[i, j] * S[i, j] + diffusion
         end
     end
-    yield()
 end
 
 function import_callback(integrator, num_imports_per_day)
@@ -145,8 +144,9 @@ end
 function create_model(params, const_params)
     #IC
     u0 = const_params.u0
-    tstops = 375.0:410.0
+    
 
+    tstops = params.imports_start_time:(params.imports_start_time + 30.0)
     import_cb = DiscreteCallback((u, t, int) -> t in tstops, int -> import_callback(int, params.num_imports_per_day), save_positions=(false, false))
     f = ODEFunction((du, u, p, t) -> rhs(du, u, p, t, const_params))
     prob = ODEProblem(f, u0, (0.0, length(const_params) - 1), params)

@@ -53,7 +53,7 @@ const datasets = (
         datapath("usa_sequences/usa_lineages.csv"),
     )
 )
-
+const initial_pop = 329.5e6
 function main()
 
     begin_date = Date(2020, 9, 01)
@@ -62,7 +62,7 @@ function main()
     inv_infectious_period = 1 / 9
     r_0 = 2.1
     transmission_rate = r_0 * inv_infectious_period
-    initial_pop = 329.5e6
+    
     β = Float64[transmission_rate for i in 1:w, j in 1:h]
     x_mrna, y_mrna = map_coords_to_model_space(2.7, 3.8)
     const_params = ModelParameters(
@@ -81,9 +81,11 @@ function main()
         β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ initial_pop
         M = x[4]
         num_imports_per_day = x[7]
+        imports_start_time = x[8]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
-        prob, cb, tstops = create_model((; β, M, sigma_matrix, num_imports_per_day), const_params)
+        prob, cb, tstops = create_model((; β, M, sigma_matrix, num_imports_per_day,imports_start_time), const_params)
         sol = solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
+        yield()
         return sol
     end
 
@@ -105,19 +107,32 @@ function main()
         end
         err /= length(sol.t)
         yield()
+
         return err
     end
 
-    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 1000.0]
+    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 1000.0, 300.0]
 
     f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 100_000.0], TraceMode=:silent)
-    optimizers = Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=1000000)
-    # optimizer = argmin(o -> o.minimum, optimizers).u
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
+    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:(Threads.nthreads+1))
+    optimizer = argmin(o -> o.minimum, optimizers).u
 
-    sol = optimization_objective(x0)
-    plot_solution(sol, const_params)
+    sol_opt = optimization_objective(optimizer)
+    plot_solution(sol_opt, const_params)
+    plot_parameters(optimizer)
+
+    # sol = optimization_objective(x0)
+    # plot_solution(sol, const_params)
+    # plot_parameters(x0)
     return optimizers
 end
 
+function plot_parameters(params)
+
+    opt_β = [params[1] + params[2] * i + params[3] * j for i in 1:w, j in 1:h] ./ initial_pop
+    plt = heatmap(opt_β; xlabel = "MDS1", ylabel = "MDS2", seriescolor = :Blues)
+    savefig(plt, plots_path("model_beta"))
+
+end
 end
