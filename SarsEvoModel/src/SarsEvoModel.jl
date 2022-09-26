@@ -84,7 +84,7 @@ function main()
         imports_start_time = x[8]
         sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
         prob, cb, tstops = create_model((; β, M, sigma_matrix, num_imports_per_day,imports_start_time), const_params)
-        sol = solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
+        sol = DifferentialEquations.solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
         yield()
         return sol
     end
@@ -101,7 +101,7 @@ function main()
             u_i = view(sol.u[i+1], 1:w, (h*4+1):(h*5))
             u_i_sum = sum(umone_sum)
 
-            err += sum((const_params.location_data.cases_by_lineage[i] .- (u_i - umone)) .^ 2)
+            # err += sum((const_params.location_data.cases_by_lineage[i] .- (u_i - umone)) .^ 2)
             err += (sum(incident_cases[ind]) - (u_i_sum - umone_sum))^2
             umone = u_i
         end
@@ -111,20 +111,20 @@ function main()
         return err
     end
 
-    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 1000.0, 300.0]
+    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 20_000.0, 280.0]
 
-    f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
-    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:(Threads.nthreads+1))
-    optimizer = argmin(o -> o.minimum, optimizers).u
+    # f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
+    # prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
+    # optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:Threads.nthreads())
+    # optimizer = argmin(o -> o.minimum, optimizers).u
 
-    sol_opt = optimization_objective(optimizer)
-    plot_solution(sol_opt, const_params)
-    plot_parameters(optimizer)
+    # sol_opt = optimization_objective(optimizer)
+    # plot_solution(sol_opt, const_params)
+    # plot_parameters(optimizer)
 
-    # sol = optimization_objective(x0)
-    # plot_solution(sol, const_params)
-    # plot_parameters(x0)
+    sol = optimization_objective(x0)
+    plot_solution(sol, const_params)
+    plot_parameters(x0)
     return optimizers
 end
 
