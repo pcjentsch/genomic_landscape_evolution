@@ -1,18 +1,9 @@
-# # Logistic regression
-
-# First, we import DynamicHMC and related libraries,
 
 using TransformVariables, LogDensityProblems, DynamicHMC, TransformedLogDensities, MultivariateStats
 
-# then some packages that help code the log posterior,
-
 using Parameters, Statistics, Random, Distributions, LinearAlgebra, StatsFuns, LogExpFunctions
 
-# then diagnostic and benchmark tools,
-
 using MCMCDiagnosticTools, BenchmarkTools, ManifoldLearning
-
-# and use ForwardDiff for AD since the dimensions is small.
 
 import ForwardDiff
 
@@ -70,6 +61,8 @@ for i in 1:10
     test_p = 1.0
     @show mds((xs = test_xs, σ = test_sigma, p = test_p))
 end
+
+
 # # Make up parameters, generate data using random draws.
 
 # N = 1000
