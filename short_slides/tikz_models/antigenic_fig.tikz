@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=black circle] (0) at (-2, 0) {Antiserum A};
+		\node [style=new style 0] (1) at (-2, 4) {Antigen A};
+		\node [style=new style 0] (3) at (1.5, 4) {Antigen B};
+		\node [style=black circle] (4) at (1.5, 0) {Antiserum B};
+		\node [style=none] (5) at (3, 3) {};
+		\node [style=none] (6) at (4.25, 3) {};
+		\node [style=none] (7) at (3, 2) {};
+		\node [style=none] (8) at (4.25, 2) {};
+		\node [style=none] (9) at (4.25, 3) {};
+		\node [style=none] (10) at (7, 3) {Serological response};
+		\node [style=none] (11) at (7, 2) {Antigenic distance};
+		\node [style=none] (15) at (3, 1) {};
+		\node [style=none] (16) at (4.25, 1) {};
+		\node [style=none] (17) at (4.25, 1) {};
+		\node [style=none] (18) at (4.25, 1) {};
+		\node [style=none] (19) at (7, 1) {Corresponding antiserum};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Arrow] (1) to (0);
+		\draw [style=new edge style 5] (3) to (0);
+		\draw [style=new edge style 5] (1) to (4);
+		\draw [style=Arrow] (3) to (4);
+		\draw [style=new edge style 4] (1) to (3);
+		\draw [style=new edge style 5] (5.center) to (9.center);
+		\draw [style=new edge style 4] (7.center) to (8.center);
+		\draw [style=Arrow] (15.center) to (18.center);
+	\end{pgfonlayer}
+\end{tikzpicture}

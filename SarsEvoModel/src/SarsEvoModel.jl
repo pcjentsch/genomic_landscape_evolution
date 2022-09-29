@@ -54,6 +54,13 @@ const datasets = (
     )
 )
 const initial_pop = 329.5e6
+
+function show_landscape(day)
+    loc_data = USALocationData()
+    p = [sum([m[x,y] for m in loc_data.cases_by_lineage]) for x in 1:size(loc_data.cases_by_lineage[1])[1], y in 1:size(loc_data.cases_by_lineage[1])[2]]
+end
+
+
 function main()
 
     begin_date = Date(2020, 9, 01)

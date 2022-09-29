@@ -1,0 +1,29 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=rectangle] (6) at (-2, 8) {$S_i$};
+		\node [style=rectangle] (7) at (-2, 2) {$R_i$};
+		\node [style=rectangle] (8) at (-2, 5) {$I_i$};
+		\node [style=rectangle] (9) at (5, 8) {$S_{i+1}$};
+		\node [style=rectangle] (10) at (5, 2) {$R_{i+1}$};
+		\node [style=rectangle] (11) at (5, 5) {$I_{i+1}$};
+		\node [style=rectangle] (12) at (-9, 8) {$S_{i-1}$};
+		\node [style=rectangle] (13) at (-9, 2) {$R_{i-1}$};
+		\node [style=rectangle] (14) at (-9, 5) {$I_{i-1}$};
+		\node [style=none] (15) at (1.5, 5.5) {Mutation};
+		\node [style=none] (17) at (-5.5, 5.5) {Mutation};
+		\node [style=none] (18) at (-13, 5) {};
+		\node [style=none] (19) at (9, 5) {};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Arrow] (6) to (8);
+		\draw [style=Arrow] (8) to (7);
+		\draw [style=Arrow] (9) to (11);
+		\draw [style=Arrow] (11) to (10);
+		\draw [style=new edge style 0, in=180, out=0] (8) to (11);
+		\draw [style=Arrow] (12) to (14);
+		\draw [style=Arrow] (14) to (13);
+		\draw [style=new edge style 0] (14) to (8);
+		\draw [style=new edge style 0] (14) to (18.center);
+		\draw [style=new edge style 0] (11) to (19.center);
+	\end{pgfonlayer}
+\end{tikzpicture}

@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=black circle] (0) at (0, 0) {};
+		\node [style=black circle] (1) at (-1, 0) {};
+		\node [style=black circle] (2) at (1, 0) {};
+		\node [style=black circle] (3) at (2, 0) {};
+		\node [style=black circle] (4) at (-2, 0) {};
+		\node [style=rectangle] (5) at (-2, 1) {$V_i$};
+		\node [style=rectangle] (6) at (-2, 4) {$S_i$};
+		\node [style=rectangle] (7) at (-2, 2) {$R_i$};
+		\node [style=rectangle] (8) at (-2, 3) {I_i};
+	\end{pgfonlayer}
+\end{tikzpicture}

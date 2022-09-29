@@ -86,6 +86,16 @@
 \end{frame}
 
 \begin{frame}{Projecting to low dimensions while preserving distances}
+
+    Let $D$ be the matrix of pairwise distances. 
+
+    Multidimensional scaling finds $x_i \in \mathbb{R}^k$ to minimize 
+    \[ 
+        \text{STRESS}(\boldmath{x}) = \sum_{i>j} \left(D_{ij} - \lVert x_i - x_j \rVert\right)^2
+    \]
+
+    where $k$ is small.
+
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{figure}
@@ -105,29 +115,9 @@
         \end{column}
     \end{columns}
     \centering
-    \vfill
     \tiny{\cite{scikit-learn}}
-
 \end{frame}     
 
-\begin{frame}{Approximating genomic data in 2 dimesions }
-
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-        \begin{figure}
-        \includegraphics[width=\textwidth]{influenza_map/smith_antigenic_2.png}    
-        \end{figure}   
-    \end{column}
-    \end{columns}
-    \centering
-    \vfill
-    \tiny{\cite{lapedesGeometryShapeSpace2001,smithMappingAntigenicGenetic2004}}
-    % \begin{itemize}
-    %     \item Practice of mapping out immune responses to related pathogens
-    %     \item Distance between serums and pathogen is quantified, these points are visualized using multidimensional scaling (MDS)
-% ,  usually as proportional reduction in serum viral titre hemaagglutinin assay
-    % \end{itemize}
-\end{frame}
 
 %wilks et al are using geometric mean titre here 
 \begin{frame}{Mapping SARS-CoV-2 in 2D}
@@ -212,11 +202,11 @@
 \end{frame}
 
 
-\begin{frame}{Evaluating the MDS approximation}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{my_figs/usa_mds_stress.png}
-    \end{figure}
-\end{frame}
+% \begin{frame}{Evaluating the MDS approximation}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{my_figs/usa_mds_stress.png}
+%     \end{figure}
+% \end{frame}
 \begin{frame}{Model parameters/variables}
     \begin{table}[h!]
         \begin{center}
@@ -230,7 +220,7 @@
                 $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
                 $R_{ij}$ & Recovered from variant $(i,j) \in [0,N]^2$\\
                 $V_{ij}$ & Immune by vaccination to variant $(i,j) \in [0,N]^2$\\
-                $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
+                $\sigma_{ijkl}$ & Probability that exposure to variant $(k,l)$ causes immunity \newline to variant $(i,j)$\\
                 $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
                 $v_{ij}(t)$ & vaccination rate at time $t$ against variant $(i,j)$\\
                 $s(t)$ & stringency at $t$\\
@@ -246,13 +236,13 @@
 \begin{frame}{Model Equations}
     \small
     \begin{equation}
-        \frac{S_{ij}}{dt} = \textcolor{myred}{-\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma (R_{ij} + V{i,j})  - v_{ij}(t)S  \label{Seqn}
+        \frac{S_{ij}}{dt} = \textcolor{myred}{-\sum_{kl} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \gamma (R_{ij} + v_{ij})  - v_{ij}(t)S  \label{Seqn}
     \end{equation}
     \begin{equation}
         \frac{ I_{ij}(t)}{dt} = \textcolor{myred}{s(t) \beta_{ij} S_{ij} I_{ij}} - \xi I_{ij} + \textcolor{myblue}{M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right)} \label{Ieqn}    
     \end{equation}
     \begin{equation}
-        \frac{R_{ij}(t)}{dt} =  \textcolor{myred}{\sum_{kl \neq ij} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \xi I_{ij} - \gamma R_{ij} + v_ij(t)S \label{Reqn}
+        \frac{R_{ij}(t)}{dt} =  \textcolor{myred}{\sum_{kl \neq ij} s(t) \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl}} + \xi I_{ij} - \gamma R_{ij} + v_{ij}(t)S \label{Reqn}
     \end{equation}
     \begin{equation}
     \frac{V_{ij}(t)}{dt} =  v_{ij}(t)S  - \gamma V_{ij}  \label{Veqn}
@@ -270,7 +260,7 @@
     \begin{itemize}
         \item Evolution of Omicron represents a huge shift in antigenic space
         \item Intermediate steps not represented in data
-        \item We add imports to solve this problem
+        \item We can introduce omicron to solve this problem
     \end{itemize}
 \end{frame}
 
