@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=rectangle] (0) at (0, 3) {$S_i$};
+		\node [style=rectangle] (1) at (0, -3) {$R_i$};
+		\node [style=rectangle] (2) at (0, 0) {$I_i$};
+		\node [style=none] (3) at (-0.75, 1.5) {$\beta S_i I_i$};
+		\node [style=none] (4) at (-0.5, -1.5) {$\gamma I$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=Arrow] (0) to (2);
+		\draw [style=Arrow] (2) to (1);
+	\end{pgfonlayer}
+\end{tikzpicture}
