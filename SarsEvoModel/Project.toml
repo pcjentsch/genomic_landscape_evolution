@@ -4,6 +4,7 @@ authors = ["pjentsch <pjentsch@uwaterloo.ca>"]
 version = "0.1.0"
 
 [deps]
+Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
 AverageShiftedHistograms = "77b51b56-6f8f-5c3a-9cb4-d71f9594ea6e"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"

@@ -76,16 +76,18 @@
     \end{columns}
     \centering
     \tiny{\cite{scikit-learn}}
-\end{frame}     
+\end{frame}
 
 
 \begin{frame}{Bayesian MDS}
     \begin{itemize}
+        \item Want to specify priors for $x_i$
         \item First published by Oh and Raftery \cite{oh2001bayesian}
         \item Let $D$ be the matrix of measured distances between points
-        \item Assumes \[ D_{ij} ~ N(\lVert x_i - x_j \rVert,\sigma^2)I(D_{ij} > 0) \]
+        \item Assumes \[ D_{ij} \sim N(\lVert x_i - x_j \rVert,\sigma^2)I(D_{ij} > 0) \]
         \item where $x_i \in \mathbb{R}^k$
-        \item Need to specify priors for $x_i$ and $\sigma^2$
+        \item Estimate parameters with Markov Chain Monte Carlo (MCMC) methods 
+        \item Extremely computationally expensive!
     \end{itemize}
 \end{frame}
 
@@ -97,8 +99,8 @@
 
 \begin{frame}{Some questions I still have}
     \begin{itemize}
-        \item The code contains a lot of fitting "precision" of the MDS likelihood, but nothing in the paper about this. Is this referring to the float precision used to compute the likelihood?
-        \item There are also mentions of learning traits, which I think has to do with the integration of this package to BEAST
+        \item The code contains a lot of fitting ``precision" of the MDS likelihood, but nothing in the paper about this. Is this referring to the float precision used to compute the likelihood?
+        \item There are also mentions of learning traits in the code but not the paper, which I think has to do with the integration of this package to BEAST
     \end{itemize}
 \end{frame}
 

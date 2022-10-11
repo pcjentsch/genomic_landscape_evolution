@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.1"
+julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "4b837973e6ac21461ce3e4765060012b9d5f581e"
+project_hash = "65a066fc8ee49108947b2c47b86570cfaaaedb0f"
 
 [[deps.ATK_jll]]
 deps = ["Artifacts", "Glib_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -108,6 +108,18 @@ git-tree-sha1 = "ac5cc6021f32a272ee572dd2a325049a1fa0d034"
 uuid = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
 version = "0.8.11"
 
+[[deps.Arrow]]
+deps = ["ArrowTypes", "BitIntegers", "CodecLz4", "CodecZstd", "DataAPI", "Dates", "Mmap", "PooledArrays", "SentinelArrays", "Tables", "TimeZones", "UUIDs"]
+git-tree-sha1 = "4e7aa2021204bd9456ad3e87372237e84ee2c3c1"
+uuid = "69666777-d1a9-59fb-9406-91d4454c9d45"
+version = "2.3.0"
+
+[[deps.ArrowTypes]]
+deps = ["UUIDs"]
+git-tree-sha1 = "a0633b6d6efabf3f76dacd6eb1b3ec6c42ab0552"
+uuid = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+version = "1.2.1"
+
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
@@ -193,6 +205,12 @@ version = "3.1.0"
 git-tree-sha1 = "6f59deb6e86841a75188721c567fad81fbc305f1"
 uuid = "3c28c6f8-a34d-59c4-9654-267d177fcfa9"
 version = "5.1.1"
+
+[[deps.BitIntegers]]
+deps = ["Random"]
+git-tree-sha1 = "5a814467bda636f3dde5c4ef83c30dd0a19928e0"
+uuid = "c3b6d118-76ef-56ca-8cc7-ebb389d030a1"
+version = "0.2.6"
 
 [[deps.BitTwiddlingConvenienceFunctions]]
 deps = ["Static"]
@@ -310,11 +328,23 @@ git-tree-sha1 = "2e62a725210ce3c3c2e1a3080190e7ca491f18d7"
 uuid = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
 version = "0.7.2"
 
+[[deps.CodecLz4]]
+deps = ["Lz4_jll", "TranscodingStreams"]
+git-tree-sha1 = "59fe0cb37784288d6b9f1baebddbf75457395d40"
+uuid = "5ba52731-8f18-5e0d-9241-30f10d1ec561"
+version = "0.4.0"
+
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.0"
+
+[[deps.CodecZstd]]
+deps = ["CEnum", "TranscodingStreams", "Zstd_jll"]
+git-tree-sha1 = "849470b337d0fa8449c21061de922386f32949d9"
+uuid = "6b39b394-51ab-5f42-8807-6242bab2b4c2"
+version = "0.7.2"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "Random"]
@@ -622,10 +652,10 @@ uuid = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 version = "0.4.1"
 
 [[deps.FFMPEG_jll]]
-deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "Pkg", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
-git-tree-sha1 = "ccd479984c7838684b3ac204b716c89955c76623"
+deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "PCRE2_jll", "Pkg", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
+git-tree-sha1 = "74faea50c1d007c85837327f6775bea60b5492dd"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
-version = "4.4.2+0"
+version = "4.4.2+2"
 
 [[deps.FFTW]]
 deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
@@ -1262,6 +1292,12 @@ git-tree-sha1 = "7b97cfe6e51e4fde195b7654425aa84e527d9657"
 uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
 version = "0.12.128"
 
+[[deps.Lz4_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "5d494bc6e85c4c9b626ee0cab05daa4085486ab1"
+uuid = "5ced341a-0733-55b8-9ab6-a4889d929147"
+version = "1.9.3+0"
+
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
 git-tree-sha1 = "41d162ae9c868218b1f3fe78cba878aa348c2d26"
@@ -1538,6 +1574,11 @@ deps = ["Adapt", "ArrayInterface", "ArrayInterfaceGPUArrays", "ArrayInterfaceSta
 git-tree-sha1 = "eb86665fceb26f3db4123266c7b517146ad83d45"
 uuid = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 version = "6.27.2"
+
+[[deps.PCRE2_jll]]
+deps = ["Artifacts", "Libdl"]
+uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
+version = "10.40.0+0"
 
 [[deps.PCRE_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -2084,7 +2125,7 @@ version = "1.9.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.0"
+version = "1.10.1"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]

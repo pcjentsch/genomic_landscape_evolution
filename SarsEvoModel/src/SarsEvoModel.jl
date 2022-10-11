@@ -6,11 +6,7 @@ using ProgressMeter
 using Optimization, OptimizationBBO, StatsBase
 
 using Setfield
-
-#config for sars-cov-2 amplicon tiling schemes
-#references for monkeypox
-#wtf are primer sets
-#get monkeypox workflow working with reference genomes
+using Arrow
 
 #Size of antigenic grid
 const w = 25
@@ -34,10 +30,6 @@ include("antigenic_mapping/analyze_snps.jl")
 include("antigenic_mapping/antigenic_map_plotting.jl")
 include("antigenic_mapping/io.jl")
 
-#test the interpolation of wilks 
-#importations
-#viral-recon nextflow workflow
-#
 lower_triangular(n) = ((i, j) for i in 1:n, j in 1:n if j < i)
 const datasets = (
     (
@@ -50,7 +42,7 @@ const datasets = (
         "usa",
         datapath("usa_sequences/alignments/"),
         datapath("usa_sequences/usa_sequences_metadata.tsv"),
-        datapath("usa_sequences/usa_lineages.csv"),
+        datapath("usa_sequences/alignments/all_lineages.csv"),
     )
 )
 const initial_pop = 329.5e6

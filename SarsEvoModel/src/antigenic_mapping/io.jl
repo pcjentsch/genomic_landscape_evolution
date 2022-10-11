@@ -1,21 +1,19 @@
 
 
 function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
-    snps = SNPs_from_fastas(fasta_path) |> DataFrame
-    metadata = CSV.File(metadata_path) |> DataFrame
-    filter!(:date_submitted => d -> d ∉ ("2020", "2021"), metadata)
-
-    genomes_w_metadata = innerjoin(snps, metadata; on=:id => :strain)
-    genomes_w_metadata.date = Date.(genomes_w_metadata.date_submitted)
-    genomes_w_metadata.in_rbd = map(genomes_w_metadata.genome) do snps
-        return Set(snp for snp in snps if snp.ind in binding_sites)
+    if isfile("genomes_w_metadata.arrow")
+        genomes_w_metadata = Arrow.Table("genomes_w_metadata.arrow") |> DataFrame
+    else
+        genomes_w_metadata = SNPs_from_fastas(fasta_path,metadata_path,binding_sites) |> DataFrame
+        Arrow.write("genomes_w_metadata.arrow", genomes_w_metadata)
     end
-    unique_genomes = select(unique(genomes_w_metadata, :in_rbd), [:in_rbd])
-    unique_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_genomes.in_rbd)
-    genomes_w_metadata = innerjoin(unique_genomes, genomes_w_metadata; on=:in_rbd)
+    unique_genomes = select(unique(genomes_w_metadata, :all_in_rbd), [:all_in_rbd])
+    unique_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_genomes.all_in_rbd)
+    genomes_w_metadata = innerjoin(genomes_w_metadata, unique_genomes; on = :all_in_rbd)
+    display(genomes_w_metadata)
     lineages_df = load_lineages(lineage_path)
-    genomes_w_metadata = innerjoin(lineages_df, genomes_w_metadata; on=:taxon => :id)
-    replace_dict = JSON.parsefile("SarsEvoModel//data/lineages_replace.json"; dicttype=OrderedDict)
+    genomes_w_metadata = innerjoin(lineages_df, genomes_w_metadata; on=:taxon => :all_ids)
+    replace_dict = JSON.parsefile(joinpath(@__DIR__, "../../data/lineages_replace.json"); dicttype=OrderedDict)
 
     genomes_w_metadata.lineage = map(genomes_w_metadata.lineage) do lineage
         initial = first(split(lineage, "."))
@@ -36,9 +34,9 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
         return 3 #"other"
     end
     filter!(∉(("Unassigned", "unclassifiable")), genomes_w_metadata)
-
-    display(genomes_w_metadata)
-
+    display(names(genomes_w_metadata))
+    rename!(genomes_w_metadata, :all_in_rbd => :in_rbd)
+    rename!(genomes_w_metadata, :all_genomes => :genome)
     return genomes_w_metadata
 end
 
@@ -57,31 +55,59 @@ function parse_recurrent_mutations(fpath)
 end
 
 function SNPs_from_record(sample_record, reference)
-    undef_base = gap(DNA)
+    undef_base = '-'
     id = FASTA.identifier(sample_record)
     genome = SNP[]
     sample_sequence = FASTA.sequence(sample_record)
+
     for (ind, (sample_base, ref_base)) in enumerate(zip(sample_sequence, reference))
         if ref_base != undef_base && sample_base != undef_base && ref_base != sample_base
             snp = SNP(ind, sample_base)
             push!(genome, snp)
         end
     end
-    return (; id, genome)
+    return (id, genome)
 end
+ArrowTypes.arrowname(::Type{SNP}) = :SNP
+ArrowTypes.JuliaType(::Val{:SNP}) = SNP
 
-
-function SNPs_from_fastas(aligned_fastas_dir::String)
+function SNPs_from_fastas(aligned_fastas_dir::String, metadata_path,binding_sites)
     reference_reader = FASTA.Reader(open(joinpath(@__DIR__, "../../data/reference.fasta")))
     reference = FASTA.sequence(only(reference_reader))
     files = readdir(aligned_fastas_dir) |>
             l -> filter(s -> occursin("aligned", s), l) |>
                  l -> map(s -> joinpath(aligned_fastas_dir, s), l)
-    display(files)
-    file_streams = map(FASTA.Reader ∘ GzipDecompressorStream ∘ open, files)
-    SNPs_by_sample = ThreadsX.map(r -> SNPs_from_record(r, reference), Iterators.flatten(file_streams))
-    foreach(close, file_streams)
-    return SNPs_by_sample
+
+    metadata = CSV.File(metadata_path) |> DataFrame
+    filter!(:Collection_Date => d -> d ∉ ("2020", "2021"), metadata)
+    metadata.date = Date.(metadata.Collection_Date)
+    all_genomes = Vector{Vector{SNP}}()
+    all_ids = Vector{String}()
+    all_in_rbd = Vector{Set{SNP}}()
+
+    for (i,file) in enumerate(files)
+        FASTAReader(GzipDecompressorStream(open(file))) do reader
+            records = collect(reader)
+            genomes = Vector{Vector{SNP}}(undef, length(records)) 
+            ids = Vector{String}(undef, length(records))
+            display("parsing file $file")
+            Threads.@threads for j in 1:length(records)
+                record = records[j]
+                id, genome = SNPs_from_record(record, reference) 
+                ids[j] = id
+                genomes[j] = genome
+            end
+            in_rbd = map(g -> Set(snp for snp in g if snp.ind in binding_sites), genomes)
+            display("done")
+
+            append!(all_genomes, genomes)
+            append!(all_ids, ids)
+            append!(all_in_rbd, in_rbd)
+        end
+    end
+    genomes_df = DataFrame((;all_ids, all_genomes, all_in_rbd))
+    genomes_w_metadata = innerjoin(genomes_df, metadata; on=:all_ids => :name)
+    return genomes_w_metadata
 end
 
 

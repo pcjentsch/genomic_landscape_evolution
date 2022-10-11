@@ -2,7 +2,10 @@ struct SNP
     ind::UInt16
     alt::Char
 end
-
+struct Genome
+    id::String
+    snps::Vector{SNP}
+end
 
 function Base.isequal(a::SNP, b::SNP)
     return a.ind == b.ind && a.alt == b.alt
