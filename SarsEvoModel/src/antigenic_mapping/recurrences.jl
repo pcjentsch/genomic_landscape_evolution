@@ -20,9 +20,6 @@ function format_ref_w_snps(snp_list)
         gene_aa_ind = floor(Int, (ind - gene_start) / 3)
         display((ref_aa[aa_ind], gene_aa_ind, mutated_aa[aa_ind]))
     end
-    # do this biopython
-    # grab coordinates
-    # make vcf
     # seq_writer = FASTA.Writer(open(joinpath(@__DIR__, "../data/mutated_ref.fasta"), "w"))
     # rec = FASTA.Record("mutated", reference)
     # write(seq_writer, rec)

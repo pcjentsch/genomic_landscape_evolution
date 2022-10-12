@@ -8,6 +8,10 @@ using CodecZlib, TranscodingStreams, FASTX, BioSymbols, ThreadsX
 using MultivariateStats
 using Distributions, Random
 using OnlineStats
+using BenchmarkTools
+using Infiltrator
+using Cthulhu
+
 const scorpio_map = Dict(
     missing => missing,
     "Alpha (B.1.1.7-like)" => "B.1.1.7",
@@ -38,18 +42,15 @@ const scorpio_map = Dict(
     "Probable Omicron (BA.2-like)" => "B.1.1.529", #basal omicron
     "Omicron (BA.3-like)" => "B.1.1.529", #basal omicron
     "Probable Omicron (BA.3-like)" => "B.1.1.529", #basal omicron
-    "Omicron (BA.5-like)" => "B.1.1.529.4", #omicron 4/5
-    "Omicron (BA.4-like)" => "B.1.1.529.5", #omicron 4/5
-    "Probable Omicron (BA.5-like)" => "B.1.1.529", #basal omicron
-    "Probable Omicron (BA.4-like)" => "B.1.1.529", #basal omicron
-    "Probable Omicron (XE-like)" => "B.1.1.529", #basal omicron
-    "Omicron (XE-like)" => missing, #basal omicron
+    "Omicron (BA.5-like)" => "B.1.1.529.5", #omicron 4/5
+    "Omicron (BA.4-like)" => "B.1.1.529.4", #omicron 4/5
+    "Probable Omicron (BA.5-like)" => "B.1.1.529.5", #basal omicron
+    "Probable Omicron (BA.4-like)" => "B.1.1.529.4", #basal omicron
+    "Probable Omicron (XE-like)" => missing, 
+    "Omicron (XE-like)" => missing, 
 )
 function parse_scorpio(scorpio)
     return scorpio_map[scorpio]
-    # "B.1.617.2(AY.1)+K417N"
-    # "B.1.617.2(AY.3)+E484Q"
-    # "D614G"
 end
 
 
@@ -104,7 +105,7 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:150, :], recurrent_df[snps_inds, :]) |> unique
+    top_n_snps = vcat(recurrent_df[1:50, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
@@ -124,9 +125,6 @@ function unique_genomes(df, recurrent_df, binding_sites)
     unique!(filtered_genome_df, :filtered_genome)
     return unique_genomes_df, filtered_genome_df, snp_weight_dict
 end
-using BenchmarkTools
-using Infiltrator
-using Cthulhu
 function compute_antigenic_distance_binding(
     mapped_lineage_position_i::Tuple{Float64,Float64},
     mapped_lineage_position_j::Tuple{Float64,Float64},
@@ -152,14 +150,14 @@ function compute_antigenic_distance_homoplasy(
 )
     snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
     pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
-    d = pt_d #+ snp_distance * 1000.0
+    d = pt_d + snp_distance * 500.0 + ((1 - binding_i) + (1 - binding_j)) / 2 * 10.0
     return d
 end
 function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
     display(names(unique_genomes_df))
 
     samples = nrow(filtered_genome_df)
-    dm = zeros(Float32, samples, samples)
+    dm = zeros(Float64, samples, samples)
     prog = Progress(samples)
     function map_distances((i, j,))
         d = map_distances_fn(
@@ -171,17 +169,17 @@ function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_di
             filtered_genome_df.binding_retained[j],
             snp_weight_dict,
         )
-        dm[i, j] = Float32(d)
-        dm[j, i] = Float32(d)
+        dm[i, j] = Float64(d)
+        dm[j, i] = Float64(d)
         next!(prog)
     end
     ThreadsX.foreach(map_distances, lower_triangular(samples))
     mds = manifold_projection(dm, filtered_genome_df)
-    select!(filtered_genome_df, [:genome, :filtered_genome, :mds_x, :mds_y])
+    select!(filtered_genome_df, [:category,:lineage, :genome, :filtered_genome, :mds_x, :mds_y])
     unique_genomes_df.mds_x = zeros(nrow(unique_genomes_df))
     unique_genomes_df.mds_y = zeros(nrow(unique_genomes_df))
     for r in eachrow(filtered_genome_df)
-        inds = findall(==(r.filtered_genome), unique_genomes_df.filtered_genome)
+        inds = findall(==(r.genome), unique_genomes_df.genome)
         unique_genomes_df.mds_x[inds] .= r.mds_x
         unique_genomes_df.mds_y[inds] .= r.mds_y
     end
@@ -272,6 +270,7 @@ function make_antigenic_map()
                 () -> pairwise_distances(unique_df, filter_df, snp_weight_dict, dist_fn),
                 datapath("$name.data")
             )
+
             # for k in 1:10
             #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
             #     subsampled = filter_df[filter_idxs, :]

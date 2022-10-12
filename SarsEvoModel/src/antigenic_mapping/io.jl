@@ -7,22 +7,16 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
         genomes_w_metadata = SNPs_from_fastas(fasta_path,metadata_path,binding_sites) |> DataFrame
         Arrow.write("genomes_w_metadata.arrow", genomes_w_metadata)
     end
-    unique_genomes = select(unique(genomes_w_metadata, :all_in_rbd), [:all_in_rbd])
-    unique_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_genomes.all_in_rbd)
-    genomes_w_metadata = innerjoin(genomes_w_metadata, unique_genomes; on = :all_in_rbd)
-    display(genomes_w_metadata)
+    unique_rbd_genomes = select(unique(genomes_w_metadata, :all_in_rbd), [:all_in_rbd])
+    unique_rbd_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_rbd_genomes.all_in_rbd)
+    genomes_w_metadata = leftjoin(genomes_w_metadata, unique_rbd_genomes; on = :all_in_rbd)
+    @assert count(ismissing,genomes_w_metadata.binding_retained) == 0 #should not have missing
+
     lineages_df = load_lineages(lineage_path)
     genomes_w_metadata = innerjoin(lineages_df, genomes_w_metadata; on=:taxon => :all_ids)
-    replace_dict = JSON.parsefile(joinpath(@__DIR__, "../../data/lineages_replace.json"); dicttype=OrderedDict)
+    genomes_w_metadata.lineage = lineage_replace(genomes_w_metadata.lineage) 
+    dropmissing!(genomes_w_metadata,:lineage)
 
-    genomes_w_metadata.lineage = map(genomes_w_metadata.lineage) do lineage
-        initial = first(split(lineage, "."))
-        if haskey(replace_dict, initial)
-            return replace(lineage, initial => replace_dict[initial])
-        else
-            return lineage
-        end
-    end
     omicron_prefix = "B.1.1.529"
     delta_prefix = "B.1.617.2"
     alpha_prefix = "B.1.1.7"
@@ -38,6 +32,17 @@ function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
     rename!(genomes_w_metadata, :all_in_rbd => :in_rbd)
     rename!(genomes_w_metadata, :all_genomes => :genome)
     return genomes_w_metadata
+end
+function lineage_replace(lineages)
+    replace_dict = JSON.parsefile(joinpath(@__DIR__, "../../data/lineages_replace.json"); dicttype=OrderedDict)
+    return map(lineages) do lineage
+        initial = first(split(lineage, "."))
+        if haskey(replace_dict, initial)
+            return replace(lineage, initial => replace_dict[initial])
+        else
+            return missing
+        end
+    end
 end
 
 function parse_recurrent_mutations(fpath)
@@ -115,14 +120,6 @@ end
 function load_lineages(path)
     lineages = CSV.File(path) |> DataFrame
     lineages.id = replace.(lineages.taxon, "/" => "_", "-" => "N")
-    lineages.scorpio_call_simplified = map(lineages.scorpio_call) do scorpio_call
-        ismissing(scorpio_call) && return missing
-        if occursin("Delta", scorpio_call)
-            return "delta"
-        else
-            return "everything else"
-        end
-    end
     if all(occursin.(" ", lineages.taxon))
         lineages.taxon = map(lineages.taxon) do id
             return split(id, " ") |> first
