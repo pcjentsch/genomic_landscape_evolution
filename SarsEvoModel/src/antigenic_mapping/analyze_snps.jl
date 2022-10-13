@@ -105,7 +105,7 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:150, :], recurrent_df[snps_inds, :]) |> unique
+    top_n_snps = vcat(recurrent_df[1:50, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
@@ -122,7 +122,7 @@ function unique_genomes(df, recurrent_df, binding_sites)
 
     unique_genomes_df.filtered_genome = ThreadsX.map(genome -> filter(snp -> snp in top_n_snps.snp, genome), unique_genomes_df.genome)
     filtered_genome_df = deepcopy(unique_genomes_df)
-    unique!(filtered_genome_df, :filtered_genome)
+    unique!(filtered_genome_df, [:closest_mapped_lineage, :filtered_genome])
     return unique_genomes_df, filtered_genome_df, snp_weight_dict
 end
 function compute_antigenic_distance_binding(
@@ -154,8 +154,6 @@ function compute_antigenic_distance_homoplasy(
     return d
 end
 function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
-    display(names(unique_genomes_df))
-
     samples = nrow(filtered_genome_df)
     dm = zeros(Float64, samples, samples)
     prog = Progress(samples)
@@ -175,11 +173,10 @@ function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_di
     end
     ThreadsX.foreach(map_distances, lower_triangular(samples))
     mds = manifold_projection(dm, filtered_genome_df)
-    select!(filtered_genome_df, [:category,:lineage, :genome, :filtered_genome, :mds_x, :mds_y])
     unique_genomes_df.mds_x = zeros(nrow(unique_genomes_df))
     unique_genomes_df.mds_y = zeros(nrow(unique_genomes_df))
     for r in eachrow(filtered_genome_df)
-        inds = findall(==(r.genome), unique_genomes_df.genome)
+        inds = findall(g -> g.filtered_genome == r.filtered_genome && g.closest_mapped_lineage == r.closest_mapped_lineage, eachrow(unique_genomes_df))
         unique_genomes_df.mds_x[inds] .= r.mds_x
         unique_genomes_df.mds_y[inds] .= r.mds_y
     end
@@ -254,7 +251,7 @@ function make_antigenic_map()
 
         @info "filtering unique genomes.."
 
-        dist_funcs = [("binding", compute_antigenic_distance_binding), ("homoplasy", compute_antigenic_distance_homoplasy)]
+        dist_funcs = [("homoplasy", compute_antigenic_distance_homoplasy)] #(unique_df, filter_df, dm)
         for (method, dist_fn) in dist_funcs
             genomes_w_metadata = serial_load(
                 () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path) ,
@@ -264,14 +261,12 @@ function make_antigenic_map()
                 () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
                 datapath("unique_df_$dataset_name.data")
             )
-
             @info "computing pairwise distances $method"
             name = "$(method)_$(dataset_name)"
-            (unique_df, filter_df, dm) = serial_load(
+            (unique_df, filter_df,_) = serial_load(
                 () -> pairwise_distances(unique_df, filter_df, snp_weight_dict, dist_fn),
                 datapath("$name.data")
             )
-
             # for k in 1:10
             #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
             #     subsampled = filter_df[filter_idxs, :]
@@ -298,7 +293,7 @@ function make_antigenic_map()
             y_grid = LinRange(bounds_y..., h)
             anim = Animation()
             heatmap_anim = Animation()
-            sort!(unique_df, :week_submitted)
+            sort!(unique_df, :Collection_Date)
             @info "Interpolating..."
             grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
             dates = Date[]

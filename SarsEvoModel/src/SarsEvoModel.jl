@@ -112,14 +112,14 @@ function main()
 
     x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 20_000.0, 280.0]
 
-    # f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    # prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
-    # optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:Threads.nthreads())
-    # optimizer = argmin(o -> o.minimum, optimizers).u
+    f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
+    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
+    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:Threads.nthreads())
+    optimizer = argmin(o -> o.minimum, optimizers).u
 
-    # sol_opt = optimization_objective(optimizer)
-    # plot_solution(sol_opt, const_params)
-    # plot_parameters(optimizer)
+    sol_opt = optimization_objective(optimizer)
+    plot_solution(sol_opt, const_params)
+    plot_parameters(optimizer)
 
     sol = optimization_objective(x0)
     plot_solution(sol, const_params)
