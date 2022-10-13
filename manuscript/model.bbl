@@ -1,30 +1,5 @@
 \begin{thebibliography}{10}
 
-\bibitem{Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002}
-{\em Mathematical Approaches for Emerging and Reemerging Infectious Diseases:
-  Models, Methods, and Theory}, volume 126 of {\em The IMA Volumes in
-  Mathematics and its Applications}.
-\newblock Springer New York, 2002.
-
-\bibitem{Alizon_van_Baalen_2008}
-Samuel Alizon and Minus van Baalen.
-\newblock Multiple infections, immune dynamics, and the evolution of virulence.
-\newblock {\em The American Naturalist}, 172(4):E150–E168, Oct 2008.
-
-\bibitem{Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
-Nikolai Bessonov, Gennady Bocharov, Andreas Meyerhans, Vladimir Popov, and
-  Vitaly Volpert.
-\newblock Existence and dynamics of strains in a nonlocal reaction-diffusion
-  model of viral evolution.
-\newblock {\em SIAM Journal on Applied Mathematics}, 81(1):107–128, Jan 2021.
-
-\bibitem{bubar2021model}
-Kate~M Bubar, Kyle Reinholt, Stephen~M Kissler, Marc Lipsitch, Sarah Cobey,
-  Yonatan~H Grad, and Daniel~B Larremore.
-\newblock Model-informed covid-19 vaccine prioritization strategies by age and
-  serostatus.
-\newblock {\em Science}, 371(6532):916--921, 2021.
-
 \bibitem{cai2010computational}
 Zhipeng Cai, Tong Zhang, and Xiu-Feng Wan.
 \newblock A computational framework for influenza antigenic cartography.
@@ -36,31 +11,6 @@ Gonch{\'e} Danesh, Victor Virlogeux, Christophe Rami{\`e}re, Caroline Charre,
 \newblock Quantifying transmission dynamics of acute hepatitis c virus
   infections in a heterogeneous population using sequence data.
 \newblock {\em PLoS pathogens}, 17(9):e1009916, 2021.
-
-\bibitem{agency_for_clinical_innovation_2022}
-Agency for Clinical~Innovation.
-\newblock Living evidence - sars-cov-2 variants.
-\newblock
-  \url{https://aci.health.nsw.gov.au/covid-19/critical-intelligence-unit/sars-cov-2-variants},
-  Jan 2022.
-
-\bibitem{gogDynamicsSelectionManystrain2002}
-J.~R. Gog and B.~T. Grenfell.
-\newblock Dynamics and selection of many-strain pathogens.
-\newblock {\em Proceedings of the National Academy of Sciences},
-  99(26):17209--17214, December 2002.
-
-\bibitem{jentsch2021prioritising}
-Peter~C Jentsch, Madhur Anand, and Chris~T Bauch.
-\newblock Prioritising covid-19 vaccination in changing social and
-  epidemiological landscapes: a mathematical modelling study.
-\newblock {\em The Lancet Infectious Diseases}, 2021.
-
-\bibitem{kryazhimskiyStateSpaceReductionMultiStrain2007}
-Sergey Kryazhimskiy, Ulf Dieckmann, Simon~A. Levin, and Jonathan Dushoff.
-\newblock On {{State-Space Reduction}} in {{Multi-Strain Pathogen Models}},
-  with an {{Application}} to {{Antigenic Drift}} in {{Influenza A}}.
-\newblock {\em PLOS Computational Biology}, 3(8):e159, August 2007.
 
 \bibitem{lapedesGeometryShapeSpace2001}
 Alan Lapedes and Robert Farber.
@@ -75,34 +25,11 @@ Gabriel~E Leventhal, Roger Kouyos, Tanja Stadler, Viktor Von~Wyl, Sabine Yerly,
 \newblock Inferring epidemic contact structure from phylogenetic trees.
 \newblock {\em PLoS computational biology}, 8(3):e1002413, 2012.
 
-\bibitem{Lipsitch_Colijn_Cohen_Hanage_Fraser_2009}
-Marc Lipsitch, Caroline Colijn, Ted Cohen, William~P. Hanage, and Christophe
-  Fraser.
-\newblock No coexistence for free: Neutral null models for multistrain
-  pathogens.
-\newblock {\em Epidemics}, 1(1):2–13, Mar 2009.
-
 \bibitem{millerAntigenicSpaceFramework2021}
 Nathaniel~L. Miller, Thomas Clark, Rahul Raman, and Ram Sasisekharan.
 \newblock An {{Antigenic Space Framework}} for {{Understanding Antibody
   Escape}} of {{SARS-CoV-2 Variants}}.
 \newblock {\em Viruses}, 13(10):2009, October 2021.
-
-\bibitem{Mishra_Berah_Mellan_Unwin_Vollmer_Parag_Gandy_Flaxman_Bhatt_2020}
-Swapnil Mishra, Tresnia Berah, Thomas~A. Mellan, H.~Juliette~T. Unwin,
-  Michaela~A. Vollmer, Kris~V. Parag, Axel Gandy, Seth Flaxman, and Samir
-  Bhatt.
-\newblock On the derivation of the renewal equation from an age-dependent
-  branching process: an epidemic modelling perspective.
-\newblock {\em arXiv:2006.16487 [q-bio, stat]}, Jun 2020.
-\newblock arXiv: 2006.16487.
-
-\bibitem{Nicoli_Ayabina_Trotter_Turner_Colijn_2015}
-Emily~J. Nicoli, Diepreye Ayabina, Caroline~L. Trotter, Katherine~M.E. Turner,
-  and Caroline Colijn.
-\newblock Competition, coinfection and strain replacement in models of
-  bordetella pertussis.
-\newblock {\em Theoretical Population Biology}, 103:84–92, Aug 2015.
 
 \bibitem{saulnier2017inferring}
 Emma Saulnier, Olivier Gascuel, and Samuel Alizon.
@@ -133,11 +60,6 @@ Philip Tzou, Kaiming Tao, Janin Nouhin, Soo-Yon Rhee, Benjamin Hu, Shruti Pai,
   compounds.
 \newblock {\em Viruses}, 12(9):1006, Sep 2020.
 
-\bibitem{van_Baalen_Sabelis_1995}
-Minus van Baalen and Maurice~W. Sabelis.
-\newblock The dynamics of multiple infection and the evolution of virulence.
-\newblock {\em The American Naturalist}, 146(6):881–910, Dec 1995.
-
 \bibitem{van2022mapping}
 Karlijn van~der Straten, Denise Guerra, Marit van Gils, Ilja Bontjer, Tom~G
   Caniels, Hugo~D van Willigen, Elke Wynberg, Meliawati Poniman, Judith~A
@@ -156,10 +78,5 @@ Samuel~H. Wilks, Barbara M{\"u}hlemann, Xiaoying Shen, Sina T{\"u}reli, Eric~B.
 \newblock Mapping {{SARS-CoV-2}} antigenic relationships and serological
   responses.
 \newblock Preprint, {Immunology}, January 2022.
-
-\bibitem{yewdellAntigenicDriftUnderstanding2021}
-Jonathan~W. Yewdell.
-\newblock Antigenic drift: {{Understanding COVID-19}}.
-\newblock {\em Immunity}, 54(12):2681--2687, December 2021.
 
 \end{thebibliography}

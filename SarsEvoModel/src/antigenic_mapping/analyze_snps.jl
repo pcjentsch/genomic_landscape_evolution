@@ -105,7 +105,7 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:110, :], recurrent_df[snps_inds, :]) |> unique
+    top_n_snps = vcat(recurrent_df[1:150, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
@@ -264,6 +264,7 @@ function make_antigenic_map()
                 () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
                 datapath("unique_df_$dataset_name.data")
             )
+
             @info "computing pairwise distances $method"
             name = "$(method)_$(dataset_name)"
             (unique_df, filter_df, dm) = serial_load(
@@ -290,37 +291,37 @@ function make_antigenic_map()
             plot_mds("$name/$(name)_mds", unique_df)
 
 
-            # unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
-            # bounds_x = extrema(unique_df.mds_x)
-            # bounds_y = extrema(unique_df.mds_y)
-            # x_grid = LinRange(bounds_x..., w)
-            # y_grid = LinRange(bounds_y..., h)
-            # anim = Animation()
-            # heatmap_anim = Animation()
-            # sort!(unique_df, :week_submitted)
-            # @info "Interpolating..."
-            # grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
-            # dates = Date[]
-            # grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+            unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
+            bounds_x = extrema(unique_df.mds_x)
+            bounds_y = extrema(unique_df.mds_y)
+            x_grid = LinRange(bounds_x..., w)
+            y_grid = LinRange(bounds_y..., h)
+            anim = Animation()
+            heatmap_anim = Animation()
+            sort!(unique_df, :week_submitted)
+            @info "Interpolating..."
+            grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
+            dates = Date[]
+            grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
 
 
-            # @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
-            #     o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
-            #     grids[i] = o.z
-            #     push!(dates, key.Collection_Date)
-            #     p = plot()
-            #     scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
-            #         markerstrokewidth=0.3,
-            #         size=(400, 300),
-            #         plotting_settings...)
-            #     plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
-            #     htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
-            #     frame(anim, p)
-            #     frame(heatmap_anim, htmp)
-            # end
-            # gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
-            # gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
-            # serialize(datapath("$(name)_grids.data"), (grids, dates))
+            @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+                o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+                grids[i] = o.z
+                push!(dates, key.Collection_Date)
+                p = plot()
+                scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+                    markerstrokewidth=0.3,
+                    size=(400, 300),
+                    plotting_settings...)
+                plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+                htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
+                frame(anim, p)
+                frame(heatmap_anim, htmp)
+            end
+            gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
+            gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
+            serialize(datapath("$(name)_grids.data"), (grids, dates))
         end
     end
 end
