@@ -4,8 +4,8 @@
 function plot_mds(fname, unique_df)
     p = plot()
     display(names(unique_df))
-    for (key, gdf) in pairs(groupby(unique_df, :category))
-        p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.category, xlabel="MDS1", ylabel="MDS2",
+    for (key, gdf) in pairs(groupby(unique_df, :closest_mapped_lineage))
+        p = scatter!(p, gdf.mds_x, gdf.mds_y; label=key.closest_mapped_lineage, xlabel="MDS1", ylabel="MDS2",
             markersize=1.5,
             markerstrokewidth=0.3,
             margin=5Plots.mm,

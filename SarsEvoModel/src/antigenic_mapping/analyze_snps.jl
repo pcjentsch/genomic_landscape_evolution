@@ -105,7 +105,7 @@ end
 
 function unique_genomes(df, recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
-    top_n_snps = vcat(recurrent_df[1:50, :], recurrent_df[snps_inds, :]) |> unique
+    top_n_snps = vcat(recurrent_df[1:110, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
     unique_genomes_df = deepcopy(df)
     unique!(unique_genomes_df, :genome)
