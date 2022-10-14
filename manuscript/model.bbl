@@ -1,16 +1,36 @@
 \begin{thebibliography}{10}
 
-\bibitem{cai2010computational}
-Zhipeng Cai, Tong Zhang, and Xiu-Feng Wan.
-\newblock A computational framework for influenza antigenic cartography.
-\newblock {\em PLoS computational biology}, 6(10):e1000949, 2010.
+\bibitem{Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002}
+{\em Mathematical Approaches for Emerging and Reemerging Infectious Diseases:
+  Models, Methods, and Theory}, volume 126 of {\em The IMA Volumes in
+  Mathematics and its Applications}.
+\newblock Springer New York, 2002.
 
-\bibitem{danesh2021quantifying}
-Gonch{\'e} Danesh, Victor Virlogeux, Christophe Rami{\`e}re, Caroline Charre,
-  Laurent Cotte, and Samuel Alizon.
-\newblock Quantifying transmission dynamics of acute hepatitis c virus
-  infections in a heterogeneous population using sequence data.
-\newblock {\em PLoS pathogens}, 17(9):e1009916, 2021.
+\bibitem{Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
+Nikolai Bessonov, Gennady Bocharov, Andreas Meyerhans, Vladimir Popov, and
+  Vitaly Volpert.
+\newblock Existence and dynamics of strains in a nonlocal reaction-diffusion
+  model of viral evolution.
+\newblock {\em SIAM Journal on Applied Mathematics}, 81(1):107–128, Jan 2021.
+
+\bibitem{cao2022ba}
+Yunlong Cao, Ayijiang Yisimayi, Fanchong Jian, Weiliang Song, Tianhe Xiao, Lei
+  Wang, Shuo Du, Jing Wang, Qianqian Li, Xiaosu Chen, et~al.
+\newblock Ba. 2.12. 1, ba. 4 and ba. 5 escape antibodies elicited by omicron
+  infection.
+\newblock {\em Nature}, 608(7923):593--602, 2022.
+
+\bibitem{gogDynamicsSelectionManystrain2002}
+J.~R. Gog and B.~T. Grenfell.
+\newblock Dynamics and selection of many-strain pathogens.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  99(26):17209--17214, December 2002.
+
+\bibitem{kryazhimskiyStateSpaceReductionMultiStrain2007}
+Sergey Kryazhimskiy, Ulf Dieckmann, Simon~A. Levin, and Jonathan Dushoff.
+\newblock On {{State-Space Reduction}} in {{Multi-Strain Pathogen Models}},
+  with an {{Application}} to {{Antigenic Drift}} in {{Influenza A}}.
+\newblock {\em PLOS Computational Biology}, 3(8):e159, August 2007.
 
 \bibitem{lapedesGeometryShapeSpace2001}
 Alan Lapedes and Robert Farber.
@@ -18,24 +38,11 @@ Alan Lapedes and Robert Farber.
   {{Influenza}}.
 \newblock {\em Journal of Theoretical Biology}, 212(1):57--69, September 2001.
 
-\bibitem{leventhal2012inferring}
-Gabriel~E Leventhal, Roger Kouyos, Tanja Stadler, Viktor Von~Wyl, Sabine Yerly,
-  J{\"u}rg B{\"o}ni, Cristina Cellerai, Thomas Klimkait, Huldrych~F
-  G{\"u}nthard, and Sebastian Bonhoeffer.
-\newblock Inferring epidemic contact structure from phylogenetic trees.
-\newblock {\em PLoS computational biology}, 8(3):e1002413, 2012.
-
 \bibitem{millerAntigenicSpaceFramework2021}
 Nathaniel~L. Miller, Thomas Clark, Rahul Raman, and Ram Sasisekharan.
 \newblock An {{Antigenic Space Framework}} for {{Understanding Antibody
   Escape}} of {{SARS-CoV-2 Variants}}.
 \newblock {\em Viruses}, 13(10):2009, October 2021.
-
-\bibitem{saulnier2017inferring}
-Emma Saulnier, Olivier Gascuel, and Samuel Alizon.
-\newblock Inferring epidemiological parameters from phylogenies using
-  regression-abc: A comparative study.
-\newblock {\em PLoS computational biology}, 13(3):e1005416, 2017.
 
 \bibitem{smithMappingAntigenicGenetic2004}
 Derek~J. Smith, Alan~S. Lapedes, Jan~C. {de Jong}, Theo~M. Bestebroer, Guus~F.
@@ -52,13 +59,12 @@ Tyler~N Starr, Allison~J Greaney, Sarah~K Hilton, Daniel Ellis, Katharine~HD
   reveals constraints on folding and ace2 binding.
 \newblock {\em Cell}, 182(5):1295--1310, 2020.
 
-\bibitem{stanford2020}
-Philip Tzou, Kaiming Tao, Janin Nouhin, Soo-Yon Rhee, Benjamin Hu, Shruti Pai,
-  Neil Parkin, and Robert Shafer.
-\newblock Coronavirus antiviral research database (cov-rdb): An online database
-  designed to facilitate comparisons between candidate anti-coronavirus
-  compounds.
-\newblock {\em Viruses}, 12(9):1006, Sep 2020.
+\bibitem{turakhia2021ultrafast}
+Yatish Turakhia, Bryan Thornlow, Angie~S Hinrichs, Nicola De~Maio, Landen
+  Gozashti, Robert Lanfear, David Haussler, and Russell Corbett-Detig.
+\newblock Ultrafast sample placement on existing trees (usher) enables
+  real-time phylogenetics for the sars-cov-2 pandemic.
+\newblock {\em Nature Genetics}, 53(6):809--816, 2021.
 
 \bibitem{van2022mapping}
 Karlijn van~der Straten, Denise Guerra, Marit van Gils, Ilja Bontjer, Tom~G
@@ -78,5 +84,10 @@ Samuel~H. Wilks, Barbara M{\"u}hlemann, Xiaoying Shen, Sina T{\"u}reli, Eric~B.
 \newblock Mapping {{SARS-CoV-2}} antigenic relationships and serological
   responses.
 \newblock Preprint, {Immunology}, January 2022.
+
+\bibitem{yewdellAntigenicDriftUnderstanding2021}
+Jonathan~W. Yewdell.
+\newblock Antigenic drift: {{Understanding COVID-19}}.
+\newblock {\em Immunity}, 54(12):2681--2687, December 2021.
 
 \end{thebibliography}

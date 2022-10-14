@@ -37,18 +37,127 @@
 \begin{document}
 
 
+The rapid and widespread adoption of immunization has saved millions of lives in the COVID-19 pandemic.
+As the world's population gains immune experience with Sars-CoV-2, either through previous infection or vaccination, antigenic drift \cite{yewdellAntigenicDriftUnderstanding2021}, has given rise to new variants that exhibit significant immune escape.
+Similar to the annual reformulation of influenza vaccinations, public health planning has shifted resources in planning for new SARS-CoV-2 variants.
+Both Moderna and Pfizer mRNA vaccine were updated to include genetic material from the BA.1 lineage of the Omicron variant, the first variant to exhibit major immune escape.
+Since then, the BA.4 and BA.5 Omicron sublineages have become widespread, and they are further antigenically distinct from their BA.1 ancestors \cite{cao2022ba}.
+Accordingly, bivalent mRNA boosters have been developed which cover BA.4 and BA.5. 
+Understanding this immune landscape and the dynamics of viral evolution within it will be key to remaining in control of the resulting antigenic arms race.
+
+
+Mapping antigenic relationships between related pathogens was pioneered with Influenza A \cite{lapedesGeometryShapeSpace2001}. 
+The immune response of an antiserum to a different antigen, antigenic distance, can be quantified as a reduction in concentration of the newly introduced antigen.
+These relationships can be measured between many related strains of a pathogen, to create a map of changing immune responses through the evolution of the pathogen.
+With manifold reduction techniques such as multidimensional scaling, these relationshps can often be approximately represented in two or three dimensional cartesian maps, explicitly showing the antigenic drift of the pathogen.
+This technique was used to map the antigenic evolution of Influenza A, and argue that it can be understood as primarily occurring in only two dimensions \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004}.
+This method has been applied to the antigenic space of the Sars-CoV-2 as well
+Wilks et al. have developed upon this technique to create an antigenic map of approximately 17 major variants of Sars-CoV-2 from serum neutralization assays, and further argue that a two-dimensional map is an adequate approximation of the landscape \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
+
+
+This work on data-driven approximations of antigenic space motivates the development of models that explicitly incorporates data on antigenic relationships obtained from these neutralization assays.
+The dynamics of related pathogen strains evolving within a shared host population can rapidly become intractable, and therefore researchers have devised models which can manage this complexity.
+The model of Gog and Grenfell \cite{gogDynamicsSelectionManystrain2002} constrains strain space to a one or two dimensional lattice, thereby making the analysis of strain evolution tractable. 
+In two dimensional strain space, cross-immunity of a pathogen is given specified by a coefficient $\sigma_{ijkl}$, and mutation is implemented as discrete diffusion with some fixed speed. 
+These ideas were generalized to n-dimensional strain space, and applied to modeling drift in influenza A by Kryazhimskiy et al \cite{kryazhimskiyStateSpaceReductionMultiStrain2007}. 
+To accurately parameterize these models, the map of antigenic space should use as much genomic information as is available.
+Fortunately, for Sars-CoV-2, the most sequenced biological entity, we have a huge amount of information. 
+With millions of the samples in the global SCV2 tree, our combined knowledge of the antigenic space of SCV2 could be orders of magnitude more detailed.
+
+To better use this data, we incorporate some additional genetic diversity by combining these existing antigenic distances with data obtained from deep mutational scanning \cite{starr2020deep} and the global SCV2 tree created with USHER \cite{turakhia2021ultrafast}.
+
+
+
+
+% Previous work on these models do not use data to estimate parameters, focusing on broad characterization of dynamics with numerical or analytical approaches. However, genomic data does include a huge amount of admittedly very noisy information. 
+% There is some recent work on parameter estimation by comparing simulated phylogeny with observed phylogeny using a suite of summary statistics for tree structures \cite{danesh2021quantifying,leventhal2012inferring,saulnier2017inferring}, but these models do not explicitly include genomic structure, which might provide additional inferential power. 
+
+
+\section{Model}
+
+
+
+\begin{equation}
+    S_{ij}'(t) = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn}
+\end{equation}
+\begin{equation}
+    I_{ij}'(t) = \beta_{ij} S_{ij} I_{ij} - \xi I_{ij} + M \left(- 4I_{ij} + I_{i-1,j}  + I_{i+1,j} + I_{i,j-1} + I_{i,j+1} \right) \label{Ieqn}    
+\end{equation}
+\begin{equation}
+    R_{ij}'(t) = \xi I_{ij} - \gamma R_{ij}  \label{Reqn}
+\end{equation}
+
+
+\begin{table}[h!]
+    \begin{center}
+        \begin{tabular}{c|p{8cm}}
+            Symbol & Description \\
+            \hline
+            \hline
+            $N$ & Size of variant grid \\
+            $S_{ij}$ & Population susceptible to variant $(i,j) \in [0,N]^2$ \\
+            $I_{ij}$ & Population infected by variant $(i,j) \in [0,N]^2$\\
+            $R_{ij}$ & Recovered/Immune to variant $(i,j) \in [0,N]^2$\\
+            $\sigma_{ijkl}$ & Probability that exposure to variant $(i,j)$ causes immunity \newline to variant $(k,l)$\\
+            $\beta_{ij}$ & Transmission rate of variant $(i,j)$\\
+            $\xi$ & Recovery rate of all strains \\
+            $\gamma$ & Rate of immunity loss of all strains \\
+    \end{tabular}
+    \caption{Table of symbols for Model 2}
+
+    \label{variables_2}
+    \end{center}
+\end{table}
+
+    
+
+Equations \ref{Seqn}-\ref{Reqn} represent the model of \cite{gogDynamicsSelectionManystrain2002} with a two-dimensional strain space, with a few changes to better reflect mechanisms of of Sars-CoV-2. I have added an immunity period, changing the model to an SIRS mechanism, and removed the vital dynamics, as I do not think natural population birth rates are significant in the time scale of the pandemic. A key assumption made by this model is that exposure grants complete immunity to some fraction of individuals, rather than partial immunity (interpreted as reduced transmission rates) to all exposed individuals. Many other methods of dealing with cross-immunity are possible, but this method gives a simpler state space \cite{Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002}.
+
+
+To incorporate vaccination, consider each vaccine affecting a different region of strain space. That is, for a vaccine $v$ we can associate a matrix $v_{ij} \in [0,1]$ which determines the relative effect of that vaccine on the immunity of hosts to strain $i,j$. The function $eta(t)$ represents some base rate of vaccination. This results in the following equations for $S_{ij}'(t)$ and $ R_{ij}'(t) $ (the infected equation \ref{Ieqn} is unchanged).
+
+
+\begin{equation}
+    S_{ij}'(t) = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij} -  \eta(t) v_{ij} S_{ij} \label{Seqn}
+\end{equation}
+\begin{equation}
+    R_{ij}'(t) = \xi I_{ij} - \gamma R_{ij} + \eta(t) v_{ij} S_{ij} \label{Reqn}
+\end{equation}
+
+
+This model could be used to test the effect of NPIs on Sars-CoV-2 evolution. Mechanisms for NPIs and additional compartments for heterogeneity are straightforward to add to the model equations. If a given NPI mechanism is more able to fit data with a mechanism that does not act on all strains equally, then this could be evidence that NPIs are affecting Sars-CoV-2 evolution. 
+
+\subsection{Continuous strain-space}
+
+The above model can be viewed as simply a first-order finite difference approximation of a continuous space reaction-diffusion model. Accordingly, we can generalize it to continuous strain-space as
+ 
+\begin{equation}
+    S_t(x,y,t) = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \beta(x',y') \sigma(x,y,x', y') S(x,y,t) I(x',y',t) dx' dy' + \gamma R_{ij} -  \eta(t) v(x,y) S(x,y,t)\label{Seqn_cts}
+\end{equation}
+\begin{equation}
+    I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(I_x(x,y,t)  + I_y(x,y,t)  \right) \label{Ieqn_cts}    
+\end{equation}
+\begin{equation}
+    R_t(x,y,t) = \xi I(x,y,t)I(x,y,t) - \gamma R(x,y,t) + \eta(t) v(x,y) S(x,y,t) \label{Reqn_cts}
+\end{equation}
+
+where $\beta, \sigma, v$ have been generalized to their continuous counterparts. This formulation is similar to the 1-dimension strain space model described in \cite{Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}. Then, given a dispersion kernel $K(x,y) \in L_2: \mathbb{R}^2 \to \mathbb{R}$ this can be generalised to non-local diffusion as follows
+
+\begin{equation}
+    I_t(x,y,t) = \beta(x,y) S(x,y,t) I(x,y,t)- \xi I(x,y,t) + M \left(\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} K(x-x',y-y')I(x',y',t) dx' dy' \right) \label{Ieqn_cts_nonlocal}    
+\end{equation}
+
+
 \maketitle
 
 \section{Background}
-Previous work on these models do not use data to estimate parameters, focusing on broad characterization of dynamics with numerical or analytical approaches. However, genomic data does include a huge amount of admittedly very noisy information. There is some recent work on parameter estimation by comparing simulated phylogeny with observed phylogeny using a suite of summary statistics for tree structures \cite{danesh2021quantifying,leventhal2012inferring,saulnier2017inferring}, but these models do not explicitly include genomic structure, which might provide additional inferential power. 
-
-Placing individual samples into the collapsed strain space could be done by using neutralizing antibody studies. The neutralizing response has been characterized for most variants of concern with respect to monoclonal antibodies, convalescent plasma, and plasma from vaccinated persons \cite{stanford2020}. To an even higher level of detail. Starr et al. characterized polyclonal antibody binding over all mutations of the Receptor Binding Domain (RBD) \cite{starr2020deep}. If the neutralizing response is known, we assign strains positions such that the distance between any two strains is equal to that neutralizing response. If the response is not known, we just assume that the position is close to the most recent ancestor for which the response is known (likely a VoC). This approach is especially appropriate for recurrent mutations, since it is unlikely that a mutation that has occurred many times in the viral history but has not evolved further confers a significant advantage. The immune-space position of vaccinate-induced immunity can also be computed this way, although we will still need to make significant assumptions on their geometry. It might be best to assume a simple symmetric shape with a centre given by neutralization results. 
-
-Mirroring the work on mapping the strain space for influenza \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004, cai2010computational} computing this embedding is a metric multidimensional scaling problem. This method has been applied to the antigenic space of the Sars-CoV-2 as well \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
-
 
 \section{Methods}
+To interpolate more genomic data into this map, we begin with 
 
+
+Citation for homoplasy stuff?
+z
 
 \bibliographystyle{plain}
 \bibliography{ref.bib}
