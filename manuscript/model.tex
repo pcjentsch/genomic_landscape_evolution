@@ -103,7 +103,13 @@ Then we compute the distance between $g_i$ and $g_j$ as given by equation \ref{d
 \end{equation}
 
 Computing $d(g_i, g_j)$ for every pair of Sars-CoV-2 genomes $g_i$ and $g_j$ gives a distance matrix between all genomes in the sample.
-We use multidimensional scaling as in \cite{wilksMappingSARSCoV2Antigenic2022, lapedesGeometryShapeSpace2001} to place the genomes in 2 dimensional euclidean space in a way that closely approximates their distances with respect to $d$.
+We use multidimensional scaling (MDS) as in \cite{wilksMappingSARSCoV2Antigenic2022, lapedesGeometryShapeSpace2001} to place the genomes in 2 dimensional euclidean space in a way that closely approximates their distances with respect to $d$.
+
+
+The dataset we use for this is the set of public genomes made available by the NCBI (CITE). 
+To avoid sampling bias we take only the genomes sequenced as a result of random sampling, for a total of 1,895,794 unique Sars-CoV-2 genomes.
+However, we only consider the SNPs in the RBD, plus top X most frequent SNPs with respect to $h$, because the weight assigned to other SNPs is mostly negligible. 
+This simplification reduces the total number of unique genomes to Y, which is much more tractable for processing with commonly available MDS software packages. 
 
 
 
