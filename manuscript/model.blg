@@ -3,47 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: model.aux
 The style file: plain.bst
 Database file #1: ref.bib
-Warning--to sort, need author, editor, or key in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
-Warning--empty author and editor in Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002
-You've used 13 entries,
+You've used 14 entries,
             2118 wiz_defined-function locations,
-            600 strings with 8280 characters,
-and the built_in function-call counts, 6173 in all, are:
-= -- 542
-> -- 506
+            600 strings with 8336 characters,
+and the built_in function-call counts, 7027 in all, are:
+= -- 620
+> -- 601
 < -- 1
-+ -- 203
-- -- 188
-* -- 604
-:= -- 1094
-add.period$ -- 38
-call.type$ -- 13
-change.case$ -- 130
++ -- 241
+- -- 224
+* -- 673
+:= -- 1258
+add.period$ -- 42
+call.type$ -- 14
+change.case$ -- 151
 chr.to.int$ -- 0
-cite$ -- 15
-duplicate$ -- 142
-empty$ -- 330
-format.name$ -- 188
-if$ -- 1165
+cite$ -- 14
+duplicate$ -- 154
+empty$ -- 350
+format.name$ -- 224
+if$ -- 1322
 int.to.chr$ -- 0
-int.to.str$ -- 13
-missing$ -- 12
-newline$ -- 67
-num.names$ -- 24
-pop$ -- 112
+int.to.str$ -- 14
+missing$ -- 13
+newline$ -- 73
+num.names$ -- 28
+pop$ -- 129
 preamble$ -- 1
-purify$ -- 117
+purify$ -- 136
 quote$ -- 0
-skip$ -- 92
+skip$ -- 107
 stack$ -- 0
-substring$ -- 311
-swap$ -- 14
+substring$ -- 343
+swap$ -- 18
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 50
-warning$ -- 2
-while$ -- 41
-width$ -- 15
-write$ -- 142
-(There were 2 warnings)
+type$ -- 56
+warning$ -- 0
+while$ -- 49
+width$ -- 16
+write$ -- 154

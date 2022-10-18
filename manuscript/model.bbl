@@ -1,17 +1,11 @@
 \begin{thebibliography}{10}
 
-\bibitem{Castillo_Chavez_Blower_Driessche_Kirschner_Yakubu_2002}
-{\em Mathematical Approaches for Emerging and Reemerging Infectious Diseases:
-  Models, Methods, and Theory}, volume 126 of {\em The IMA Volumes in
-  Mathematics and its Applications}.
-\newblock Springer New York, 2002.
-
-\bibitem{Bessonov_Bocharov_Meyerhans_Popov_Volpert_2021}
-Nikolai Bessonov, Gennady Bocharov, Andreas Meyerhans, Vladimir Popov, and
-  Vitaly Volpert.
-\newblock Existence and dynamics of strains in a nonlocal reaction-diffusion
-  model of viral evolution.
-\newblock {\em SIAM Journal on Applied Mathematics}, 81(1):107–128, Jan 2021.
+\bibitem{attwood2022phylogenetic}
+Stephen~W Attwood, Sarah~C Hill, David~M Aanensen, Thomas~R Connor, and
+  Oliver~G Pybus.
+\newblock Phylogenetic and phylodynamic approaches to understanding and
+  combating the early sars-cov-2 pandemic.
+\newblock {\em Nature Reviews Genetics}, pages 1--16, 2022.
 
 \bibitem{cao2022ba}
 Yunlong Cao, Ayijiang Yisimayi, Fanchong Jian, Weiliang Song, Tianhe Xiao, Lei
@@ -26,17 +20,30 @@ J.~R. Gog and B.~T. Grenfell.
 \newblock {\em Proceedings of the National Academy of Sciences},
   99(26):17209--17214, December 2002.
 
-\bibitem{kryazhimskiyStateSpaceReductionMultiStrain2007}
-Sergey Kryazhimskiy, Ulf Dieckmann, Simon~A. Levin, and Jonathan Dushoff.
-\newblock On {{State-Space Reduction}} in {{Multi-Strain Pathogen Models}},
-  with an {{Application}} to {{Antigenic Drift}} in {{Influenza A}}.
-\newblock {\em PLOS Computational Biology}, 3(8):e159, August 2007.
+\bibitem{greaney2022antibody}
+Allison~J Greaney, Tyler~N Starr, and Jesse~D Bloom.
+\newblock An antibody-escape estimator for mutations to the sars-cov-2
+  receptor-binding domain.
+\newblock {\em Virus evolution}, 8(1):veac021, 2022.
+
+\bibitem{harvey2021sars}
+William~T Harvey, Alessandro~M Carabelli, Ben Jackson, Ravindra~K Gupta, Emma~C
+  Thomson, Ewan~M Harrison, Catherine Ludden, Richard Reeve, Andrew Rambaut,
+  Sharon~J Peacock, et~al.
+\newblock Sars-cov-2 variants, spike mutations and immune escape.
+\newblock {\em Nature Reviews Microbiology}, 19(7):409--424, 2021.
 
 \bibitem{lapedesGeometryShapeSpace2001}
 Alan Lapedes and Robert Farber.
 \newblock The {{Geometry}} of {{Shape Space}}: {{Application}} to
   {{Influenza}}.
 \newblock {\em Journal of Theoretical Biology}, 212(1):57--69, September 2001.
+
+\bibitem{mcbroome2021matutils}
+Jakob McBroome, Bryan Thornlow, Angie~S Hinrichs, Nicola De~Maio, Nick Goldman,
+  David Haussler, Russell Corbett-Detig, and Yatish Turakhia.
+\newblock matutils: Tools to interpret and manipulate mutation annotated trees.
+\newblock {\em bioRxiv}, 2021.
 
 \bibitem{millerAntigenicSpaceFramework2021}
 Nathaniel~L. Miller, Thomas Clark, Rahul Raman, and Ram Sasisekharan.

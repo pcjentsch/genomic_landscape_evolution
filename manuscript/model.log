@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.4.29)  14 OCT 2022 14:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.4.29)  17 OCT 2022 22:28
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -393,14 +393,7 @@ Package: cite 2015/02/27  v 5.5
 File: l3backend-pdftex.def 2022-04-14 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count313
 \l__pdf_internal_box=\box89
-) (./model.aux
-
-LaTeX Warning: Label `Seqn' multiply defined.
-
-
-LaTeX Warning: Label `Reqn' multiply defined.
-
-)
+) (./model.aux)
 \openout1 = `model.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
@@ -436,53 +429,39 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-LaTeX Font Info:    Trying to load font information for U+msa on input line 61.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 39.
  (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 61.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 39.
  (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-Overfull \hbox (7.60252pt too wide) in paragraph at lines 58--66
+) [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (7.60252pt too wide) in paragraph at lines 62--70
 \OT1/cmr/m/n/10 ships ob-tained from these neu-tral-iza-tion as-says. The dy-nam-ics of re-lated pathogen
  []
 
-[1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
-Overfull \hbox (68.88464pt too wide) detected at line 136
-[]\OML/cmm/m/it/10 S[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 ) = [][] [][] \OML/cmm/m/it/10 ^^L\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ^^[\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; x[]; y[]\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 S\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 I\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]; t\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 dx[]dy[] \OT1/cmr/m/n/10 + \OML/cmm/m/it/10 ^^MR[] \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 ^^Q\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 v\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 S\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 )
- []
-
-
-Overfull \hbox (81.66466pt too wide) detected at line 148
-[]\OML/cmm/m/it/10 I[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 ) = \OML/cmm/m/it/10 ^^L\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 S\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 I\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 ^^XI\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x; y; t\OT1/cmr/m/n/10 ) + \OML/cmm/m/it/10 M []
- []
-
-[3] (./model.bbl [4]
-Underfull \hbox (badness 1939) in paragraph at lines 55--61
+[2] (./model.bbl [3]
+Underfull \hbox (badness 1939) in paragraph at lines 62--68
 []\OT1/cmr/m/n/10 Tyler N Starr, Al-li-son J Gre-aney, Sarah K Hilton, Daniel El-lis,
  []
 
-) [5] (./model.aux)
-
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
+[4]) [5] (./model.aux) ) 
 Here is how much of TeX's memory you used:
- 15992 strings out of 478238
- 341215 string characters out of 5850456
- 631575 words of memory out of 5000000
- 33935 multiletter control sequences out of 15000+600000
- 479746 words of font info for 68 fonts, out of 8000000 for 9000
+ 15986 strings out of 478238
+ 341076 string characters out of 5850456
+ 629485 words of memory out of 5000000
+ 33929 multiletter control sequences out of 15000+600000
+ 479439 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 100i,11n,104p,909b,303s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on model.pdf (5 pages, 187756 bytes).
+ 100i,12n,104p,854b,304s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on model.pdf (5 pages, 168203 bytes).
 PDF statistics:
- 98 PDF objects out of 1000 (max. 8388607)
- 60 compressed objects within 1 object stream
+ 88 PDF objects out of 1000 (max. 8388607)
+ 54 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
