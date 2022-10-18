@@ -108,8 +108,8 @@ We use multidimensional scaling (MDS) as in \cite{wilksMappingSARSCoV2Antigenic2
 
 The dataset we use for this is the set of public genomes made available by the NCBI (CITE). 
 To avoid sampling bias we take only the genomes sequenced as a result of random sampling, for a total of 1,895,794 unique Sars-CoV-2 genomes.
-However, we only consider the SNPs in the RBD, plus top X most frequent SNPs with respect to $h$, because the weight assigned to other SNPs is mostly negligible. 
-This simplification reduces the total number of unique genomes to Y, which is much more tractable for processing with commonly available MDS software packages. 
+However, we only consider the SNPs in the RBD, plus the top 100 most frequent SNPs with respect to $h$, because the weight assigned to other SNPs is largely negligible. 
+This simplification reduces the total number of unique genomes to 18533, which is much more tractable for processing with commonly available MDS software packages. 
 
 
 
