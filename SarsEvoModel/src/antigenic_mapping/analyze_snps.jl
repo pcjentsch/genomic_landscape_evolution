@@ -325,12 +325,12 @@ end
 function stress_plot()
     (_, _, binding_dm) = deserialize(datapath("binding_usa.data"))
     (_, _, homoplasy_dm) = deserialize(datapath("homoplasy_usa.data"))
-    mstress = 10
+    mstress = 8
     stress_list = zeros(mstress)
     p = plot()
-    for (k, dm) in enumerate((binding_dm, homoplasy_dm))
+    for (k, dm) in enumerate((homoplasy_dm,))
         display(k)
-        Threads.@threads for i in 1:mstress
+        for i in 1:mstress
             mds = fit(MDS, dm; distances=true, maxoutdim=i)
             stress_list[i] = stress(mds)
         end
