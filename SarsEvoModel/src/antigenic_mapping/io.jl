@@ -1,12 +1,7 @@
 
 
 function get_data_fasta(fasta_path, metadata_path, binding_sites, lineage_path)
-    if isfile("genomes_w_metadata.arrow")
-        genomes_w_metadata = Arrow.Table("genomes_w_metadata.arrow") |> DataFrame
-    else
-        genomes_w_metadata = SNPs_from_fastas(fasta_path,metadata_path,binding_sites) |> DataFrame
-        Arrow.write("genomes_w_metadata.arrow", genomes_w_metadata)
-    end
+    genomes_w_metadata = serial_load_arrow(() -> SNPs_from_fastas(fasta_path,metadata_path,binding_sites), datapath("cache","genomes_w_metadata.arrow"))
     unique_rbd_genomes = select(unique(genomes_w_metadata, :all_in_rbd), [:all_in_rbd])
     unique_rbd_genomes.binding_retained = @showprogress map(compute_binding_retained, unique_rbd_genomes.all_in_rbd)
     genomes_w_metadata = leftjoin(genomes_w_metadata, unique_rbd_genomes; on = :all_in_rbd)
@@ -66,13 +61,31 @@ function SNPs_from_record(sample_record, reference)
     sample_sequence = FASTA.sequence(sample_record)
 
     for (ind, (sample_base, ref_base)) in enumerate(zip(sample_sequence, reference))
-        if ref_base != undef_base && sample_base != undef_base && ref_base != sample_base
-            snp = SNP(ind, sample_base)
-            push!(genome, snp)
+        if ref_base != undef_base && sample_base != undef_base && sample_base != 'N'
+            if sample_base != 'Y' && sample_base != 'R'
+                if ref_base != sample_base 
+                    snp = SNP(ind, sample_base)
+                    push!(genome, snp)
+                end
+            else   
+                ref_as_heterocycle = base_to_heterocycle(ref_base)
+                if ref_as_heterocycle != sample_base 
+                    snp = SNP(ind, sample_base)
+                    push!(genome, snp)
+                end
+            end
         end
     end
     return (id, genome)
 end
+function base_to_heterocycle(base)
+    if base == 'A' ||base == 'G'
+        return 'R'
+    else
+        return 'Y'
+    end
+end
+
 ArrowTypes.arrowname(::Type{SNP}) = :SNP
 ArrowTypes.JuliaType(::Val{:SNP}) = SNP
 

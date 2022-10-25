@@ -102,12 +102,16 @@ function compute_binding_retained(g)
     return py_bcalc.binding_retained(
         [(snp.ind - S_gene_ind) for snp in g])
 end
-
-function unique_genomes(df, recurrent_df, binding_sites)
+function make_snp_dict(recurrent_df, binding_sites)
     snps_inds = mapreduce(bsite -> findall(==(bsite), recurrent_df.ind), vcat, filter(in(binding_sites), recurrent_df.ind))
     top_n_snps = vcat(recurrent_df[1:100, :], recurrent_df[snps_inds, :]) |> unique
     snp_weight_dict = Dict(zip(top_n_snps.snp, top_n_snps.freq))
-    unique_genomes_df = deepcopy(df)
+    return snp_weight_dict
+end
+
+function unique_genomes(df,snp_weight_dict)
+    unique_genomes_df = copy(df)
+    top_n_snps = Set(keys(snp_weight_dict))
     unique!(unique_genomes_df, :genome)
     unique_genomes_df.closest_mapped_lineage = Vector{Union{String,Missing}}(undef, nrow(unique_genomes_df))
     unique_genomes_df.mapped_lineage_position = Vector{Union{Tuple{Float64,Float64},Missing}}(undef, nrow(unique_genomes_df))
@@ -118,78 +122,73 @@ function unique_genomes(df, recurrent_df, binding_sites)
         r.mapped_lineage_position = ismissing(map_position) ? missing : map_position[1:2]
     end
     @show count(ismissing, unique_genomes_df.closest_mapped_lineage) / nrow(unique_genomes_df)
+    unique_genomes_df.filtered_genome = ThreadsX.map(genome -> filter(snp -> snp in top_n_snps, genome), unique_genomes_df.genome)
     dropmissing!(unique_genomes_df, [:closest_mapped_lineage, :mapped_lineage_position])
+    return unique_genomes_df
+end
 
-    unique_genomes_df.filtered_genome = ThreadsX.map(genome -> filter(snp -> snp in top_n_snps.snp, genome), unique_genomes_df.genome)
-    filtered_genome_df = deepcopy(unique_genomes_df)
+function filter_genomes(unique_df)
+    filtered_genome_df = deepcopy(unique_df)
     unique!(filtered_genome_df, [:closest_mapped_lineage, :filtered_genome])
-    return unique_genomes_df, filtered_genome_df, snp_weight_dict
+    return filtered_genome_df
 end
-function compute_antigenic_distance_binding(
-    mapped_lineage_position_i::Tuple{Float64,Float64},
-    mapped_lineage_position_j::Tuple{Float64,Float64},
-    genome_i,
-    genome_j,
-    binding_i::Float64,
-    binding_j::Float64,
-    snp_weight_dict
-)
-    pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
-    d = pt_d + ((1 - binding_i) + (1 - binding_j)) / 2 * 10.0
-    return d
+function measure_distance_multiplier(filter_df, snp_weight_dict)
+    samples = nrow(filter_df)
+    
+    prog = Progress(samples)
+    dm_weighted_snp = zeros(Float64, samples, samples)
+    dm_mapped = zeros(Float64, samples, samples)
+    function map_distances((i, j,))
+       
+        dm_weighted_snp[i, j] = d_snp
+        dm_weighted_snp[j, i] = d_snp
+
+        dm_mapped[i, j] = pt_d
+        dm_mapped[j, i] = pt_d
+
+        next!(prog)
+    end
+    ThreadsX.foreach(map_distances, lower_triangular(samples))
+    # for (i,j) in lower_triangular(samples)
+        
+    # end
+
+    return dm_weighted_snp,dm_mapped
 end
 
-function compute_antigenic_distance_homoplasy(
-    mapped_lineage_position_i::Tuple{Float64,Float64},
-    mapped_lineage_position_j::Tuple{Float64,Float64},
-    genome_i,
-    genome_j,
-    binding_i::Float64,
-    binding_j::Float64,
-    snp_weight_dict
-)
-    snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
-    pt_d = (mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2
-    d = pt_d + snp_distance * 500.0 + ((1 - binding_i) + (1 - binding_j)) / 2 * 10.0
-    return d
-end
-function pairwise_distances(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
+function pairwise_distances(filtered_genome_df, snp_weight_dict)
     samples = nrow(filtered_genome_df)
     dm = zeros(Float64, samples, samples)
     prog = Progress(samples)
+    snp_distance_weight = 5_000
     function map_distances((i, j,))
-        d = map_distances_fn(
-            filtered_genome_df.mapped_lineage_position[i],
-            filtered_genome_df.mapped_lineage_position[j],
-            filtered_genome_df.filtered_genome[i],
-            filtered_genome_df.filtered_genome[j],
-            filtered_genome_df.binding_retained[i],
-            filtered_genome_df.binding_retained[j],
-            snp_weight_dict,
-        )
+        genome_i = filtered_genome_df.filtered_genome[i]
+        genome_j = filtered_genome_df.filtered_genome[j]
+        mapped_lineage_position_i = filtered_genome_df.mapped_lineage_position[i]
+        mapped_lineage_position_j = filtered_genome_df.mapped_lineage_position[j]
+        binding_i = filtered_genome_df.binding_retained[i]
+        binding_j = filtered_genome_df.binding_retained[j]
+
+        snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
+        pt_d = sqrt((mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2)
+        binding_d = ((1 - binding_i) + (1 - binding_j)) / 2
+        d = pt_d + snp_distance_weight * snp_distance * binding_d
         dm[i, j] = Float64(d)
         dm[j, i] = Float64(d)
         next!(prog)
     end
     ThreadsX.foreach(map_distances, lower_triangular(samples))
-    mds = manifold_projection(dm, filtered_genome_df)
-    unique_genomes_df.mds_x = zeros(nrow(unique_genomes_df))
-    unique_genomes_df.mds_y = zeros(nrow(unique_genomes_df))
-    for r in eachrow(filtered_genome_df)
-        inds = findall(g -> g.filtered_genome == r.filtered_genome && g.closest_mapped_lineage == r.closest_mapped_lineage, eachrow(unique_genomes_df))
-        unique_genomes_df.mds_x[inds] .= r.mds_x
-        unique_genomes_df.mds_y[inds] .= r.mds_y
-    end
-    return unique_genomes_df, filtered_genome_df, dm
+
+    return dm
 end
-function manifold_projection(dm, unique_genomes_df)
-    n = nrow(unique_genomes_df)
+function manifold_projection(dm, filter_genomes_df)
+    n = nrow(filter_genomes_df)
     @assert all(size(dm) .== n)
 
     mds = fit(MDS, dm; distances=true, maxoutdim=2)
     coord_matrix = predict(mds)
-    unique_genomes_df.mds_x = coord_matrix[1, :]
-    unique_genomes_df.mds_y = coord_matrix[2, :]
+    filter_genomes_df.mds_x = coord_matrix[1, :]
+    filter_genomes_df.mds_y = coord_matrix[2, :]
     return mds
 end
 function pairwise_distances_bootstrap_ci(unique_genomes_df, filtered_genome_df, snp_weight_dict, map_distances_fn)
@@ -206,6 +205,7 @@ function pairwise_distances_bootstrap_ci(unique_genomes_df, filtered_genome_df, 
             filtered_genome_df.binding_retained[j],
             snp_weight_dict,
         )
+        
         dm[i, j] = Float32(d)
         dm[j, i] = Float32(d)
         next!(prog)
@@ -245,86 +245,103 @@ end
 using AverageShiftedHistograms
 function make_antigenic_map()
     binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
-    for dataset in datasets[2:2]
+    recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
+
+    snp_weight_dict = make_snp_dict(recurrent_df, binding_sites)
+    
+    dataset = datasets[2]
         dataset_name, alignments, metadata, lineage_path = dataset
-        recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
 
         @info "filtering unique genomes.."
-
-        dist_funcs = [("homoplasy", compute_antigenic_distance_homoplasy)] #(unique_df, filter_df, dm)
-        for (method, dist_fn) in dist_funcs
-            genomes_w_metadata = serial_load(
-                () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path) ,
-                datapath("genomes_$dataset_name.data")
-            )
-            unique_df, filter_df, snp_weight_dict = serial_load(
-                () -> unique_genomes(genomes_w_metadata, recurrent_df, binding_sites),
-                datapath("unique_df_$dataset_name.data")
-            )
-            @info "computing pairwise distances $method"
-            name = "$(method)_$(dataset_name)"
-            (unique_df, filter_df,_) = serial_load(
-                () -> pairwise_distances(unique_df, filter_df, snp_weight_dict, dist_fn),
-                datapath("$name.data")
-            )
-            # for k in 1:10
-            #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
-            #     subsampled = filter_df[filter_idxs, :]
-            #     subsampled_dm = dm[filter_idxs, filter_idxs]
-            #     manifold_projection(subsampled_dm, subsampled)
-            #     plot_mds("$name/subsample_$(k)_$name", subsampled, dm)
-            # end
-            # for lineage in unique(unique_df.closest_mapped_lineage)
-            #     filter_idxs = filter_df.closest_mapped_lineage .!= lineage
-            #     subsampled = filter_df[filter_idxs, :]
-            #     subsampled_dm = dm[filter_idxs, filter_idxs]
-            #     manifold_projection(subsampled_dm, subsampled)
-            #     plot_mds("$name/filter_lineage_$(lineage)_$name", subsampled, dm)
-            # end
-
-
-            plot_mds("$name/$(name)_mds", unique_df)
-
-
-            unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
-            bounds_x = extrema(unique_df.mds_x)
-            bounds_y = extrema(unique_df.mds_y)
-            x_grid = LinRange(bounds_x..., w)
-            y_grid = LinRange(bounds_y..., h)
-            anim = Animation()
-            heatmap_anim = Animation()
-            sort!(unique_df, :Collection_Date)
-            @info "Interpolating..."
-            grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
-            dates = Date[]
-            grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+        method = "homoplasy"
+        genomes_w_metadata = serial_load_arrow(
+            () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path) ,
+            datapath("cache","genomes_$dataset_name.arrow")
+        )
+        unique_df = serial_load_arrow(
+            () -> unique_genomes(genomes_w_metadata, snp_weight_dict),
+            datapath("cache","unique_df_$dataset_name.arrow")
+        )
+        filter_df =serial_load_arrow(
+            () -> filter_genomes(unique_df),
+            datapath("cache","filter_df_$dataset_name.arrow")
+        )
+        @info "computing pairwise distances $method"
+        name = "$(method)_$(dataset_name)"
+        dm = serial_load(
+            () -> pairwise_distances(filter_df, snp_weight_dict),
+            datapath("cache","$name.data")
+        )
+        manifold_projection(dm, filter_df)
+        mds_df = serial_load_arrow(
+                () -> innerjoin(
+                select(filter_df,[:filtered_genome,:closest_mapped_lineage, :mds_x, :mds_y]),
+                unique_df,
+                on = [:filtered_genome, :closest_mapped_lineage]
+            ),
+            datapath("cache","unique_df_mds_$dataset_name.arrow")
+        )
+        # for k in 1:10
+        #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
+        #     subsampled = filter_df[filter_idxs, :]
+        #     subsampled_dm = dm[filter_idxs, filter_idxs]
+        #     manifold_projection(subsampled_dm, subsampled)
+        #     plot_mds("$name/subsample_$(k)_$name", subsampled, dm)
+        # end
+        # for lineage in unique(unique_df.closest_mapped_lineage)
+        #     filter_idxs = filter_df.closest_mapped_lineage .!= lineage
+        #     subsampled = filter_df[filter_idxs, :]
+        #     subsampled_dm = dm[filter_idxs, filter_idxs]
+        #     manifold_projection(subsampled_dm, subsampled)
+        #     plot_mds("$name/filter_lineage_$(lineage)_$name", subsampled, dm)
+        # end
 
 
-            @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
-                o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
-                grids[i] = o.z
-                push!(dates, key.Collection_Date)
-                p = plot()
-                scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
-                    markerstrokewidth=0.3,
-                    size=(400, 300),
-                    plotting_settings...)
-                plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
-                htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
-                frame(anim, p)
-                frame(heatmap_anim, htmp)
-            end
-            gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
-            gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
-            serialize(datapath("$(name)_grids.data"), (grids, dates))
-        end
-    end
+        plot_mds("$name/$(name)_mds", mds_df)
+
+
+        # unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
+        # bounds_x = extrema(unique_df.mds_x)
+        # bounds_y = extrema(unique_df.mds_y)
+        # x_grid = LinRange(bounds_x..., w)
+        # y_grid = LinRange(bounds_y..., h)
+        # anim = Animation()
+        # heatmap_anim = Animation()
+        # sort!(unique_df, :Collection_Date)
+        # @info "Interpolating..."
+        # grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
+        # dates = Date[]
+        # grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+
+
+        # @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+        #     o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+        #     grids[i] = o.z
+        #     push!(dates, key.Collection_Date)
+        #     p = plot()
+        #     scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+        #         markerstrokewidth=0.3,
+        #         size=(400, 300),
+        #         plotting_settings...)
+        #     plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+        #     htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
+        #     frame(anim, p)
+        #     frame(heatmap_anim, htmp)
+        # end
+        # gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
+        # gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
+        # serialize(datapath("cache","$(name)_grids.data"), (grids, dates)
 end
 
-
+function get_map_distance(lineage_a, lineage_b)
+    mds_df = Arrow.Table(datapath("cache","unique_df_mds_usa.arrow"))
+    ind_a = findfirst(==(lineage_a), mds_df.lineage)
+    ind_b = findfirst(==(lineage_b), mds_df.lineage)
+    (isnothing(ind_a) || isnothing(ind_b)) || error("lineages not present")
+    return sqrt((mds_df.mds_x[ind_a] -mds_df.mds_x[ind_b])^2 + (mds_df.mds_y[ind_a] -mds_df.mds_y[ind_b])^2)
+end
 function stress_plot()
-    (_, _, binding_dm) = deserialize(datapath("binding_usa.data"))
-    (_, _, homoplasy_dm) = deserialize(datapath("homoplasy_usa.data"))
+    homoplasy_dm = deserialize(datapath("cache","homoplasy_usa.data"))
     mstress = 8
     stress_list = zeros(mstress)
     p = plot()

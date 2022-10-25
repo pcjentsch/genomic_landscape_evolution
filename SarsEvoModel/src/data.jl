@@ -5,7 +5,7 @@ using DataStructures
 
 
 
-datapath(fname) = joinpath(@__DIR__, "../data", fname)
+datapath(fname...) = joinpath(@__DIR__, "../data", fname...)
 
 using Serialization
 function serial_load(load_func, fname)
@@ -21,6 +21,21 @@ function serial_load(load_func, fname)
 
         return deserialize(fname)
 
+    end
+    @info "done"
+end
+function serial_load_arrow(load_func, fname)
+    @show abspath(fname)
+    if !isfile(fname)
+        @info "loading $fname"
+
+        data = load_func()
+        Arrow.write(fname, data)
+        return data
+    else
+        @info "loading serialized $fname..."
+
+        return Arrow.Table(fname) |> DataFrame
     end
     @info "done"
 end
