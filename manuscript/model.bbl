@@ -14,6 +14,13 @@ Yunlong Cao, Ayijiang Yisimayi, Fanchong Jian, Weiliang Song, Tianhe Xiao, Lei
   infection.
 \newblock {\em Nature}, 608(7923):593--602, 2022.
 
+\bibitem{chalkias2022bivalent}
+Spyros Chalkias, Charles Harper, Keith Vrbicky, Stephen~R Walsh, Brandon
+  Essink, Adam Brosz, Nichole McGhee, Joanne~E Tomassini, Xing Chen, Ying
+  Chang, et~al.
+\newblock A bivalent omicron-containing booster vaccine against covid-19.
+\newblock {\em New England Journal of Medicine}, 2022.
+
 \bibitem{gogDynamicsSelectionManystrain2002}
 J.~R. Gog and B.~T. Grenfell.
 \newblock Dynamics and selection of many-strain pathogens.
@@ -51,6 +58,14 @@ Nathaniel~L. Miller, Thomas Clark, Rahul Raman, and Ram Sasisekharan.
   Escape}} of {{SARS-CoV-2 Variants}}.
 \newblock {\em Viruses}, 13(10):2009, October 2021.
 
+\bibitem{o2021assignment}
+{\'A}ine O’Toole, Emily Scher, Anthony Underwood, Ben Jackson, Verity Hill,
+  John~T McCrone, Rachel Colquhoun, Chris Ruis, Khalil Abu-Dahab, Ben Taylor,
+  et~al.
+\newblock Assignment of epidemiological lineages in an emerging pandemic using
+  the pangolin tool.
+\newblock {\em Virus evolution}, 7(2):veab064, 2021.
+
 \bibitem{smithMappingAntigenicGenetic2004}
 Derek~J. Smith, Alan~S. Lapedes, Jan~C. {de Jong}, Theo~M. Bestebroer, Guus~F.
   Rimmelzwaan, Albert D. M.~E. Osterhaus, and Ron A.~M. Fouchier.
@@ -79,6 +94,14 @@ Karlijn van~der Straten, Denise Guerra, Marit van Gils, Ilja Bontjer, Tom~G
   Burger, Joey~H Bouhuijs, et~al.
 \newblock Mapping the antigenic diversification of sars-cov-2.
 \newblock {\em medRxiv}, 2022.
+
+\bibitem{wilhelm2022early}
+Alexander Wilhelm, Shelesh Agrawal, Jens Schoth, Christina Meinert-Berning,
+  Daniel Bastian, Laura Orschler, Sandra Ciesek, Burkhard Teichgr{\"a}ber,
+  Thomas Wintgens, Susanne Lackner, et~al.
+\newblock Early detection of sars-cov-2 omicron ba. 4 and ba. 5 in german
+  wastewater.
+\newblock {\em Viruses}, 14(9):1876, 2022.
 
 \bibitem{wilksMappingSARSCoV2Antigenic2022}
 Samuel~H. Wilks, Barbara M{\"u}hlemann, Xiaoying Shen, Sina T{\"u}reli, Eric~B.

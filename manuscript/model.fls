@@ -552,6 +552,11 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png
+INPUT ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png
+INPUT ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png
+INPUT ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png
+INPUT ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png
 INPUT ./model.bbl
 INPUT model.bbl
 INPUT ./model.bbl

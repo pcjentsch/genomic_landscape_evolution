@@ -30,7 +30,7 @@
 \affil[3]{Dalhousie University, Halifax, Canada}
 \affil[4]{Simon Fraser University, Burnaby, Canada}
 \affil[5]{Shared Hospital Laboratory, Toronto, Canada}
-\date{\today}                     %% if you don't need date to appear
+\date{\today}                    
 \setcounter{Maxaffil}{0}
 \renewcommand\Affilfont{\itshape\small}
 
@@ -44,12 +44,12 @@ The rapid and widespread adoption of immunization has saved millions of lives in
 As the world's population gains immune experience with Sars-CoV-2, either through previous infection or vaccination, antigenic drift has given rise to new variants that exhibit significant immune escape\cite{yewdellAntigenicDriftUnderstanding2021}.
 Similar to the annual reformulation of influenza vaccinations, public health planning has shifted resources towards increasing resilience against the emergence of SARS-CoV-2 variants.
 The Moderna and Pfizer mRNA vaccine boosters were updated accordingly to a bivalent version, including both the ancestral spike protein and the spike protein from the BA.1 lineage of the Omicron variant, the first variant to exhibit major immune escape.
-In the mean time, the BA.4 and BA.5 Omicron sublineages have become widespread, rapidly becoming the majority of COVID-19 cases. %how long??
-Since these sublineages are also antigenically distinct from their BA.1 ancestors \cite{cao2022ba}, development of bivalent mRNA boosters which cover BA.4 and BA.5 quickly followed.
+In the mean time, the BA.4 and BA.5 Omicron sublineages have become widespread, becoming the majority of COVID-19 cases by July 2022 \cite{wilhelm2022early}.
+
+Since these sublineages are also antigenically distinct from their BA.1 ancestors \cite{cao2022ba}, development of bivalent mRNA boosters which cover BA.4 and BA.5 quickly followed \cite{chalkias2022bivalent}.
 The uptake of updated vaccine boosters will undoubtedly reduce the burden of new variants on health systems worldwide, but perhaps we can do better than a reactive approach.
 The level of genomic surveillance during this pandemic has been unprecedented, and many new methods have been developed to take advantage of the quantity of data collected.
 Understanding this immune landscape and the dynamics of viral evolution within it will be key to remaining in control of the resulting antigenic arms race.
-
 
 Mapping antigenic relationships between related pathogens was pioneered with Influenza A \cite{lapedesGeometryShapeSpace2001}. 
 The immune response of an antiserum to a different antigen, antigenic distance, can be quantified as a reduction in concentration of the newly introduced antigen.
@@ -57,7 +57,6 @@ These relationships can be measured between many related strains of a pathogen, 
 With manifold reduction techniques such as multidimensional scaling, these relationshps can often be approximately represented in two or three dimensional cartesian maps, explicitly showing the antigenic drift of the pathogen.
 This technique was used to map the antigenic evolution of Influenza A, and argue that it can be understood as primarily occurring in only two dimensions \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004}.
 Wilks et al. have developed upon this technique to create an antigenic map of approximately 17 major variants of Sars-CoV-2 from serum neutralization assays, and further argue that a two-dimensional map is an adequate approximation of the landscape \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
-
 
 This work on data-driven approximations of antigenic space motivates the development of models that explicitly incorporates data on antigenic relationships obtained from these neutralization assays.
 The dynamics of related pathogen strains evolving within a shared host population can rapidly become intractable, and therefore researchers have devised models which can manage this complexity.
@@ -67,7 +66,6 @@ To accurately parameterize these models, the map of antigenic space should use a
 Fortunately, for Sars-CoV-2, the most sequenced biological entity, we have a huge amount of information. 
 With millions of the samples in the global SCV2 tree, our combined knowledge of the antigenic space of SCV2 could be orders of magnitude more detailed.
 In this manuscript, we describe methods for constructing more detailed antigenic maps using a subset this genomic diversity, and provide some examples of these maps.
-
 
 % Previous work on these models do not use data to estimate parameters, focusing on broad characterization of dynamics with numerical or analytical approaches. However, genomic data does include a huge amount of admittedly very noisy information. 
 % There is some recent work on parameter estimation by comparing simulated phylogeny with observed phylogeny using a suite of summary statistics for tree structures \cite{danesh2021quantifying,leventhal2012inferring,saulnier2017inferring}, but these models do not explicitly include genomic structure, which might provide additional inferential power. 
@@ -87,7 +85,10 @@ For instance, since the spike protein is the main antigen of the virus, mutation
 To that end, we weight SNPs by the frequency with which they independently reoccur within in the global tree \cite{attwood2022phylogenetic}.
 This is done by counting the  sites from the global SCV2 tree created with USHER \cite{turakhia2021ultrafast}, using the software tool matUtils \cite{mcbroome2021matutils}.
 
-For each pair of genomes $g_i$ and $g_j$ ($i\neq j$) aligned with the reference, first we find the closest lineages in existing antigenic map to $g_i$, and $g_j$, and corresponding points $x_i$ and $x_j$. Assume the polyclonal binding affinity is given by $B(g)$ (computed by \cite{greaney2022antibody}), where $g$ is some viral genome sequence. Further let $g_i^{(k)}$ be the $k$th nucleotide base in $g_i$ and $\chi(g_i^{(k)},g_j^{(k)})$ the two argument indicator function given by equation \ref{indicator}.
+
+
+For each pair of genomes $g_i$ and $g_j$ ($i\neq j$) aligned with the reference, first we find the closest lineages in the existing antigenic map to $g_i$, and $g_j$ using the Pango lineage assignments of $g_i$ and $g_j$. Precisely, given the set of lineages examined by \cite{wilksMappingSARSCoV2Antigenic2022}, we first approximate the position of new genomes by mapping them to the most recent ancestor lineage present in the map using their Pango lineage assignment, computed with the Pangolin software tool \cite{o2021assignment}. Using these closest mapped lineages, we use their mapped coordinates $x_i$ and $x_j$ as a first approximation for the antigenic distances.
+Assume the polyclonal binding affinity is given by $B(g)$ (computed by \cite{greaney2022antibody}), where $g$ is some viral genome sequence. Further let $g_i^{(k)}$ be the $k$th nucleotide base in $g_i$ and $\chi(g_i^{(k)},g_j^{(k)})$ the two argument indicator function given by equation \ref{indicator}.
 \begin{equation}
         \chi(a,b) =   \begin{cases}
         1 & \text{if $a = b$} \\
@@ -98,7 +99,7 @@ For each pair of genomes $g_i$ and $g_j$ ($i\neq j$) aligned with the reference,
 Assume $h^{(k)}$ is a vector containing the number of homoplasic mutations at site $k$ in the global tree.
 Then we compute the distance between $g_i$ and $g_j$ as given by equation \ref{distanceeqn}.
 \begin{equation}
-    d(g_i,g_j) = \frac{B(g_i) + B(g_j)}{2} + \frac{\sum_k \chi\left(g_i^{(k)},g_j^{(k)}\right) h^{(k)}}{\sum_k h^{(k)}}
+    d(g_i,g_j) = \lVert x_i - x_j \rVert + \frac{B(g_i) + B(g_j)}{2} + \frac{\sum_k \chi\left(g_i^{(k)},g_j^{(k)}\right) h^{(k)}}{\sum_k h^{(k)}}
     \label{distanceeqn}
 \end{equation}
 
@@ -109,7 +110,21 @@ We use multidimensional scaling (MDS) as in \cite{wilksMappingSARSCoV2Antigenic2
 The dataset we use for this is the set of public genomes made available by the NCBI (CITE). 
 To avoid sampling bias we take only the genomes sequenced as a result of random sampling, for a total of 1,895,794 unique Sars-CoV-2 genomes.
 However, we only consider the SNPs in the RBD, plus the top 100 most frequent SNPs with respect to $h$, because the weight assigned to other SNPs is largely negligible. 
-This simplification reduces the total number of unique genomes to 18533, which is much more tractable for processing with commonly available MDS software packages. 
+This simplification reduces the total number of unique genomes to 18533, which is much more tractable for processing with commonly available MDS software packages.
+
+
+\section{Results}
+
+
+% \begin{figure}
+%     \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
+%     \caption{}
+% \end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
+    \caption{}
+\end{figure}
 
 
 
@@ -117,7 +132,7 @@ This simplification reduces the total number of unique genomes to 18533, which i
 
 
 
-% \begin{equation}
+% \begin{equation},,
 %     S_{ij}'(t) = -\sum_{kl} \beta_{kl} \sigma_{ijkl} S_{ij} I_{kl} + \gamma R_{ij}  \label{Seqn}
 % \end{equation}
 % \begin{equation}
