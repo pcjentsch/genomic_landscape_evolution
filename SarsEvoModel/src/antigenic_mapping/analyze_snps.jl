@@ -85,7 +85,6 @@ const py_bcalc = PyNULL()
 const S_gene_ind = 21560
 const RBD = Interval(S_gene_ind + 331, S_gene_ind + 531)
 
-
 function __init__()
     path = joinpath(@__DIR__, "../../deps/SARS2_RBD_Ab_escape_maps/")
     display(abspath(path))
