@@ -96,13 +96,12 @@ Assume the polyclonal binding affinity is given by $B(g)$ (computed by \cite{gre
     \end{cases}
     \label{indicator}
 \end{equation}
-Assume $h^{(k)}$ is a vector containing the number of homoplasic mutations at site $k$ in the global tree.
+Assume $h^{(k)}$ is a vector containing the number of homoplasic mutations at site $k$ in the global tree, and $W>0$ is a real number denoting the weighting of the extra distances.
 Then we compute the distance between $g_i$ and $g_j$ as given by equation \ref{distanceeqn}.
 \begin{equation}
-    d(g_i,g_j) = \lVert x_i - x_j \rVert + \frac{B(g_i) + B(g_j)}{2} + \frac{\sum_k \chi\left(g_i^{(k)},g_j^{(k)}\right) h^{(k)}}{\sum_k h^{(k)}}
+    d(g_i,g_j) = \lVert x_i - x_j \rVert + W \frac{B(g_i) + B(g_j)}{2} * \frac{\sum_k \chi\left(g_i^{(k)},g_j^{(k)}\right) h^{(k)}}{\sum_k h^{(k)}}
     \label{distanceeqn}
 \end{equation}
-
 Computing $d(g_i, g_j)$ for every pair of Sars-CoV-2 genomes $g_i$ and $g_j$ gives a distance matrix between all genomes in the sample.
 We use multidimensional scaling (MDS) as in \cite{wilksMappingSARSCoV2Antigenic2022, lapedesGeometryShapeSpace2001} to place the genomes in 2 dimensional euclidean space in a way that closely approximates their distances with respect to $d$.
 
@@ -116,14 +115,14 @@ This simplification reduces the total number of unique genomes to 18533, which i
 \section{Results}
 
 
-% \begin{figure}
-%     \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
-%     \caption{}
-% \end{figure}
+\begin{figure}
+    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/combined_mds_stress.png}    
+    \caption{An output dimension of 2 minimizes the stress in the multidimensional scaling dimension reduction.}
+\end{figure}%likely because the wilks points are in a 2d plane..
 
 \begin{figure}
     \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
-    \caption{}
+    \caption{Map of the } 
 \end{figure}
 
 
