@@ -1,0 +1,87 @@
+rule all:
+    input:
+        "usa_sequences_split_00.aligned.gz",
+        "usa_sequences_split_01.aligned.gz",
+        "usa_sequences_split_02.aligned.gz",
+        "usa_sequences_split_03.aligned.gz",
+        "usa_sequences_split_04.aligned.gz",
+
+rule index_genomes:
+    input:
+        "usa_genomes_new.fasta.gz",
+    output:
+        "usa_genomes_index"
+    shell:
+        "augur index --sequences usa_genomes_new.fasta.gz --output usa_genomes_index"
+
+rule filter_random_sampling:
+    input:
+        "usa_genomes_new.fasta.gz",
+        "usa_genomes_index",
+        "sequences.csv",
+    output:
+        "usa_sequences_random_sampling.fasta.gz",
+        "usa_sequences_metadata.tsv"
+    shell:
+        "augur filter --sequences usa_genomes_new.fasta.gz --sequence-index usa_genomes_index --metadata sequences.csv --output usa_sequences_random_sampling.fasta.gz --output-metadata usa_sequences_metadata.tsv --include sequences_to_include.csv"
+
+rule fastas_to_single_line:
+    input:
+        "usa_sequences_random_sampling.fasta.gz"
+    output:
+        "usa_sequences_split_00.gz",
+        "usa_sequences_split_01.gz",
+        "usa_sequences_split_02.gz",
+        "usa_sequences_split_03.gz",
+        "usa_sequences_split_04.gz",
+    shell:
+        """gzip -cd usa_sequences_random_sampling.fasta.gz | sed 's/ .*//' | awk '/^>/ {{printf(\"\\n%s\\n\",$0);next; }} {{ printf(\"%s\",$0);}}  END {{printf(\"\\n\");}}' - | \
+         tail -n +2 | split -d -l 1000000 --filter='gzip > $FILE.gz' - usa_sequences_split_"""
+        
+rule align_split_0:
+    input:
+        "usa_sequences_split_00.gz",
+        "reference.fasta"
+    output:
+        "usa_sequences_split_00.aligned.gz"
+    shell:
+        "nextalign run --input-ref reference.fasta {input} -j 4 --output-fasta {output} --include-reference"
+
+rule align_split_01:
+    input:
+        "usa_sequences_split_01.gz",
+        "reference.fasta"
+    output:
+        "usa_sequences_split_01.aligned.gz"
+    shell:
+        "nextalign run --input-ref reference.fasta {input} -j 4 --output-fasta {output} --include-reference"
+
+rule align_split_02:
+    input:
+        "usa_sequences_split_02.gz",
+        "reference.fasta"
+    output:
+        "usa_sequences_split_02.aligned.gz"
+    shell:
+        "nextalign run --input-ref reference.fasta {input} -j 4 --output-fasta {output} --include-reference"
+
+rule align_split_03:
+    input:
+        "usa_sequences_split_03.gz",
+        "reference.fasta"
+    output:
+        "usa_sequences_split_03.aligned.gz"
+    shell:
+        "nextalign run --input-ref reference.fasta {input} -j 4 --output-fasta {output} --include-reference"
+
+rule align_split_04:
+    input:
+        "usa_sequences_split_04.gz",
+        "reference.fasta"
+    output:
+        "usa_sequences_split_04.aligned.gz"
+    shell:
+        "nextalign run --input-ref reference.fasta {input} -j 4 --output-fasta {output} --include-reference"
+
+ 
+ 
