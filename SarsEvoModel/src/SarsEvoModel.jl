@@ -4,27 +4,15 @@ using BenchmarkTools
 using Dates
 using ProgressMeter
 using Optimization, OptimizationBBO, StatsBase
+using AverageShiftedHistograms
 
 using Setfield
 using Arrow
 
-#Size of antigenic grid
-const w = 25
-const h = 25
-function map_coords_to_model_space(coords_x, coords_y; limx=(1, 10), limy=(1, 10))
-    lx_l, lx_u = limx
-    ly_l, ly_u = limy
-    return trunc.(Int,
-        (
-            (coords_x - lx_l) / (lx_u - lx_l) * (w - 1) + 1,
-            (coords_y - ly_l) / (ly_u - ly_l) * (h - 1) + 1,
-        )
-    )
-end
+
 include("antigenic_mapping/antigenic_map.jl")
 include("antigenic_mapping/genomic_types.jl")
 include("data.jl")
-include("model.jl")
 include("plotting.jl")
 include("antigenic_mapping/analyze_snps.jl")
 include("antigenic_mapping/antigenic_map_plotting.jl")
@@ -45,93 +33,119 @@ const datasets = (
         datapath("usa_sequences/alignments/all_lineages.csv"),
     )
 )
-const initial_pop = 329.5e6
 
-function show_landscape(day)
-    loc_data = USALocationData()
-    p = [sum([m[x,y] for m in loc_data.cases_by_lineage]) for x in 1:size(loc_data.cases_by_lineage[1])[1], y in 1:size(loc_data.cases_by_lineage[1])[2]]
-end
+function make_antigenic_map()
+    binding_sites = Set(py"""list($(py_bcalc.sites))""") .+ S_gene_ind
+    recurrent_df = parse_recurrent_mutations(datapath("filtered_mutations.tsv"))
 
-
-function main()
-
-    begin_date = Date(2020, 9, 01)
-    location_data = USALocationData()
-
-    inv_infectious_period = 1 / 9
-    r_0 = 2.1
-    transmission_rate = r_0 * inv_infectious_period
+    snp_weight_dict = make_snp_dict(recurrent_df, binding_sites)
     
-    β = Float64[transmission_rate for i in 1:w, j in 1:h]
-    x_mrna, y_mrna = map_coords_to_model_space(2.7, 3.8)
-    const_params = ModelParameters(
-        begin_date,
-        initial_pop,
-        β,
-        inv_infectious_period,
-        0.07,
-        0.5,
-        Float64[sigma(i, j) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)],
-        location_data,
-        [sigma(i - x_mrna, j - y_mrna; sigma_x=20.0, sigma_y=20.0, rounding=false) for i in 1:w, j in 1:h]
-    )
-    incident_cases = sum.(const_params.location_data.cases_by_lineage)
-    function optimization_objective(x)
-        β = [x[1] + x[2] * i + x[3] * j for i in 1:w, j in 1:h] ./ initial_pop
-        M = x[4]
-        num_imports_per_day = x[7]
-        imports_start_time = x[8]
-        sigma_matrix = Float64[sigma(i, j; sigma_x=x[5], sigma_y=x[6]) for i in -(w - 1):(w-1), j in -(h - 1):(h-1)]
-        prob, cb, tstops = create_model((; β, M, sigma_matrix, num_imports_per_day,imports_start_time), const_params)
-        sol = DifferentialEquations.solve(prob, Tsit5(); callback=cb, saveat=1:1:length(const_params), tstops=tstops)
-        yield()
-        return sol
-    end
+    dataset = datasets[2]
+        dataset_name, alignments, metadata, lineage_path = dataset
 
-    function loss(sol, x)
-        if sol.retcode != :Success
-            return Inf
+        @info "filtering unique genomes.."
+        method = "homoplasy"
+        genomes_w_metadata = serial_load_arrow(
+            () -> get_data_fasta(alignments, metadata, binding_sites, lineage_path) ,
+            datapath("cache","genomes_$dataset_name.arrow")
+        )
+        unique_df = serial_load_arrow(
+            () -> unique_genomes(genomes_w_metadata, snp_weight_dict),
+            datapath("cache","unique_df_$dataset_name.arrow")
+        )
+        filter_df =serial_load_arrow(
+            () -> filter_genomes(unique_df),
+            datapath("cache","filter_df_$dataset_name.arrow")
+        )
+        @info "computing pairwise distances $method"
+        name = "$(method)_$(dataset_name)"
+        dm = serial_load(
+            () -> pairwise_distances(filter_df, snp_weight_dict),
+            datapath("cache","$name.data")
+        )
+        manifold_projection(dm, filter_df)
+        mds_df = serial_load_arrow(
+                () -> innerjoin(
+                select(filter_df,[:filtered_genome,:closest_mapped_lineage, :mds_x, :mds_y]),
+                unique_df,
+                on = [:filtered_genome, :closest_mapped_lineage]
+            ),
+            datapath("cache","unique_df_mds_$dataset_name.arrow")
+        )
+        # for k in 1:10
+        #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
+        #     subsampled = filter_df[filter_idxs, :]
+        #     subsampled_dm = dm[filter_idxs, filter_idxs]
+        #     manifold_projection(subsampled_dm, subsampled)
+        #     plot_mds("$name/subsample_$(k)_$name", subsampled, dm)
+        # end
+        # for lineage in unique(unique_df.closest_mapped_lineage)
+        #     filter_idxs = filter_df.closest_mapped_lineage .!= lineage
+        #     subsampled = filter_df[filter_idxs, :]
+        #     subsampled_dm = dm[filter_idxs, filter_idxs]
+        #     manifold_projection(subsampled_dm, subsampled)
+        #     plot_mds("$name/filter_lineage_$(lineage)_$name", subsampled, dm)
+        # end
+
+
+        plot_mds("$name/$(name)_mds", mds_df)
+
+
+        unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
+        bounds_x = extrema(unique_df.mds_x)
+        bounds_y = extrema(unique_df.mds_y)
+        x_grid = LinRange(bounds_x..., w)
+        y_grid = LinRange(bounds_y..., h)
+        anim = Animation()
+        heatmap_anim = Animation()
+        sort!(unique_df, :Collection_Date)
+        @info "Interpolating..."
+        grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
+        dates = Date[]
+        grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+
+
+        @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+            o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+            grids[i] = o.z
+            push!(dates, key.Collection_Date)
+            p = plot()
+            scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+                markerstrokewidth=0.3,
+                size=(400, 300),
+                plotting_settings...)
+            plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+            htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
+            frame(anim, p)
+            frame(heatmap_anim, htmp)
         end
-        err = 0
-        umone = view(sol.u[1], 1:w, (h*4+1):(h*5))
-        umone_sum = sum(umone)
-        for (i, t) in enumerate(sol.t[2:end])
-            ind = Int(t)
-            u_i = view(sol.u[i+1], 1:w, (h*4+1):(h*5))
-            u_i_sum = sum(umone_sum)
-
-            # err += sum((const_params.location_data.cases_by_lineage[i] .- (u_i - umone)) .^ 2)
-            err += (sum(incident_cases[ind]) - (u_i_sum - umone_sum))^2
-            umone = u_i
-        end
-        err /= length(sol.t)
-        yield()
-
-        return err
-    end
-
-    x0 = [transmission_rate, 0.00, 0.00, 1.5, 4.0, 4.0, 20_000.0, 280.0]
-
-    f = OptimizationFunction((x, _) -> loss(optimization_objective(x), x))
-    prob = Optimization.OptimizationProblem(f, x0, 0; lb=[0.0, -0.5, -0.5, 0.01, 1.0, 1.0, 100.0,200.0], ub=[5.0, 0.5, 0.5, 5.0, 50.0, 50.0, 50_000.0,400.0])
-    optimizers = ThreadsX.map(x -> Optimization.solve(prob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxtime=3000.0, verbose=true),1:Threads.nthreads())
-    optimizer = argmin(o -> o.minimum, optimizers).u
-
-    sol_opt = optimization_objective(optimizer)
-    plot_solution(sol_opt, const_params)
-    plot_parameters(optimizer)
-
-    sol = optimization_objective(x0)
-    plot_solution(sol, const_params)
-    plot_parameters(x0)
-    return optimizers
+        gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
+        gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
+        serialize(datapath("cache","$(name)_grids.data"), (grids, dates))
 end
 
-function plot_parameters(params)
-
-    opt_β = [params[1] + params[2] * i + params[3] * j for i in 1:w, j in 1:h] ./ initial_pop
-    plt = heatmap(opt_β; xlabel = "MDS1", ylabel = "MDS2", seriescolor = :Blues)
-    savefig(plt, plots_path("model_beta"))
+function get_map_distance(lineage_a, lineage_b)
+    mds_df = Arrow.Table(datapath("cache","unique_df_mds_usa.arrow"))
+    ind_a = findfirst(==(lineage_a), mds_df.lineage)
+    ind_b = findfirst(==(lineage_b), mds_df.lineage)
+    (isnothing(ind_a) || isnothing(ind_b)) || error("lineages not present")
+    return sqrt((mds_df.mds_x[ind_a] -mds_df.mds_x[ind_b])^2 + (mds_df.mds_y[ind_a] -mds_df.mds_y[ind_b])^2)
+end
+function stress_plot()
+    homoplasy_dm = deserialize(datapath("cache","homoplasy_usa.data"))
+    mstress = 8
+    stress_list = zeros(mstress)
+    p = plot()
+    for (k, dm) in enumerate((homoplasy_dm,))
+        display(k)
+        for i in 1:mstress
+            mds = fit(MDS, dm; distances=true, maxoutdim=i)
+            stress_list[i] = stress(mds)
+        end
+        plot!(p, 1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
+    end
+    savefig(p, plots_path("combined_mds_stress"))
 
 end
+
 end
