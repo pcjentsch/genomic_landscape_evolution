@@ -41,27 +41,28 @@
 \section{Background}
 
 The rapid and widespread adoption of immunization has saved millions of lives in the COVID-19 pandemic.
-As the world's population gains immune experience with Sars-CoV-2, either through previous infection or vaccination, antigenic drift has given rise to new variants that exhibit significant immune escape\cite{yewdellAntigenicDriftUnderstanding2021}.
+As the world's population gains immune experience with Sars-CoV-2, either through previous infection or vaccination, antigenic drift gives rise to new variants that exhibit significant immune escape\cite{yewdellAntigenicDriftUnderstanding2021}.
 Similar to the annual reformulation of influenza vaccinations, public health planning has shifted resources towards increasing resilience against the emergence of SARS-CoV-2 variants.
-The Moderna and Pfizer mRNA vaccine boosters were updated accordingly to a bivalent version, including both the ancestral spike protein and the spike protein from the BA.1 lineage of the Omicron variant, the first variant to exhibit major immune escape.
+The Moderna and Pfizer mRNA vaccine boosters were updated accordingly to a bivalent version, including mRNA encoding both the ancestral spike protein, and the spike protein from the BA.1 lineage of the Omicron variant \cite{chalkias2022bivalent}.
 In the mean time, the BA.4 and BA.5 Omicron sublineages have become widespread, becoming the majority of COVID-19 cases by July 2022 \cite{wilhelm2022early}.
 
-Since these sublineages are also antigenically distinct from their BA.1 ancestors \cite{cao2022ba}, development of bivalent mRNA boosters which cover BA.4 and BA.5 quickly followed \cite{chalkias2022bivalent}.
+Since these sublineages are also antigenically distinct from their BA.1 ancestors \cite{cao2022ba}, development of bivalent mRNA boosters which cover BA.4 and BA.5 quickly followed \cite{ba45pfizer}.
 The uptake of updated vaccine boosters will undoubtedly reduce the burden of new variants on health systems worldwide, but perhaps we can do better than a reactive approach.
 The level of genomic surveillance during this pandemic has been unprecedented, and many new methods have been developed to take advantage of the quantity of data collected.
 Understanding this immune landscape and the dynamics of viral evolution within it will be key to remaining in control of the resulting antigenic arms race.
 
 Mapping antigenic relationships between related pathogens was pioneered with Influenza A \cite{lapedesGeometryShapeSpace2001}. 
-The immune response of an antiserum to a different antigen, antigenic distance, can be quantified as a reduction in concentration of the newly introduced antigen.
-These relationships can be measured between many related strains of a pathogen, to create a map of changing immune responses through the evolution of the pathogen.
-With manifold reduction techniques such as multidimensional scaling, these relationshps can often be approximately represented in two or three dimensional cartesian maps, explicitly showing the antigenic drift of the pathogen.
+The immune response of an antiserum to a different antigen can be quantified as a reduction in concentration of the newly introduced antigen, known as antigenic distance.
+These relationships can be measured between many related strains of a pathogen to create a map of changing immune responses through the evolution of the pathogen.
+Antigenic space consists of a set of points between which antigenic distances can be defined.
+With manifold reduction techniques such as multidimensional scaling, antigenic relationships can often be well approximated in two or three dimensional cartesian maps, clearly showing the pathogen moving through antigenic space as it evolves.
 This technique was used to map the antigenic evolution of Influenza A, and argue that it can be understood as primarily occurring in only two dimensions \cite{lapedesGeometryShapeSpace2001, smithMappingAntigenicGenetic2004}.
-Wilks et al. have developed upon this technique to create an antigenic map of approximately 17 major variants of Sars-CoV-2 from serum neutralization assays, and further argue that a two-dimensional map is an adequate approximation of the landscape \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
+Wilks et al. have developed upon this technique to create an antigenic map of approximately 17 major variants of Sars-CoV-2 from serum neutralization assays, also showing that a two-dimensional map is an adequate approximation of the Sars-CoV-2 antigenic landscape \cite{millerAntigenicSpaceFramework2021, wilksMappingSARSCoV2Antigenic2022, van2022mapping}. 
 
-This work on data-driven approximations of antigenic space motivates the development of models that explicitly incorporates data on antigenic relationships obtained from these neutralization assays.
+This work on data-driven approximations of antigenic space motivates the development of models that explicitly incorporate data on antigenic relationships obtained from these neutralization assays.
 The dynamics of related pathogen strains evolving within a shared host population can rapidly become intractable, and therefore researchers have devised models which can manage this complexity.
 One method is to constrain the possible viral strains to points on a finite one or two dimensional lattice, thereby making the analysis of strain evolution tractable \cite{gogDynamicsSelectionManystrain2002} . 
-In two dimensional strain space, cross-immunity of a pathogen is given specified by an arbitrary function of the euclidean distance between strains, and mutation is implemented as discrete diffusion with some fixed speed. 
+In two dimensional strain space, cross-immunity of a pathogen is specified by an arbitrary function of the euclidean distance between strains, and mutation is implemented as diffusion with at a fixed rate. 
 To accurately parameterize these models, the map of antigenic space should use as much genomic information as is available.
 Fortunately, for Sars-CoV-2, the most sequenced biological entity, we have a huge amount of information. 
 With millions of the samples in the global SCV2 tree, our combined knowledge of the antigenic space of SCV2 could be orders of magnitude more detailed.
@@ -106,24 +107,34 @@ Computing $d(g_i, g_j)$ for every pair of Sars-CoV-2 genomes $g_i$ and $g_j$ giv
 We use multidimensional scaling (MDS) as in \cite{wilksMappingSARSCoV2Antigenic2022, lapedesGeometryShapeSpace2001} to place the genomes in 2 dimensional euclidean space in a way that closely approximates their distances with respect to $d$.
 
 
-The dataset we use for this is the set of public genomes made available by the NCBI (CITE). 
+The dataset we use for this is the set of public genomes made available by the NCBI \cite{sayers2019database}. 
 To avoid sampling bias we take only the genomes sequenced as a result of random sampling, for a total of 1,895,794 unique Sars-CoV-2 genomes.
 However, we only consider the SNPs in the RBD, plus the top 100 most frequent SNPs with respect to $h$, because the weight assigned to other SNPs is largely negligible. 
 This simplification reduces the total number of unique genomes to 18533, which is much more tractable for processing with commonly available MDS software packages.
 
 
 \section{Results}
+    The 2-dimensional MDS map showing all 18533 unique genomes up to the 100 most reoccurring SNPs is shown in Figure \ref{map}.
+    Clusters corresponding to the points on Wilks' map can be seen clearly, with additional diversity arranged around each point.
+    The size of the clusters generally correspond to the parameter $W$, here chosen to be $5000$.
+
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
+    \caption{2D scaling map of 18533 unique Sars-CoV-2 genomes sampled in the USA at the time of writing, accounting for only the 100 most reoccurring SNPs in the global tree.} 
+    \label{map}
+\end{figure}
 
 
 \begin{figure}
     \includegraphics[width=\textwidth]{../SarsEvoModel/plots/combined_mds_stress.png}    
     \caption{An output dimension of 2 minimizes the stress in the multidimensional scaling dimension reduction.}
+    \label{stress}
 \end{figure}%likely because the wilks points are in a 2d plane..
 
-\begin{figure}
-    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
-    \caption{Map of the } 
-\end{figure}
+\section{Discussion}
+
+
 
 
 

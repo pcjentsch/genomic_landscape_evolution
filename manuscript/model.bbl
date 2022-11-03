@@ -1,5 +1,13 @@
 \begin{thebibliography}{10}
 
+\bibitem{ba45pfizer}
+Pfizer and biontech granted fda emergency use authorization of omicron
+  ba.4/ba.5-adapted bivalent covid-19 vaccine booster for ages 12 years and
+  older.
+\newblock
+  \url{https://www.pfizer.com/news/press-release/press-release-detail/pfizer-and-biontech-granted-fda-emergency-use-authorization},
+  2022.
+
 \bibitem{attwood2022phylogenetic}
 Stephen~W Attwood, Sarah~C Hill, David~M Aanensen, Thomas~R Connor, and
   Oliver~G Pybus.
@@ -65,6 +73,14 @@ Nathaniel~L. Miller, Thomas Clark, Rahul Raman, and Ram Sasisekharan.
 \newblock Assignment of epidemiological lineages in an emerging pandemic using
   the pangolin tool.
 \newblock {\em Virus evolution}, 7(2):veab064, 2021.
+
+\bibitem{sayers2019database}
+Eric~W Sayers, Richa Agarwala, Evan~E Bolton, J~Rodney Brister, Kathi Canese,
+  Karen Clark, Ryan Connor, Nicolas Fiorini, Kathryn Funk, Timothy Hefferon,
+  et~al.
+\newblock Database resources of the national center for biotechnology
+  information.
+\newblock {\em Nucleic acids research}, 47(Database issue):D23, 2019.
 
 \bibitem{smithMappingAntigenicGenetic2004}
 Derek~J. Smith, Alan~S. Lapedes, Jan~C. {de Jong}, Theo~M. Bestebroer, Guus~F.
