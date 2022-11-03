@@ -83,8 +83,9 @@ While antigenic distance is more complex than just antibody binding affinity to 
 The second metric we use is the number of SNPs between two genomes, because identical viral genomes should receive very similar immune reactions, and genomes that have many mutations between them will likely have provoke different immune reactions.
 However, the degree to which a given SNP will affect the antigenic escape of the mutated virus depends significantly on the location and base of the SNP in the genome. 
 For instance, since the spike protein is the main antigen of the virus, mutations in the spike protein are far more relevant than mutations in other proteins \cite{harvey2021sars}.
+Although there are certainly exceptions, we think that mutations which are sampled more frequently in the global phylogenetic tree of Sars-CoV-2 might be more associated in some way with immune escape.
 To that end, we weight SNPs by the frequency with which they independently reoccur within in the global tree \cite{attwood2022phylogenetic}.
-This is done by counting the  sites from the global SCV2 tree created with USHER \cite{turakhia2021ultrafast}, using the software tool matUtils \cite{mcbroome2021matutils}.
+This is done by analyzing homoplasic sites in the global SCV2 tree created with USHER \cite{turakhia2021ultrafast}, using the software tool matUtils \cite{mcbroome2021matutils}.
 
 
 
