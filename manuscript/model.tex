@@ -117,11 +117,14 @@ This simplification reduces the total number of unique genomes to 18533, which i
 \section{Results}
     The 2-dimensional MDS map showing all 18533 unique genomes up to the 100 most reoccurring SNPs is shown in Figure \ref{map}.
     Clusters corresponding to the points on Wilks' map can be seen clearly, with additional diversity arranged around each point.
-    The size of the clusters generally correspond to the parameter $W$, here chosen to be $5000$.
+    The size of the clusters generally correspond to the parameter $W$, here chosen to be $10000$.
+    To assess the fit of the MDS map, we can plot the sum of the squared differences between the actual distances and the projected euclidean distances in a given output dimension (Figure \ref{stress}).
+    We see that for values of $W < 10000$, an output of dimension of 2 provides the lowest output stress, but beyond that the weight of the additional distance is large enough that 3 dimensions minimize the stress.
+    The smallest stress is given by $W=0$, since the map points $x_i$ are already embedded in a 2 dimensional plane.
 
 
 \begin{figure}
-    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png}    
+    \includegraphics[width=\textwidth]{../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png}    
     \caption{2D scaling map of 18533 unique Sars-CoV-2 genomes sampled in the USA at the time of writing, accounting for only the 100 most reoccurring SNPs in the global tree.} 
     \label{map}
 \end{figure}

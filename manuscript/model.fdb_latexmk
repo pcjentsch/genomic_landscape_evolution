@@ -1,15 +1,15 @@
 # Fdb version 3
-["bibtex model"] 1667517258 "model.aux" "model.bbl" "model" 1667517276
+["bibtex model"] 1667951353 "model.aux" "model.bbl" "model" 1667951354
   "/usr/share/texmf-dist/bibtex/bst/base/plain.bst" 1650183167 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "model.aux" 1667517276 2513 a1f0f0261f881ad79307d63a97bf5021 "pdflatex"
+  "model.aux" 1667951354 2513 6a229978252122fd3ee7d704be0c0b02 "pdflatex"
   "ref.bib" 1667515874 127225 3247a033f9b9719fd1ff749dd3c4e5da ""
   (generated)
   "model.bbl"
   "model.blg"
-["pdflatex"] 1667517275 "/home/workaccount/Work/postdoc/VoC_model/manuscript/model.tex" "model.pdf" "model" 1667517276
-  "../SarsEvoModel/plots/combined_mds_stress.png" 1666758150 62379 52e38212320e86f574b1fabe0bfc64eb ""
-  "../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png" 1666753901 182961 857f8cd982bd7ab52e543315955a3814 ""
-  "/home/workaccount/Work/postdoc/VoC_model/manuscript/model.tex" 1667517275 20595 e8e6da15e410a87aa22ed5322bdf54f2 ""
+["pdflatex"] 1667951353 "/home/workaccount/Work/postdoc/VoC_model/manuscript/model.tex" "model.pdf" "model" 1667951354
+  "../SarsEvoModel/plots/combined_mds_stress.png" 1667883732 128238 df420915c7b34be596ed94b22fe01787 ""
+  "../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png" 1667522159 262532 ef3b6261f98fc8f3ec90f66bbcbc2046 ""
+  "/home/workaccount/Work/postdoc/VoC_model/manuscript/model.tex" 1667951352 21137 5612762ab8fcbbe72083ac7fe6e64556 ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1650183167 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1650183167 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1650183167 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -164,9 +164,9 @@
   "/usr/share/texmf-dist/web2c/texmf.cnf" 1650183167 39911 2da6c67557ec033436fe5418a70a8a61 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1666570987 4276115 6c6d5e5a64f798aa2cbf4b9206039cc3 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1666570985 2927666 7b7925c3871c23bde5ebc93426268fb8 ""
-  "model.aux" 1667517276 2513 a1f0f0261f881ad79307d63a97bf5021 "pdflatex"
-  "model.bbl" 1667517258 6229 04418466d046c70e6f09d805ced660d4 "bibtex model"
-  "model.tex" 1667517275 20595 e8e6da15e410a87aa22ed5322bdf54f2 ""
+  "model.aux" 1667951354 2513 6a229978252122fd3ee7d704be0c0b02 "pdflatex"
+  "model.bbl" 1667951353 6229 04418466d046c70e6f09d805ced660d4 "bibtex model"
+  "model.tex" 1667951352 21137 5612762ab8fcbbe72083ac7fe6e64556 ""
   "tikzit.sty" 1646432617 1248 43e1a5fcf14fc024e289b1463d1206ce ""
   (generated)
   "model.aux"

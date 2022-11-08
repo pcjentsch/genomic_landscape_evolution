@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.23)  3 NOV 2022 16:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.23)  8 NOV 2022 15:49
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -444,15 +444,15 @@ Overfull \hbox (7.60252pt too wide) in paragraph at lines 62--70
  []
 
 [2] [3]
-<../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png, id=27, 2409.0pt x 903.375pt>
-File: ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png Graphic file (type png)
-<use ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png>
-Package pdftex.def Info: ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png  used on input line 124.
+<../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png, id=27, 2409.0pt x 903.375pt>
+File: ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png Graphic file (type png)
+<use ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png>
+Package pdftex.def Info: ../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png  used on input line 127.
 (pdftex.def)             Requested size: 345.0pt x 129.36635pt.
 <../SarsEvoModel/plots/combined_mds_stress.png, id=28, 1806.75pt x 1204.5pt>
 File: ../SarsEvoModel/plots/combined_mds_stress.png Graphic file (type png)
 <use ../SarsEvoModel/plots/combined_mds_stress.png>
-Package pdftex.def Info: ../SarsEvoModel/plots/combined_mds_stress.png  used on input line 131.
+Package pdftex.def Info: ../SarsEvoModel/plots/combined_mds_stress.png  used on input line 134.
 (pdftex.def)             Requested size: 345.0pt x 229.99689pt.
  (./model.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 4--10
@@ -479,7 +479,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 4--10
 \OT1/cmtt/m/n/10 pfizer-[]and-[]biontech-[]granted-[]fda-[]emergency-[]use-[]authorization$\OT1/cmr/m/n/10 ,
  []
 
-[4 <../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_mds_multidimensional_scaling.png>] [5 <../SarsEvoModel/plots/combined_mds_stress.png>]
+[4 <../SarsEvoModel/plots/homoplasy_usa/homoplasy_usa_10000_mds_multidimensional_scaling.png>] [5 <../SarsEvoModel/plots/combined_mds_stress.png>]
 Underfull \hbox (badness 1939) in paragraph at lines 93--99
 []\OT1/cmr/m/n/10 Tyler N Starr, Al-li-son J Gre-aney, Sarah K Hilton, Daniel El-lis,
  []
@@ -487,14 +487,14 @@ Underfull \hbox (badness 1939) in paragraph at lines 93--99
 [6]) [7] (./model.aux) ) 
 Here is how much of TeX's memory you used:
  16015 strings out of 478238
- 342179 string characters out of 5850455
+ 342221 string characters out of 5850455
  629521 words of memory out of 5000000
  33952 multiletter control sequences out of 15000+600000
  479607 words of font info for 68 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  100i,12n,104p,854b,304s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on model.pdf (7 pages, 413927 bytes).
+Output written on model.pdf (7 pages, 529447 bytes).
 PDF statistics:
  103 PDF objects out of 1000 (max. 8388607)
  63 compressed objects within 1 object stream
