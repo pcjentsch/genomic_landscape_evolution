@@ -40,6 +40,7 @@ function make_antigenic_map()
 
     snp_weight_dict = make_snp_dict(recurrent_df, binding_sites)
     
+    
     dataset = datasets[2]
         dataset_name, alignments, metadata, lineage_path = dataset
 
@@ -58,20 +59,14 @@ function make_antigenic_map()
             datapath("cache","filter_df_$dataset_name.arrow")
         )
         @info "computing pairwise distances $method"
+
         name = "$(method)_$(dataset_name)"
-        dm = serial_load(
+
+        pt_matrix, binding_dm = serial_load(
             () -> pairwise_distances(filter_df, snp_weight_dict),
             datapath("cache","$name.data")
         )
-        manifold_projection(dm, filter_df)
-        mds_df = serial_load_arrow(
-                () -> innerjoin(
-                select(filter_df,[:filtered_genome,:closest_mapped_lineage, :mds_x, :mds_y]),
-                unique_df,
-                on = [:filtered_genome, :closest_mapped_lineage]
-            ),
-            datapath("cache","unique_df_mds_$dataset_name.arrow")
-        )
+
         # for k in 1:10
         #     filter_idxs = rand(1:nrow(filter_df), trunc(Int, nrow(filter_df) * 0.9))
         #     subsampled = filter_df[filter_idxs, :]
@@ -86,42 +81,55 @@ function make_antigenic_map()
         #     manifold_projection(subsampled_dm, subsampled)
         #     plot_mds("$name/filter_lineage_$(lineage)_$name", subsampled, dm)
         # end
-
-
-        plot_mds("$name/$(name)_mds", mds_df)
-
-
-        unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
-        bounds_x = extrema(unique_df.mds_x)
-        bounds_y = extrema(unique_df.mds_y)
-        x_grid = LinRange(bounds_x..., w)
-        y_grid = LinRange(bounds_y..., h)
-        anim = Animation()
-        heatmap_anim = Animation()
-        sort!(unique_df, :Collection_Date)
-        @info "Interpolating..."
-        grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
-        dates = Date[]
-        grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
-
-
-        @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
-            o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
-            grids[i] = o.z
-            push!(dates, key.Collection_Date)
-            p = plot()
-            scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
-                markerstrokewidth=0.3,
-                size=(400, 300),
-                plotting_settings...)
-            plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
-            htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
-            frame(anim, p)
-            frame(heatmap_anim, htmp)
+        snp_distance_weights = [1_000,5_000,10_000,15_000,20_000]
+        for w in snp_distance_weights
+            @info "weight $w"
+            dm = pt_matrix .+ w .* binding_dm
+            manifold_projection(dm, filter_df)
+            mds_df = serial_load_arrow(
+                    () -> innerjoin(
+                    select(filter_df,[:filtered_genome,:closest_mapped_lineage, :mds_x, :mds_y]),
+                    unique_df,
+                    on = [:filtered_genome, :closest_mapped_lineage]
+                ),
+                datapath("cache","unique_df_$(w)_mds_$dataset_name.arrow")
+            )
+            plot_mds("$name/$(name)_$(w)_mds", mds_df)
         end
-        gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
-        gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
-        serialize(datapath("cache","$(name)_grids.data"), (grids, dates))
+
+
+
+        # unique_df.week_submitted = round.(unique_df.Collection_Date, Week)
+        # bounds_x = extrema(unique_df.mds_x)
+        # bounds_y = extrema(unique_df.mds_y)
+        # x_grid = LinRange(bounds_x..., w)
+        # y_grid = LinRange(bounds_y..., h)
+        # anim = Animation()
+        # heatmap_anim = Animation()
+        # sort!(unique_df, :Collection_Date)
+        # @info "Interpolating..."
+        # grped_by_date = groupby(unique_df, :Collection_Date; sort=true)
+        # dates = Date[]
+        # grids = Vector{Matrix{Float64}}(undef, length(grped_by_date))
+
+
+        # @showprogress for (i, (key, gdf)) in enumerate(pairs(grped_by_date))
+        #     o = ash(gdf.mds_x, gdf.mds_y; rngx=x_grid, rngy=y_grid, mx=10, my=10)
+        #     grids[i] = o.z
+        #     push!(dates, key.Collection_Date)
+        #     p = plot()
+        #     scatter!(p, gdf.mds_x, gdf.mds_y; xlims=bounds_x, ylims=bounds_y, markersize=1.5,
+        #         markerstrokewidth=0.3,
+        #         size=(400, 300),
+        #         plotting_settings...)
+        #     plot!(p, o.rngx, o.rngy, o.z; title=key.Collection_Date, xlims=bounds_x, ylims=bounds_y, plotting_settings...)
+        #     htmp = heatmap(o.z; title=key.Collection_Date, plotting_settings...)
+        #     frame(anim, p)
+        #     frame(heatmap_anim, htmp)
+        # end
+        # gif(anim, plots_path("$name/$(name)_mds_density"; filetype="gif"))
+        # gif(heatmap_anim, plots_path("$name/$(name)_mds_density_heatmap"; filetype="gif"))
+        # serialize(datapath("cache","$(name)_grids.data"), (grids, dates))
 end
 
 function get_map_distance(lineage_a, lineage_b)
@@ -132,20 +140,26 @@ function get_map_distance(lineage_a, lineage_b)
     return sqrt((mds_df.mds_x[ind_a] -mds_df.mds_x[ind_b])^2 + (mds_df.mds_y[ind_a] -mds_df.mds_y[ind_b])^2)
 end
 function stress_plot()
-    homoplasy_dm = deserialize(datapath("cache","homoplasy_usa.data"))
+    pt_matrix, binding_dm = deserialize(
+        datapath("cache","homoplasy_usa.data")
+    )
+
+    snp_distance_weights = [1_000,5_000,10_000,15_000,20_000]
     mstress = 8
     stress_list = zeros(mstress)
     p = plot()
-    for (k, dm) in enumerate((homoplasy_dm,))
-        display(k)
+
+    for w in snp_distance_weights
+        @info "weight $w"
+        dm = pt_matrix .+ w .* binding_dm
         for i in 1:mstress
             mds = fit(MDS, dm; distances=true, maxoutdim=i)
             stress_list[i] = stress(mds)
+           
         end
-        plot!(p, 1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", plotting_settings...)
+        plot!(p, 1:mstress, stress_list; xlabel="MDS Out-dimension", ylabel="Stress", label = "W = $w", plotting_settings...)
     end
     savefig(p, plots_path("combined_mds_stress"))
-
 end
 
 end

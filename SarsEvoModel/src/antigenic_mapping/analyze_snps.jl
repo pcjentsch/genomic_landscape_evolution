@@ -157,9 +157,10 @@ end
 
 function pairwise_distances(filtered_genome_df, snp_weight_dict)
     samples = nrow(filtered_genome_df)
+    pt_matrix = zeros(Float64, samples, samples)
     dm = zeros(Float64, samples, samples)
     prog = Progress(samples)
-    snp_distance_weight = 5_000
+
     function map_distances((i, j,))
         genome_i = filtered_genome_df.filtered_genome[i]
         genome_j = filtered_genome_df.filtered_genome[j]
@@ -171,20 +172,22 @@ function pairwise_distances(filtered_genome_df, snp_weight_dict)
         snp_distance = weighted_dist(genome_i, genome_j, snp_weight_dict)
         pt_d = sqrt((mapped_lineage_position_i[1] - mapped_lineage_position_j[1])^2 + (mapped_lineage_position_i[2] - mapped_lineage_position_j[2])^2)
         binding_d = ((1 - binding_i) + (1 - binding_j)) / 2
-        d = pt_d + snp_distance_weight * snp_distance * binding_d
-        dm[i, j] = Float64(d)
-        dm[j, i] = Float64(d)
+        pt_matrix[i,j] = pt_d
+        pt_matrix[j,i] = pt_d
+        dm[i, j] = snp_distance * binding_d
+        dm[j, i] = snp_distance * binding_d
         next!(prog)
     end
+    
     ThreadsX.foreach(map_distances, lower_triangular(samples))
 
-    return dm
+    return pt_matrix,dm
 end
 function manifold_projection(dm, filter_genomes_df)
     n = nrow(filter_genomes_df)
     @assert all(size(dm) .== n)
 
-    mds = fit(MDS, dm; distances=true, maxoutdim=2)
+    mds = MultivariateStats.fit(MDS, dm; distances=true, maxoutdim=2)
     coord_matrix = predict(mds)
     filter_genomes_df.mds_x = coord_matrix[1, :]
     filter_genomes_df.mds_y = coord_matrix[2, :]
