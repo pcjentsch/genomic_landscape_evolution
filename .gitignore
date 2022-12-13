@@ -275,3 +275,5 @@ TSWLatexianTemp*
 
 SarsEvoModel/data
 SarsEvoModel/deps/
+SarsEvoModel/workflow/*
+!SarsEvoModel/workflow/Snakefile
